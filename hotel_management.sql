@@ -83,7 +83,8 @@ CREATE TABLE GuestStay(
     booking_id INT NOT NULL,
     employee_id INT NOT NULL,
     check_in_time_date DATETIME,
-    check_out_time_date DATETIME,
+    expected_check_out_time_date DATETIME,
+    actual_check_out_time_date DATETIME,
     remarks VARCHAR(100),
 
     PRIMARY KEY (transaction_id),
