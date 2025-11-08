@@ -20,10 +20,10 @@ CREATE TABLE RoomType (
 
 CREATE TABLE room(
     room_id INT PRIMARY KEY AUTO_INCREMENT,
-    room_type INT NOT NULL,
+    room_type_id  INT NOT NULL,
     availability_status ENUM('Booked', 'Vacant') DEFAULT 'Vacant' NOT NULL,
     housekeeping_status ENUM('For Cleaning', 'Under Maintainance', 'Ready') DEFAULT 'Ready' NOT NULL,
-    room_type_id INT,
+   
    
    -- Foreign Key
     FOREIGN KEY (room_type_id) REFERENCES roomtype(room_type_id)
@@ -33,19 +33,35 @@ CREATE TABLE employee(
     employee_id INT NOT NULL AUTO_INCREMENT,
 	first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
-    position VARCHAR(10) NOT NULL,
+    emp_position ENUM ('frontdesk','housekeeping','admin') NOT NULL,
     shift ENUM('Morning', 'Afternoon', 'Night') NOT NULL,
-    emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternty') DEFAULT 'Active' NOT NULL,
+    emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternity') DEFAULT 'Active' NOT NULL,
     PRIMARY KEY (employee_id)
 );
+
+CREATE TABLE user_account(
+	user_id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(20) NOT NULL UNIQUE,
+    user_password VARCHAR(30) NOT NULL,
+    user_role ENUM('Frontdesk','Admin','Housekeeping','Guest'),
+    guest_id INT,
+    employee_id INT,
+    
+    
+	PRIMARY KEY (user_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+	FOREIGN KEY (guest_id) REFERENCES guest(guest_id)
+    
+    
+    );
 
 CREATE TABLE housekeeping_item(
     housekeeping_item_id INT NOT NULL AUTO_INCREMENT,
 	item_name VARCHAR(20) NOT NULL,
-    quantity INT NOT NULL,
-    cost_per_unit INT NOT NULL,
-    stock INT NOT NULL,
-	max_stock_storage VARCHAR(20) NOT NULL,
+    cost_per_unit DECIMAL(10,2) NOT NULL,
+    current_stock INT NOT NULL,
+    minimum_stock INT NOT NULL,
+	max_stock_storage INT NOT NULL,
     PRIMARY KEY (housekeeping_item_id)
 );
 
@@ -102,6 +118,7 @@ CREATE TABLE housekeeping_item_issuance (
     employee_id INT NOT NULL,
     quantity_issued INT NOT NULL,
     date_issued DATETIME DEFAULT CURRENT_TIMESTAMP,
+    issuance_status ENUM('pending','issued'),
     remarks TEXT,
 
     PRIMARY KEY (issuance_id),
