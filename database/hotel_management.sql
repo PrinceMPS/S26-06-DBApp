@@ -1,14 +1,27 @@
 CREATE DATABASE Hotel_Management;
 USE Hotel_Management;
 
+
+CREATE TABLE user_account(
+	user_id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(20) NOT NULL UNIQUE,
+    user_password VARCHAR(30) NOT NULL,
+    user_role ENUM('Frontdesk','Admin','Housekeeping','Guest'),
+    
+	PRIMARY KEY (user_id)
+    
+    
+    );
 CREATE TABLE guest(
     guest_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     contact_number INT NOT NULL,
     email_address VARCHAR(35) NOT NULL,
     nationality VARCHAR(20) NOT NULL,
-    PRIMARY KEY (guest_id)
+    PRIMARY KEY (guest_id),
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 
 CREATE TABLE RoomType (
@@ -31,29 +44,16 @@ CREATE TABLE room(
 
 CREATE TABLE employee(
     employee_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
 	first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     emp_position ENUM ('frontdesk','housekeeping','admin') NOT NULL,
     shift ENUM('Morning', 'Afternoon', 'Night') NOT NULL,
     emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternity') DEFAULT 'Active' NOT NULL,
-    PRIMARY KEY (employee_id)
+    PRIMARY KEY (employee_id),
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 
-CREATE TABLE user_account(
-	user_id INT NOT NULL AUTO_INCREMENT,
-    username VARCHAR(20) NOT NULL UNIQUE,
-    user_password VARCHAR(30) NOT NULL,
-    user_role ENUM('Frontdesk','Admin','Housekeeping','Guest'),
-    guest_id INT,
-    employee_id INT,
-    
-    
-	PRIMARY KEY (user_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
-	FOREIGN KEY (guest_id) REFERENCES guest(guest_id)
-    
-    
-    );
 
 CREATE TABLE housekeeping_item(
     housekeeping_item_id INT NOT NULL AUTO_INCREMENT,
