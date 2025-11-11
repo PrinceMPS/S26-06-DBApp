@@ -1,4 +1,3 @@
-# helloo
 # CCINFOM-DBApp
 CCINFOM-S26-06 DBApp for Term 1, 2025-2026
 
@@ -10,8 +9,7 @@ CCINFOM-S26-06 DBApp for Term 1, 2025-2026
 
 This project simulates a Hotel Management DB System. This Java and SQL application models:
 
-- **Regular Trucks (JavaJeep)** - Basic coffee service
-- **Special Trucks (JavaJeep+)** - Custom drinks with extra features
+
 
 **Key Features:**  
 ✅ Room reservation System  
@@ -21,25 +19,48 @@ This project simulates a Hotel Management DB System. This Java and SQL applicati
 
 ## How to use
 
+## Prerequisites
+
+Before running the Hotel Management System, make sure the following are installed on your machine:
+
+1. **Python 3.10+**  
+   - [Download Python](https://www.python.org/downloads/) and install it.  
+   - Verify installation:
+     ```bash
+     python --version
+     ```
+
+2. **pip (Python package manager)**  
+   - Usually comes with Python.  
+   - Verify installation:
+     ```bash
+     pip --version
+     ```
+
+3. **MySQL**  
+   - [Download and install MySQL](https://dev.mysql.com/downloads/).  
+   - Make sure the MySQL server is running and you know your username/password.  
+   - Verify installation:
+     ```bash
+     mysql --version
+     ```
+
+4. **Python dependencies**  
+   - Navigate to your project directory and install all required Python packages listed in `requirements.txt`:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - This will install packages such as `Flask`, `PyMySQL`, and any other dependencies your project uses.
+
+
+
 ### Clone Repository
 
 ```
 git clone https://github.com/PrinceMPS/S26-06-DBApp.git
 ```
 
-### Compile and run (Java 17+ required)
 
-```
-cd S26-06-DBAPP
-javac -d bin src/*.java src/view/*.java src/model/*.java src/controller/*.java
-java -cp bin Driver
-```
-### How to generate javadoc
-
-```
-cd S26-06-DBAPP
-javadoc -d doc -sourcepath src -subpackages model:view:controller
-```
 
 ## Project organization
 

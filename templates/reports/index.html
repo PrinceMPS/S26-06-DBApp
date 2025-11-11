@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports | Hotel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
+    <nav class="p-4 space-y-2">
+      <a href="../dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="../guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="../rooms.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="../employees.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="../housekeeping-items.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="../bookings.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="../gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="index.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+      <a href="../payment.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6">
+    <h1 class="text-2xl font-semibold mb-6">Reports</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <a href="hotel-occupancy.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold mb-2">🏨 Hotel Occupancy</h2>
+        <p class="text-gray-600">View room occupancy trends and current utilization.</p>
+      </a>
+
+      <a href="hotel-revenue.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold mb-2">💰 Hotel Revenue</h2>
+        <p class="text-gray-600">View daily, weekly, and monthly revenue reports.</p>
+      </a>
+
+      <a href="guest-stay.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold mb-2">🛎️ Guest Stay</h2>
+        <p class="text-gray-600">Track guest stay history and check-in/check-out records.</p>
+      </a>
+
+      <a href="housekeeping-usage.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold mb-2">🧹 Housekeeping Usage</h2>
+        <p class="text-gray-600">Analyze housekeeping item consumption and stock usage.</p>
+      </a>
+    </div>
+  </main>
+
+</body>
+</html>

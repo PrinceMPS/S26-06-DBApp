@@ -1,0 +1,18 @@
+<h2>Room Booked Days Report</h2>
+
+<form method="POST">
+    <label>Room ID:
+        <input type="number" name="room_id" required>
+    </label>
+    <label>Month:
+        <input type="number" name="month" min="1" max="12" required>
+    </label>
+    <label>Year:
+        <input type="number" name="year" min="2000" max="2100" required>
+    </label>
+    <button type="submit">Generate</button>
+</form>
+
+{% if total_days is not none %}
+    <p>Total booked days for room {{ request.form.room_id }} in {{ request.form.month }}/{{ request.form.year }}: {{ total_days }}</p>
+{% endif %}
