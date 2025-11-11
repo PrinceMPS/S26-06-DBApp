@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Guests | Hotel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex bg-gray-100">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
+    <nav class="p-4 space-y-2">
+      <a href="dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="rooms.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="employees.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="housekeeping.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="bookings.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="reports.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+      <a href="payment.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6">
+    <h1 class="text-2xl font-semibold mb-4">Guest Management</h1>
+
+    <div class="bg-white p-4 rounded shadow">
+      <table class="w-full border-collapse">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 text-left">Guest ID</th>
+            <th class="p-2 text-left">First Name</th>
+            <th class="p-2 text-left">Last Name</th>
+            <th class="p-2 text-left">Contact</th>
+            <th class="p-2 text-left">Email</th>
+            <th class="p-2 text-left">Nationality</th>
+            <th class="p-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for guest in guests %}
+          <tr class="border-t hover:bg-gray-50">
+            <td class="p-2">{{ guest.guest_id }}</td>
+            <td class="p-2">{{ guest.first_name }}</td>
+            <td class="p-2">{{ guest.last_name }}</td>
+            <td class="p-2">{{ guest.contact_number }}</td>
+            <td class="p-2">{{ guest.email_address }}</td>
+            <td class="p-2">{{ guest.nationality }}</td>
+            <td class="p-2">
+              <a href="#" class="text-blue-600 hover:underline">Edit</a> |
+              <a href="#" class="text-red-600 hover:underline">Delete</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-gray-500 p-4">No guests found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+  </main>
+</body>
+</html>

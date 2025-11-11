@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rooms | Hotel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
+    <nav class="p-4 space-y-2">
+      <a href="dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="rooms.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="employees.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="housekeeping.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="bookings.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="reports.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+      <a href="payment.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6">
+    <h1 class="text-2xl font-semibold mb-6">Room Management</h1>
+
+    <!-- Filters -->
+    <div class="flex flex-col md:flex-row md:justify-between mb-4 gap-4">
+      <div>
+        <label for="statusFilter" class="mr-2 font-medium text-gray-700">Filter by status:</label>
+        <select id="statusFilter" class="border border-gray-300 rounded px-3 py-1" onchange="filterStatus()">
+          <option value="all">All</option>
+          <option value="Available">Available</option>
+          <option value="Occupied">Occupied</option>
+          <option value="Under Maintenance">Under Maintenance</option>
+        </select>
+      </div>
+      <div>
+        <input type="search" id="searchInput" onkeyup="searchTable()" placeholder="Search room number..." class="border border-gray-300 rounded px-3 py-1 w-full md:w-64">
+      </div>
+    </div>
+
+    <!-- Rooms Table -->
+    <div class="overflow-x-auto bg-white rounded shadow">
+      <table id="roomTable" class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room #</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for room in rooms %}
+          <tr class="room-row hover:bg-gray-100">
+            <td class="px-6 py-4 whitespace-nowrap">{{ room.room_number }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ room.room_type }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(room.price) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ room.capacity }}</td>
+            <td class="px-6 py-4 whitespace-nowrap font-semibold
+                {% if room.status == 'Available' %} text-green-600
+                {% elif room.status == 'Occupied' %} text-red-600
+                {% elif room.status == 'Under Maintenance' %} text-orange-600
+                {% endif %}">
+              {{ room.status }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function searchTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#roomTable tbody tr");
+      rows.forEach(row => {
+        const roomNumber = row.children[0].textContent.toLowerCase();
+        row.style.display = roomNumber.includes(input) ? "" : "none";
+      });
+    }
+
+    function filterStatus() {
+      const filter = document.getElementById("statusFilter").value;
+      const rows = document.querySelectorAll("#roomTable tbody tr");
+      rows.forEach(row => {
+        const status = row.children[4].textContent.trim();
+        row.style.display = (filter === "all" || status === filter) ? "" : "none";
+      });
+    }
+  </script>
+
+</body>
+</html>
