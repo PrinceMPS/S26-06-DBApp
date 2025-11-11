@@ -1,18 +1,63 @@
-<h2>Room Booked Days Report</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Occupancy | Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex">
 
-<form method="POST">
-    <label>Room ID:
-        <input type="number" name="room_id" required>
-    </label>
-    <label>Month:
-        <input type="number" name="month" min="1" max="12" required>
-    </label>
-    <label>Year:
-        <input type="number" name="year" min="2000" max="2100" required>
-    </label>
-    <button type="submit">Generate</button>
-</form>
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
+    <nav class="p-4 space-y-2">
+      <a href="../dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="../guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="../rooms.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="../employees.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="../housekeeping-items.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="../bookings.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="../gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="index.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+      <a href="../payment.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+    </nav>
+  </aside>
 
-{% if total_days is not none %}
-    <p>Total booked days for room {{ request.form.room_id }} in {{ request.form.month }}/{{ request.form.year }}: {{ total_days }}</p>
-{% endif %}
+  <!-- Main Content -->
+  <main class="flex-1 p-6">
+    <h1 class="text-2xl font-semibold mb-6">Hotel Occupancy Report</h1>
+
+    <div class="bg-white p-6 rounded shadow max-w-lg">
+      <h2 class="text-xl font-semibold mb-4">Room Booked Days Report</h2>
+
+      <form method="POST" class="space-y-4">
+        <div>
+          <label class="block font-medium text-gray-700">Room ID:</label>
+          <input type="number" name="room_id" required class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <div>
+          <label class="block font-medium text-gray-700">Month:</label>
+          <input type="number" name="month" min="1" max="12" required class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <div>
+          <label class="block font-medium text-gray-700">Year:</label>
+          <input type="number" name="year" min="2000" max="2100" required class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Generate</button>
+      </form>
+
+      {% if total_days is not none %}
+        <p class="mt-4 text-gray-700 font-medium">
+          Total booked days for room {{ request.form.room_id }} in {{ request.form.month }}/{{ request.form.year }}: 
+          <span class="text-blue-600">{{ total_days }}</span>
+        </p>
+      {% endif %}
+    </div>
+  </main>
+
+</body>
+</html>
