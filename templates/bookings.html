@@ -33,29 +33,34 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+            {% if bookings %}
+              {% for column in bookings[0].keys() %}
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {{ column.replace('_', ' ') | title }}
+                </th>
+              {% endfor %}
+            {% endif %}
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           {% for booking in bookings %}
           <tr>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.booking_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.guest_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.room_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.booking_date.strftime('%Y-%m-%d') }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.start_date.strftime('%Y-%m-%d') }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ booking.end_date.strftime('%Y-%m-%d') }}</td>
+            {% for value in booking.values() %}
+              <td class="px-6 py-4 whitespace-nowrap">
+                {% if value is string %}
+                  {{ value }}
+                {% elif value is not none %}
+                  {{ value.strftime('%Y-%m-%d') if value.__class__.__name__ in ['date', 'datetime'] else value }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            {% endfor %}
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </main>
-
 </body>
 </html>
