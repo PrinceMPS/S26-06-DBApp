@@ -70,8 +70,8 @@ CREATE TABLE payment (
     payment_id INT NOT NULL AUTO_INCREMENT,
     booking_id INT NOT NULL,
     amount_paid DECIMAL(10,2) NOT NULL,
-    payment_method VARCHAR(20) NOT NULL,
-    payment_date DATE NOT NULL,
+    payment_method ENUM('Cash','Credit Card','Debit Card') NOT NULL,
+    payment_datetime DATETIME NOT NULL,
     
     PRIMARY KEY (payment_id),
     
