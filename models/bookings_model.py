@@ -31,16 +31,31 @@ def get_booking_by_id(booking_id):
     conn.close()
     return booking
 
-def add_booking_db(guest_id, room_id, start_date, end_date):
+
+def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
-        VALUES (%s, %s, CURDATE(), %s, %s)
-    """, (guest_id, room_id, start_date, end_date))
-    conn.commit()
-    cursor.close()
-    conn.close()
+
+    try:
+        cursor.execute("""
+                       INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
+                       VALUES (%s, %s, CURDATE(), %s, %s)
+                       """, (guest_id, room_id, start_date, end_date))
+
+        booking_id = cursor.lastrowid
+
+        cursor.execute("""
+                       INSERT INTO payment (booking_id, amount_paid, payment_method,payment_datetime)
+                       VALUES (%s, %s, %s, NOW())
+                       """, (booking_id, amount_paid, payment_method))
+        conn.commit()
+        return booking_id
+    except Exception as e:
+        conn.rollback()  #undo both inserts if anything fails
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
     conn = get_db_connection()
