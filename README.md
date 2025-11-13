@@ -60,7 +60,11 @@ Before running the Hotel Management System, make sure the following are installe
 git clone https://github.com/PrinceMPS/S26-06-DBApp.git
 ```
 
-
+### How to Run
+```
+cd .\S26-06-DBApp\
+python app.py
+```
 
 ## Project organization
 
