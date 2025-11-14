@@ -4,7 +4,8 @@ from models.employees_model import (
     get_employee_by_id,
     add_employee_db,
     update_employee_db,
-    delete_employee_db
+    delete_employee_db,
+    get_employee_full_details
 )
 
 employees_bp = Blueprint('employees', __name__)
@@ -51,3 +52,15 @@ def handle_employee():
             flash(f'Error saving employee: {str(e)}', 'error')
 
     return redirect(url_for('employees.employees_page'))
+
+
+@employees_bp.route('/employees/details/<int:employee_id>')
+def employee_details(employee_id):
+    employee, guests_attended, issued_items = get_employee_full_details(employee_id)
+
+    return render_template(
+        'employee_details.html',  # separate template for clarity
+        employee=employee,
+        guests_attended=guests_attended,
+        issued_items=issued_items
+    )
