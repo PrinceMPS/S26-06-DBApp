@@ -136,9 +136,10 @@ def check_in_guest(booking_id, employee_id, check_in_time, expected_checkout_tim
         raise e
 
 
-def check_out_guest(booking_id, actual_checkout_time, remarks=None):
+def check_out_guest(booking_id, employee_id, actual_checkout_time, remarks=None):
     """
     Check out a guest from their booking
+    Note: employee_id is for the employee facilitating checkout (may be different from check-in employee)
     """
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -160,6 +161,8 @@ def check_out_guest(booking_id, actual_checkout_time, remarks=None):
             raise Exception("Guest has already checked out")
         
         # Update guest stay with checkout time
+        # Note: We keep the original employee_id (who checked in) and just update checkout time
+        # If you want to track checkout employee separately, you'd need to add a checkout_employee_id column
         query = """
             UPDATE GuestStay 
             SET actual_check_out_time_date = %s,
