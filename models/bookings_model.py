@@ -88,21 +88,42 @@ def get_conflicting_booking(room_id, start_date, end_date, exclude_booking_id=No
     
     return conflict
 
-def add_booking_db(guest_id, room_id, start_date, end_date):
-    # First check availability
+
+def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method):
+    # Check room availability first
     if not check_room_availability(room_id, start_date, end_date):
         conflict = get_conflicting_booking(room_id, start_date, end_date)
-        raise Exception(f"Room not available. Conflicting with booking #{conflict['booking_id']} for {conflict['first_name']} {conflict['last_name']} from {conflict['start_date']} to {conflict['end_date']}")
-    
+        raise Exception(
+            f"Room not available. Conflicting with booking #{conflict['booking_id']} for {conflict['first_name']} {conflict['last_name']} from {conflict['start_date']} to {conflict['end_date']}")
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
-        VALUES (%s, %s, CURDATE(), %s, %s)
-    """, (guest_id, room_id, start_date, end_date))
-    conn.commit()
-    cursor.close()
-    conn.close()
+
+    try:
+        # Start transaction
+        cursor.execute("""
+                       INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
+                       VALUES (%s, %s, CURDATE(), %s, %s)
+                       """, (guest_id, room_id, start_date, end_date))
+
+        booking_id = cursor.lastrowid  # get the inserted booking's ID
+
+        # Insert payment linked to the booking
+        cursor.execute("""
+                       INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime)
+                       VALUES (%s, %s, %s, NOW())
+                       """, (booking_id, amount_paid, payment_method))
+
+        conn.commit()  # commit both inserts together
+        return booking_id
+
+    except Exception as e:
+        conn.rollback()  # undo both inserts if anything fails
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
 
 def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
     # Check availability excluding current booking
@@ -128,3 +149,56 @@ def delete_booking_db(booking_id):
     conn.commit()
     cursor.close()
     conn.close()
+
+
+#to get amount in exeisting bookings
+def get_booking_total_amount(booking_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True) #access column names as keys
+
+    query = """
+            SELECT b.booking_id, \
+                   r.room_id, \
+                   rt.type_name, \
+                   rt.rate_per_type, \
+                   DATEDIFF(b.end_date, b.start_date)                      AS nights, \
+                   (rt.rate_per_type * DATEDIFF(b.end_date, b.start_date)) AS total_amount
+            FROM booking b
+                     JOIN room r ON b.room_id = r.room_id
+                     JOIN roomtype rt ON r.room_type_id = rt.room_type_id
+            WHERE b.booking_id = %s; \
+            """
+
+    cursor.execute(query, (booking_id,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return result
+
+def get_booking_total_amount_for_new(room_id, start_date, end_date):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT rt.rate_per_type,
+               DATEDIFF(%s, %s) AS nights,
+               (rt.rate_per_type * DATEDIFF(%s, %s)) AS total_amount
+        FROM room r
+        JOIN roomtype rt ON r.room_type_id = rt.room_type_id
+        WHERE r.room_id = %s
+    """
+    cursor.execute(query, (end_date, start_date, end_date, start_date, room_id))
+    result = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not result:
+        raise Exception("Room not found")
+    if result['nights'] <= 0:
+        raise Exception("End date must be after start date")
+
+    return result['total_amount']
+

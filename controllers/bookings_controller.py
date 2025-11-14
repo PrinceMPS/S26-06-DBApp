@@ -1,17 +1,21 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.bookings_model import get_all_bookings, add_booking_db, update_booking_db, delete_booking_db, get_booking_by_id
+from models.bookings_model import get_all_bookings, create_booking_with_payment, update_booking_db, delete_booking_db, \
+    get_booking_by_id, get_booking_total_amount_for_new
 
 bookings_bp = Blueprint('bookings', __name__)
 
 @bookings_bp.route('/bookings', methods=['GET'])
 def bookings_page():
+    # Initialize empty form data for a new booking
+    form_data = {}  # used for editing in template
+
     bookings = get_all_bookings()
     # Convert dates to string for display
     for booking in bookings:
         for key, value in booking.items():
             if hasattr(value, "strftime"):
                 booking[key] = value.strftime('%Y-%m-%d')
-    return render_template('bookings.html', bookings=bookings)
+    return render_template('bookings.html', bookings=bookings, editing=form_data)
 
 @bookings_bp.route('/bookings/edit/<int:booking_id>')
 def edit_booking(booking_id):
@@ -30,43 +34,84 @@ def edit_booking(booking_id):
                 b[key] = value.strftime('%Y-%m-%d')
                 
     return render_template('bookings.html', bookings=bookings, editing=booking)
-
 @bookings_bp.route('/bookings', methods=['POST'])
 def handle_booking():
     action = request.form.get('action', 'save')
     booking_id = request.form.get('booking_id')
-    
+
+    # Gather form data
+    guest_id = request.form.get('guest_id')
+    room_id = request.form.get('room_id')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    amount_paid = request.form.get('amount_paid')
+    payment_method = request.form.get('payment_method')
+
+    form_data = {
+        'guest_id': guest_id,
+        'room_id': room_id,
+        'start_date': start_date,
+        'end_date': end_date,
+        'amount_paid': amount_paid,
+        'payment_method': payment_method
+    }
+
+    # Handle deletion
     if action == 'delete':
-        # Handle delete
         try:
             delete_booking_db(booking_id)
             flash('Booking deleted successfully!', 'success')
         except Exception as e:
             flash(f'Error deleting booking: {str(e)}', 'error')
-    else:
-        # Handle add/update
-        guest_id = request.form.get('guest_id')
-        room_id = request.form.get('room_id')
-        start_date = request.form.get('start_date')
-        end_date = request.form.get('end_date')
-        
+        return redirect(url_for('bookings.bookings_page'))
+
+    # Handle "Calculate Total" button
+    if action == 'calculate':
+        if room_id and start_date and end_date:
+            try:
+                form_data['total_amount'] = get_booking_total_amount_for_new(room_id, start_date, end_date)
+                flash(f"Total amount for this booking: {form_data['total_amount']}", 'info')
+            except Exception as e:
+                flash(f"Cannot calculate total. Check room and dates: {str(e)}", 'error')
+        else:
+            flash("Please enter room, start date, and end date to calculate total.", 'error')
+        return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+
+    # Handle saving (Add/Update)
+    if action == 'save':
         # Basic validation
-        if not all([guest_id, room_id, start_date, end_date]):
+        if not all([guest_id, room_id, start_date, end_date, amount_paid, payment_method]):
             flash('All fields are required', 'error')
-            return redirect(url_for('bookings.bookings_page'))
-        
-        if start_date >= end_date:
-            flash('End date must be after start date', 'error')
-            return redirect(url_for('bookings.bookings_page'))
-        
+            return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+
+        # Calculate total_amount for validation
         try:
-            if booking_id:  # Update existing booking
+            total_amount = get_booking_total_amount_for_new(room_id, start_date, end_date)
+            form_data['total_amount'] = total_amount
+        except Exception as e:
+            flash(f"Cannot calculate total: {str(e)}", 'error')
+            return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+
+        # Validate amount paid
+        try:
+            if float(amount_paid) != float(total_amount):
+                flash(f"Amount paid ({amount_paid}) does not match total ({total_amount})", 'error')
+                return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+        except ValueError:
+            flash("Invalid amount paid", 'error')
+            return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+
+        # Save booking
+        try:
+            if booking_id:
                 update_booking_db(booking_id, guest_id, room_id, start_date, end_date)
                 flash('Booking updated successfully!', 'success')
-            else:  # Add new booking
-                add_booking_db(guest_id, room_id, start_date, end_date)
-                flash('Booking added successfully!', 'success')
+            else:
+                create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method)
+                flash('Booking added and payment recorded successfully!', 'success')
         except Exception as e:
-            flash(f'Error: {str(e)}', 'error')
-    
+            flash(f"Error saving booking: {str(e)}", 'error')
+            return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
+
     return redirect(url_for('bookings.bookings_page'))
+

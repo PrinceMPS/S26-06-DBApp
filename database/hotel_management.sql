@@ -476,10 +476,10 @@ INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALU
 (1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');  -- Akira booked Room 1
 
 -- Payments
-INSERT INTO payment (booking_id, amount_paid, payment_method, payment_date) VALUES
-(1, 3000.00, 'Credit Card', '2025-11-01'),
-(2, 5000.00, 'Cash', '2025-11-05'),
-(3, 1500.00, 'Debit Card', '2025-11-08');
+INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
+(1, 3000.00, 'Credit Card', '2025-11-01 11:45:00'),
+(2, 5000.00, 'Cash', '2025-11-05 09:20:00'),
+(3, 1500.00, 'Debit Card','2025-11-08 13:10:00');
 
 -- Guest Stay
 INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
