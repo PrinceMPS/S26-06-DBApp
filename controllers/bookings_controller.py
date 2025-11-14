@@ -50,6 +50,15 @@ def handle_booking():
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         
+        # Basic validation
+        if not all([guest_id, room_id, start_date, end_date]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('bookings.bookings_page'))
+        
+        if start_date >= end_date:
+            flash('End date must be after start date', 'error')
+            return redirect(url_for('bookings.bookings_page'))
+        
         try:
             if booking_id:  # Update existing booking
                 update_booking_db(booking_id, guest_id, room_id, start_date, end_date)
@@ -58,6 +67,6 @@ def handle_booking():
                 add_booking_db(guest_id, room_id, start_date, end_date)
                 flash('Booking added successfully!', 'success')
         except Exception as e:
-            flash(f'Error saving booking: {str(e)}', 'error')
+            flash(f'Error: {str(e)}', 'error')
     
     return redirect(url_for('bookings.bookings_page'))
