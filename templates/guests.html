@@ -12,14 +12,14 @@
     <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
     <nav class="p-4 space-y-2">
       <a href="dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
-      <a href="guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="http://127.0.0.1:5000/guests" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
       <a href="http://127.0.0.1:5000/rooms" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
       <a href="http://127.0.0.1:5000/employees" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
       <a href="housekeeping.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
       <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
       <a href="gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
       <a href="reports/index.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
-      <a href="payments.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+      <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
     </nav>
   </aside>
 
@@ -27,6 +27,64 @@
   <main class="flex-1 p-6">
     <h1 class="text-2xl font-semibold mb-4">Guest Management</h1>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="p-4 mb-4 rounded {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Add/Edit Guest Form -->
+    <form method="POST" action="{{ url_for('guests.handle_guest') }}" class="mb-6 bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-4">
+        {% if editing %}Edit Guest #{{ editing.guest_id }}{% else %}Add New Guest{% endif %}
+      </h2>
+      <input type="hidden" name="guest_id" value="{{ editing.guest_id if editing }}">
+      
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600">First Name</label>
+          <input name="first_name" type="text" value="{{ editing.first_name if editing }}" required 
+                 class="border rounded p-2 w-full" maxlength="20">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Last Name</label>
+          <input name="last_name" type="text" value="{{ editing.last_name if editing }}" required 
+                 class="border rounded p-2 w-full" maxlength="20">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Contact Number</label>
+          <input name="contact_number" type="text" value="{{ editing.contact_number if editing }}" required 
+                 class="border rounded p-2 w-full" maxlength="15">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Email Address</label>
+          <input name="email_address" type="email" value="{{ editing.email_address if editing }}" required 
+                 class="border rounded p-2 w-full" maxlength="35">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Nationality</label>
+          <input name="nationality" type="text" value="{{ editing.nationality if editing else 'Filipino' }}" 
+                 class="border rounded p-2 w-full" maxlength="20">
+        </div>
+        <div class="flex items-end space-x-2">
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1">
+            {% if editing %}Update{% else %}Add{% endif %} Guest
+          </button>
+          {% if editing %}
+            <a href="{{ url_for('guests.guests_page') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+              Cancel
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+
+    <!-- Guests Table -->
     <div class="bg-white p-4 rounded shadow">
       <table class="w-full border-collapse">
         <thead class="bg-gray-200">
@@ -49,7 +107,18 @@
             <td class="p-2">{{ guest.contact_number }}</td>
             <td class="p-2">{{ guest.email_address }}</td>
             <td class="p-2">{{ guest.nationality }}</td>
-            <td class="p-2">
+            <td class="p-2 space-x-2">
+              <!-- Edit Button -->
+              <a href="{{ url_for('guests.edit_guest', guest_id=guest.guest_id) }}" 
+                 class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">Edit</a>
+              
+              <!-- Delete Button -->
+              <form method="POST" action="{{ url_for('guests.handle_guest') }}" style="display:inline;">
+                <input type="hidden" name="guest_id" value="{{ guest.guest_id }}">
+                <input type="hidden" name="action" value="delete">
+                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm" 
+                        onclick="return confirm('Delete this guest?')">Delete</button>
+              </form>
             </td>
           </tr>
           {% else %}
@@ -59,7 +128,6 @@
           {% endfor %}
         </tbody>
       </table>
-
     </div>
   </main>
 </body>
