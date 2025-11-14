@@ -114,6 +114,7 @@
               {% endif %}
             </td>
             <td class="px-6 py-4 whitespace-nowrap space-x-2">
+              <a href="{{ url_for('employees.employee_details', employee_id=emp.employee_id) }}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">View</a>
               <a href="{{ url_for('employees.edit_employee', employee_id=emp.employee_id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
               <form method="POST" action="{{ url_for('employees.handle_employee') }}" style="display:inline;">
                 <input type="hidden" name="employee_id" value="{{ emp.employee_id }}">

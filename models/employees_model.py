@@ -59,3 +59,53 @@ def delete_employee_db(employee_id):
     conn.commit()
     cursor.close()
     conn.close()
+
+def get_employee_full_details(employee_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # 1. Employee basic info
+    cursor.execute("SELECT * FROM employee WHERE employee_id = %s", (employee_id,))
+    employee = cursor.fetchone()
+
+    # 2. Guests attended by employee (GuestStay → booking → guest)
+    cursor.execute("""
+        SELECT 
+            g.guest_id,
+            g.first_name AS guest_first_name,
+            g.last_name AS guest_last_name,
+            b.booking_id,
+            gs.check_in_time_date,
+            gs.actual_check_out_time_date
+        FROM GuestStay gs
+        JOIN booking b ON gs.booking_id = b.booking_id
+        JOIN guest g ON b.guest_id = g.guest_id
+        WHERE gs.employee_id = %s
+        ORDER BY gs.check_in_time_date DESC
+    """, (employee_id,))
+    guests_attended = cursor.fetchall()
+
+    # 3. Housekeeping items issued to employee
+    cursor.execute("""
+        SELECT 
+            h.item_name,
+            i.quantity_issued,
+            i.date_issued,
+            i.issuance_status
+        FROM housekeeping_item_issuance i
+        JOIN housekeeping_item h 
+            ON i.housekeeping_item_id = h.housekeeping_item_id
+        WHERE i.employee_id = %s
+        ORDER BY i.date_issued DESC
+    """, (employee_id,))
+    issued_items = cursor.fetchall()
+
+
+    # 🟢 Debug print
+    print("Employee:", employee)
+    print("Guests attended:", guests_attended)
+    print("Items issued:", issued_items)
+    cursor.close()
+    conn.close()
+
+    return employee, guests_attended, issued_items
