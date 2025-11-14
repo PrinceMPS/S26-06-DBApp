@@ -68,12 +68,12 @@
 
         <div>
           <label class="block text-sm text-gray-600">Amount Paid</label>
-          <input name="amount_paid" type="number" step="0.01" value="{{ editing.amount_paid if editing }}" required class="border rounded p-2 w-full">
+          <input name="amount_paid" type="number" step="0.01" value="{{ editing.amount_paid if editing }}"  class="border rounded p-2 w-full">
         </div>
 
         </div>
           <label class="block text-sm text-gray-600">Payment Method</label>
-          <select name="payment_method" required class="border rounded p-2 w-full">
+          <select name="payment_method" class="border rounded p-2 w-full">
             <option value="">Select Method</option>
             <option value="Cash" {% if editing and editing.payment_method=='Cash' %}selected{% endif %}>Cash</option>
             <option value="Credit Card" {% if editing and editing.payment_method=='Credit Card' %}selected{% endif %}>Credit Card</option>
@@ -83,13 +83,18 @@
       </div>
 
         <div class="flex items-end space-x-2">
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1">
-            {% if editing %}Update{% else %}Add{% endif %}
+          <button type="submit" name="action" value="calculate" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            Calculate Total
           </button>
+
+          <button type="submit" name="action" value="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1">
+             {% if editing %}Update{% else %}Add{% endif %}
+          </button>
+
           {% if editing %}
-            <a href="{{ url_for('bookings.bookings_page') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel</a>
+             <a href="{{ url_for('bookings.bookings_page') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel</a>
           {% endif %}
-        </div>
+         </div>
       </div>
     </form>
 

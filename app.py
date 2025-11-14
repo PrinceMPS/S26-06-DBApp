@@ -6,7 +6,9 @@ from controllers.rooms_controller import rooms_bp
 from controllers.payment_controller import payments_bp
 
 
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
+# Set a secret key for sessions (flash messages require this)
+app.secret_key = 'secret_key'
 app.config.from_pyfile('config.py', silent=False)
 app.register_blueprint(dashboard_bp)
 # Register blueprint
