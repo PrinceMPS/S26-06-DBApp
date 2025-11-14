@@ -31,6 +31,7 @@ def get_booking_by_id(booking_id):
     conn.close()
     return booking
 
+<<<<<<< HEAD
 def check_room_availability(room_id, start_date, end_date, exclude_booking_id=None):
     """
     Check if room is available for the given dates
@@ -94,15 +95,33 @@ def add_booking_db(guest_id, room_id, start_date, end_date):
         conflict = get_conflicting_booking(room_id, start_date, end_date)
         raise Exception(f"Room not available. Conflicting with booking #{conflict['booking_id']} for {conflict['first_name']} {conflict['last_name']} from {conflict['start_date']} to {conflict['end_date']}")
     
+=======
+
+def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method):
+>>>>>>> 1db75362b13359efad81ecb24da4dd89cb7b8c3c
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
-        VALUES (%s, %s, CURDATE(), %s, %s)
-    """, (guest_id, room_id, start_date, end_date))
-    conn.commit()
-    cursor.close()
-    conn.close()
+
+    try:
+        cursor.execute("""
+                       INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
+                       VALUES (%s, %s, CURDATE(), %s, %s)
+                       """, (guest_id, room_id, start_date, end_date))
+
+        booking_id = cursor.lastrowid
+
+        cursor.execute("""
+                       INSERT INTO payment (booking_id, amount_paid, payment_method,payment_datetime)
+                       VALUES (%s, %s, %s, NOW())
+                       """, (booking_id, amount_paid, payment_method))
+        conn.commit()
+        return booking_id
+    except Exception as e:
+        conn.rollback()  #undo both inserts if anything fails
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
     # Check availability excluding current booking

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.bookings_model import get_all_bookings, add_booking_db, update_booking_db, delete_booking_db, get_booking_by_id
+from models.bookings_model import get_all_bookings, create_booking_with_payment, update_booking_db, delete_booking_db, get_booking_by_id
+
 
 bookings_bp = Blueprint('bookings', __name__)
 
@@ -49,7 +50,11 @@ def handle_booking():
         room_id = request.form.get('room_id')
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
-        
+
+        amount_paid = request.form.get('amount_paid')
+        payment_method = request.form.get('payment_method')
+
+
         # Basic validation
         if not all([guest_id, room_id, start_date, end_date]):
             flash('All fields are required', 'error')
@@ -61,11 +66,14 @@ def handle_booking():
         
         try:
             if booking_id:  # Update existing booking
-                update_booking_db(booking_id, guest_id, room_id, start_date, end_date)
-                flash('Booking updated successfully!', 'success')
-            else:  # Add new booking
-                add_booking_db(guest_id, room_id, start_date, end_date)
-                flash('Booking added successfully!', 'success')
+               update_booking_db(booking_id, guest_id, room_id, start_date, end_date)
+               flash('Booking updated successfully!', 'success')
+            else:  #Add new booking with payment
+                create_booking_with_payment(
+                   guest_id, room_id, start_date, end_date,
+                    amount_paid, payment_method
+                )
+                flash('Booking created and payment recorded successfully!', 'success')
         except Exception as e:
             flash(f'Error: {str(e)}', 'error')
     
