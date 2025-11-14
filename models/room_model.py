@@ -1,34 +1,45 @@
-from app import get_db_connection  # centralized DB connection
+from db import get_db_connection
 
-def find_guest_by_email(email):
+def get_all_rooms():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM guest WHERE email_address = %s", (email,))
-    guest = cursor.fetchone()
-    conn.close()
-    return guest
-
-def find_available_room(checkin_date, checkout_date):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    # Simple logic: find rooms not booked for these dates
     cursor.execute("""
-        SELECT r.room_id, r.room_type
+        SELECT 
+            r.room_id,
+            r.room_number,
+            r.room_type,
+            r.price,
+            r.capacity,
+            r.status,
+            r.room_type_id,
+            r.availability_status,
+            r.housekeeping_status
         FROM room r
-        WHERE r.status = 'available'
-        AND r.room_id NOT IN (
-            SELECT b.room_id FROM booking b
-            WHERE (b.checkin_date <= %s AND b.checkout_date >= %s)
-        )
-        LIMIT 1
-    """, (checkout_date, checkin_date))
+        ORDER BY r.room_number
+    """)
+    rooms = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rooms
+
+def get_room_by_id(room_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM room WHERE room_id = %s", (room_id,))
     room = cursor.fetchone()
+    cursor.close()
     conn.close()
     return room
 
-def update_room_status(room_id, status):
+def update_room_db(room_id, room_number, room_type, price, capacity, status, availability_status, housekeeping_status):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE room SET status = %s WHERE room_id = %s", (status, room_id))
+    cursor.execute("""
+        UPDATE room 
+        SET room_number = %s, room_type = %s, price = %s, capacity = %s, 
+            status = %s, availability_status = %s, housekeeping_status = %s
+        WHERE room_id = %s
+    """, (room_number, room_type, price, capacity, status, availability_status, housekeeping_status, room_id))
     conn.commit()
+    cursor.close()
     conn.close()
