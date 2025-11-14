@@ -2,7 +2,7 @@
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "idontknow__10",
+    "password": "maT168mit",
     "database": "Hotel_Management"
 }
 
