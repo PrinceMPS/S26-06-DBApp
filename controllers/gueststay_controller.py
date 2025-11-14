@@ -146,10 +146,11 @@ def checkout():
     Process guest check-out
     """
     booking_id = request.form.get('booking_id')
+    employee_id = request.form.get('employee_id')
     remarks = request.form.get('remarks', '').strip()
     
-    if not booking_id:
-        flash('Booking ID is required for check-out', 'error')
+    if not booking_id or not employee_id:
+        flash('Booking ID and Employee are required for check-out', 'error')
         return redirect(url_for('gueststay.gueststay_page'))
     
     try:
@@ -159,6 +160,7 @@ def checkout():
         # Perform check-out
         check_out_guest(
             booking_id=booking_id,
+            employee_id=employee_id,
             actual_checkout_time=checkout_time,
             remarks=remarks
         )
