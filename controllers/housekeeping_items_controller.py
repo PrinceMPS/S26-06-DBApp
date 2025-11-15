@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.housekeeping_model import (
+from models.housekeeping_items_model import (
     get_all_housekeeping_items, 
     get_housekeeping_item_by_id, 
     add_housekeeping_item_db, 
