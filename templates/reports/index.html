@@ -12,15 +12,15 @@
   <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
     <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
     <nav class="p-4 space-y-2">
-      <a href="../dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
-      <a href="../guests.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
-      <a href="../rooms.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
-      <a href="../employees.html" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
-      <a href="../housekeeping-items.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
-      <a href="../bookings.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
-      <a href="../gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
-      <a href="index.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
-      <a href="../payments.html" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+      <a href="http://127.0.0.1:5000" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="http://127.0.0.1:5000/guests" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="http://127.0.0.1:5000/rooms" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="http://127.0.0.1:5000/employees" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="http://127.0.0.1:5000/housekeeping-items" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="http://127.0.0.1:5000/gueststay" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+      <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
 
@@ -29,25 +29,12 @@
     <h1 class="text-2xl font-semibold mb-6">Reports</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <a href="hotel_occupancy.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
-        <h2 class="text-xl font-semibold mb-2">🏨 Hotel Occupancy</h2>
-        <p class="text-gray-600">View room occupancy trends and current utilization.</p>
+      {% for report in reports %}
+      <a href="{{ report.url }}" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
+        <h2 class="text-xl font-semibold mb-2">{{ report.title }}</h2>
+        <p class="text-gray-600">{{ report.description }}</p>
       </a>
-
-      <a href="hotel_revenue.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
-        <h2 class="text-xl font-semibold mb-2">💰 Hotel Revenue</h2>
-        <p class="text-gray-600">View daily, weekly, and monthly revenue reports.</p>
-      </a>
-
-      <a href="guest-stay.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
-        <h2 class="text-xl font-semibold mb-2">🛎️ Guest Stay</h2>
-        <p class="text-gray-600">Track guest stay history and check-in/check-out records.</p>
-      </a>
-
-      <a href="housekeeping-usage.html" class="bg-white rounded shadow p-6 hover:shadow-lg transition">
-        <h2 class="text-xl font-semibold mb-2">🧹 Housekeeping Usage</h2>
-        <p class="text-gray-600">Analyze housekeeping item consumption and stock usage.</p>
-      </a>
+      {% endfor %}
     </div>
   </main>
 
