@@ -1,21 +1,20 @@
-# controllers/dashboard_controller.py
 from flask import Blueprint, render_template
+from models.dashboard_model import get_total_guests, get_room_occupancy, get_total_employees, get_todays_revenue
 
-dashboard_bp = Blueprint('dashboard', __name__, template_folder='../templates')
+dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/')
-@dashboard_bp.route('/dashboard')
-def show_dashboard():
-    # Temporary filler values for testing the dashboard UI
-    total_guests = 20
-    occupied_rooms = 15
-    total_rooms = 30
-    total_employees = 10
-    total_revenue = 50000.00
+def dashboard_page():
+    total_guests = get_total_guests()
+    total_rooms, occupied_rooms = get_room_occupancy()
+    total_employees = get_total_employees()
+    total_revenue = get_todays_revenue()
+    
+    return render_template('dashboard.html', 
+                         total_guests=total_guests,
+                         total_rooms=total_rooms,
+                         occupied_rooms=occupied_rooms,
+                         total_employees=total_employees,
+                         total_revenue=total_revenue)
 
-    return render_template('dashboard.html',
-                           total_guests=total_guests,
-                           occupied_rooms=occupied_rooms,
-                           total_rooms=total_rooms,
-                           total_employees=total_employees,
-                           total_revenue=total_revenue)
+
