@@ -5,6 +5,7 @@ from controllers.employees_controller import employees_bp
 from controllers.rooms_controller import rooms_bp
 from controllers.payment_controller import payments_bp
 from controllers.guests_controller import guests_bp
+from controllers.gueststay_controller import gueststay_bp
 
 app = Flask(__name__, instance_relative_config=True)
 # Set a secret key for sessions (flash messages require this)
@@ -17,6 +18,7 @@ app.register_blueprint(employees_bp)
 app.register_blueprint(rooms_bp)
 app.register_blueprint(payments_bp)
 app.register_blueprint(guests_bp)
+app.register_blueprint(gueststay_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
