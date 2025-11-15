@@ -5,47 +5,24 @@ def get_all_payments():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
-                   SELECT payment_id,
-                          booking_id,
-                          amount_paid,
-                          payment_method,
-                          payment_datetime
-                   FROM payment
-                   ORDER BY payment_datetime DESC
-                   """)
+                   SELECT 
+            p.payment_id,
+            p.booking_id,
+            rt.type_name AS room_type,
+            rt.rate_per_type AS rate_per_night,
+            DATEDIFF(b.end_date, b.start_date) AS number_of_nights,
+            (rt.rate_per_type * DATEDIFF(b.end_date, b.start_date)) AS total_amount,
+            p.amount_paid,
+            p.payment_method,
+            p.payment_datetime
+        FROM payment p
+        JOIN booking b ON p.booking_id = b.booking_id
+        JOIN room r ON b.room_id = r.room_id
+        JOIN roomtype rt ON r.room_type_id = rt.room_type_id
+        ORDER BY p.payment_datetime DESC
+    """)
     payments = cursor.fetchall()
     cursor.close()
     conn.close()
     return payments
 
-
-def get_payment_by_id(payment_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM payment WHERE payment_id = %s", (payment_id,))
-    payment = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return payment
-
-
-def update_payment_db(payment_id, booking_id, amount_paid, payment_method):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE payment
-        SET booking_id = %s, amount_paid = %s, payment_method = %s, payment_datetime =NOW()
-        WHERE payment_id = %s
-    """, (booking_id, amount_paid, payment_method, payment_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-
-def delete_payment_db(payment_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM payment WHERE payment_id = %s", (payment_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()

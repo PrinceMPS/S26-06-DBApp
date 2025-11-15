@@ -7,3 +7,4 @@ reports_bp = Blueprint('reports', __name__, template_folder='../templates')
 def reports_page():
     reports = get_report_cards()
     return render_template('reports/index.html', reports=reports)
+
