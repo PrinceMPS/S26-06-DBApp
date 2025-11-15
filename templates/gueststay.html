@@ -12,13 +12,13 @@
   <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
     <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
     <nav class="p-4 space-y-2">
-      <a href="dashboard.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="http://127.0.0.1:5000/dashboard" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
       <a href="http://127.0.0.1:5000/guests" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
       <a href="http://127.0.0.1:5000/rooms" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
       <a href="http://127.0.0.1:5000/employees" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
       <a href="housekeeping.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
       <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
-      <a href="gueststay.html" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="http://127.0.0.1:5000/gueststay" class="block bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
       <a href="reports/index.html" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
       <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
     </nav>
@@ -26,36 +26,164 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-6">
-    <h1 class="text-2xl font-semibold mb-6">Guest Stay Records</h1>
+    <h1 class="text-2xl font-semibold mb-6">Guest Stay Management - Check In / Check Out</h1>
 
-    <div class="overflow-x-auto bg-white rounded shadow">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected Check-out</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actual Check-out</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          {% for stay in guest_stays %}
-          <tr class="hover:bg-gray-100">
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.transaction_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.booking_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.employee_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.check_in_time_date.strftime('%Y-%m-%d %H:%M') if stay.check_in_time_date else '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.expected_check_out_time_date.strftime('%Y-%m-%d %H:%M') if stay.expected_check_out_time_date else '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.actual_check_out_time_date.strftime('%Y-%m-%d %H:%M') if stay.actual_check_out_time_date else '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ stay.remarks or '-' }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="mb-4 p-4 rounded {% if category == 'error' %}bg-red-100 text-red-700 border border-red-400{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Search Section -->
+    <div class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Search Booking</h2>
+      <form method="POST" action="/gueststay/search" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Booking ID</label>
+          <input type="number" name="booking_id" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter Booking ID">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Guest ID</label>
+          <input type="number" name="guest_id" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Enter Guest ID">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+          <input type="date" name="search_date" value="{{ search_date }}" class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            🔍 Search
+          </button>
+        </div>
+      </form>
     </div>
+
+    <!-- Search Results / Booking Details -->
+    {% if bookings %}
+    <div class="bg-white rounded shadow overflow-hidden mb-6">
+      <h2 class="text-xl font-semibold p-6 bg-gray-50 border-b">Search Results</h2>
+      
+      {% for booking in bookings %}
+      <div class="p-6 border-b last:border-b-0">
+        <!-- Booking Information -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Booking Details</h3>
+            <p><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
+            <p><strong>Room:</strong> {{ booking.room_id }} ({{ booking.room_type }})</p>
+            <p><strong>Dates:</strong> {{ booking.start_date }} to {{ booking.end_date }}</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Guest Information</h3>
+            <p><strong>Guest ID:</strong> {{ booking.guest_id }}</p>
+            <p><strong>Name:</strong> {{ booking.guest_first_name }} {{ booking.guest_last_name }}</p>
+            <p><strong>Contact:</strong> {{ booking.contact_number }}</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-2">Stay Status</h3>
+            {% if booking.check_in_time_date %}
+              <p><strong>Check-in:</strong> {{ booking.check_in_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
+              <p><strong>Handled by:</strong> {{ booking.employee_name }}</p>
+              {% if booking.actual_check_out_time_date %}
+                <p><strong>Check-out:</strong> {{ booking.actual_check_out_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                <span class="inline-block px-3 py-1 bg-gray-600 text-white rounded text-sm">✅ Completed</span>
+              {% else %}
+                <p><strong>Expected Check-out:</strong> {{ booking.expected_check_out_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                <span class="inline-block px-3 py-1 bg-green-600 text-white rounded text-sm">🛏️ Checked In</span>
+              {% endif %}
+            {% else %}
+              <p class="text-gray-500">Not checked in yet</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Action Forms -->
+        {% if booking.action == 'checkin' or booking.action == 'late_checkin' %}
+        <div class="bg-blue-50 p-4 rounded border border-blue-200">
+          <h4 class="font-semibold mb-3">
+            {% if booking.action == 'late_checkin' %}
+              ⚠️ Late Check-In Available
+            {% else %}
+              ✅ Check-In Available
+            {% endif %}
+          </h4>
+          <form method="POST" action="/gueststay/checkin" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee *</label>
+              <select name="employee_id" required class="w-full border border-gray-300 rounded px-3 py-2">
+                <option value="">-- Select Employee --</option>
+                {% for emp in employees %}
+                  <option value="{{ emp.employee_id }}">{{ emp.employee_name }} ({{ emp.emp_position }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+              <input type="text" name="remarks" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Optional remarks">
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                ✅ Check In Guest
+              </button>
+            </div>
+          </form>
+        </div>
+        {% elif booking.action == 'checkout' %}
+        <div class="bg-orange-50 p-4 rounded border border-orange-200">
+          <h4 class="font-semibold mb-3">🚪 Check-Out Available</h4>
+          <form method="POST" action="/gueststay/checkout" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee *</label>
+              <select name="employee_id" required class="w-full border border-gray-300 rounded px-3 py-2">
+                <option value="">-- Select Employee --</option>
+                {% for emp in employees %}
+                  <option value="{{ emp.employee_id }}">{{ emp.employee_name }} ({{ emp.emp_position }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+              <input type="text" name="remarks" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Optional remarks">
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">
+                🚪 Check Out Guest
+              </button>
+            </div>
+          </form>
+        </div>
+        {% elif booking.action == 'checked_in' %}
+        <div class="bg-green-50 p-4 rounded border border-green-200">
+          <p class="text-green-700">✅ Guest is currently checked in. Check-out will be available on or after the start date.</p>
+        </div>
+        {% elif booking.action == 'completed' %}
+        <div class="bg-gray-50 p-4 rounded border border-gray-200">
+          <p class="text-gray-700">✅ This booking has been completed. Guest has checked out.</p>
+          {% if booking.remarks %}
+            <p class="mt-2"><strong>Remarks:</strong> {{ booking.remarks }}</p>
+          {% endif %}
+        </div>
+        {% elif booking.action == 'early' %}
+        <div class="bg-yellow-50 p-4 rounded border border-yellow-200">
+          <p class="text-yellow-700">⏰ Too early to check in. Check-in is available on {{ booking.start_date }}.</p>
+        </div>
+        {% elif booking.action == 'expired' %}
+        <div class="bg-red-50 p-4 rounded border border-red-200">
+          <p class="text-red-700">❌ This booking has expired. The booking period was {{ booking.start_date }} to {{ booking.end_date }}.</p>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
   </main>
 
 </body>
