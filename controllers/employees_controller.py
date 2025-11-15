@@ -38,15 +38,14 @@ def handle_employee():
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         emp_position = request.form.get('emp_position')
-        shift = request.form.get('shift')
         emp_status = request.form.get('emp_status', 'Active')  # default to Active
 
         try:
             if employee_id:  # Update existing employee
-                update_employee_db(employee_id, first_name, last_name, emp_position, shift, emp_status)
+                update_employee_db(employee_id, first_name, last_name, emp_position, emp_status)
                 flash('Employee updated successfully!', 'success')
             else:  # Add new employee
-                add_employee_db(first_name, last_name, emp_position, shift, emp_status)
+                add_employee_db(first_name, last_name, emp_position, emp_status)
                 flash('Employee added successfully!', 'success')
         except Exception as e:
             flash(f'Error saving employee: {str(e)}', 'error')

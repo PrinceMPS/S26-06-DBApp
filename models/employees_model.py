@@ -9,7 +9,6 @@ def get_all_employees():
             first_name,
             last_name,
             emp_position,
-            shift,
             emp_status
         FROM employee
         ORDER BY last_name ASC
@@ -28,25 +27,25 @@ def get_employee_by_id(employee_id):
     conn.close()
     return employee
 
-def add_employee_db(first_name, last_name, emp_position, shift, emp_status='Active'):
+def add_employee_db(first_name, last_name, emp_position, emp_status='Active'):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO employee (first_name, last_name, emp_position, shift, emp_status)
+        INSERT INTO employee (first_name, last_name, emp_position, emp_status)
         VALUES (%s, %s, %s, %s, %s)
-    """, (first_name, last_name, emp_position, shift, emp_status))
+    """, (first_name, last_name, emp_position, emp_status))
     conn.commit()
     cursor.close()
     conn.close()
 
-def update_employee_db(employee_id, first_name, last_name, emp_position, shift, emp_status):
+def update_employee_db(employee_id, first_name, last_name, emp_position,  emp_status):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE employee
-        SET first_name = %s, last_name = %s, emp_position = %s, shift = %s, emp_status = %s
+        SET first_name = %s, last_name = %s, emp_position = %s, emp_status = %s
         WHERE employee_id = %s
-    """, (first_name, last_name, emp_position, shift, emp_status, employee_id))
+    """, (first_name, last_name, emp_position, emp_status, employee_id))
     conn.commit()
     cursor.close()
     conn.close()
@@ -100,12 +99,5 @@ def get_employee_full_details(employee_id):
     """, (employee_id,))
     issued_items = cursor.fetchall()
 
-
-    # 🟢 Debug print
-    print("Employee:", employee)
-    print("Guests attended:", guests_attended)
-    print("Items issued:", issued_items)
-    cursor.close()
-    conn.close()
 
     return employee, guests_attended, issued_items

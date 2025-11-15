@@ -55,12 +55,6 @@
           <option value="admin" {% if editing and editing.emp_position == 'admin' %}selected{% endif %}>Admin</option>
         </select>
 
-        <select name="shift" required class="border rounded p-2 w-full">
-          <option value="Morning" {% if editing and editing.shift == 'Morning' %}selected{% endif %}>Morning</option>
-          <option value="Afternoon" {% if editing and editing.shift == 'Afternoon' %}selected{% endif %}>Afternoon</option>
-          <option value="Night" {% if editing and editing.shift == 'Night' %}selected{% endif %}>Night</option>
-        </select>
-
         <select name="emp_status" required class="border rounded p-2 w-full">
           <option value="Active" {% if editing and editing.emp_status == 'Active' %}selected{% endif %}>Active</option>
           <option value="Leave-vacation" {% if editing and editing.emp_status == 'Leave-vacation' %}selected{% endif %}>On Vacation</option>
@@ -88,7 +82,6 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
@@ -99,7 +92,6 @@
             <td class="px-6 py-4 whitespace-nowrap">{{ emp.employee_id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ emp.first_name }} {{ emp.last_name }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ emp.emp_position }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ emp.shift }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               {% if emp.emp_status == 'Active' %}
                 <span class="text-green-600 font-semibold">Active</span>

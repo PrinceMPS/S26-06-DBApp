@@ -114,6 +114,13 @@ def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_
                        VALUES (%s, %s, %s, NOW())
                        """, (booking_id, amount_paid, payment_method))
 
+        #update room availability status
+        cursor.execute("""
+                       UPDATE room
+                       SET availability_status = 'Booked'
+                       WHERE room_id = %s
+                       """, (room_id,))
+
         conn.commit()  # commit both inserts together
         return booking_id
 
@@ -145,10 +152,24 @@ def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
 def delete_booking_db(booking_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM booking WHERE booking_id = %s", (booking_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+
+    try:
+        # Get the room id
+        cursor.execute("SELECT room_id FROM booking WHERE booking_id = %s", (booking_id,))
+        row = cursor.fetchone()
+        if row:
+            room_id = row[0]
+
+            # Delete the booking
+            cursor.execute("DELETE FROM booking WHERE booking_id = %s", (booking_id,))
+
+            # Update room availability to 'vacant'
+            cursor.execute("UPDATE room SET availability_status = 'Vacant' WHERE room_id = %s", (room_id,))
+            conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+
 
 
 #to get amount in exeisting bookings

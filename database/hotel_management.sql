@@ -30,11 +30,10 @@ CREATE TABLE room(
 );
 
 CREATE TABLE employee(
-    employee_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT NOT NULL AUTO_INCREMENT ,
 	first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     emp_position ENUM ('frontdesk','housekeeping','admin') NOT NULL,
-    shift ENUM('Morning', 'Afternoon', 'Night') NOT NULL,
     emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternity') DEFAULT 'Active' NOT NULL,
     PRIMARY KEY (employee_id)
 );
@@ -455,11 +454,11 @@ INSERT INTO room (room_id, room_type_id, availability_status, housekeeping_statu
 (2019, 3, 'Vacant', 'For Cleaning'),
 (2020, 4, 'Vacant', 'Under Maintainance');
 -- Employees
-INSERT INTO employee (first_name, last_name, emp_position, shift, emp_status) VALUES
-('Carla', 'Reyes', 'frontdesk', 'Morning', 'Active'),
-('Mark', 'Villanueva', 'housekeeping', 'Afternoon', 'Active'),
-('Susan', 'Lim', 'admin', 'Morning', 'Active'),
-('Rico', 'Lopez', 'housekeeping', 'Night', 'Leave-sick');
+INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
+('Carla', 'Reyes', 'frontdesk',  'Active'),
+('Mark', 'Villanueva', 'housekeeping',  'Active'),
+('Susan', 'Lim', 'admin',  'Active'),
+('Rico', 'Lopez', 'housekeeping', 'Leave-sick');
 
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
