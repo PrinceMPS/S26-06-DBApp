@@ -18,7 +18,7 @@ def get_room_occupancy():
     total_rooms = cursor.fetchone()[0]
     
     # Occupied rooms - based on availability_status = 'Booked'
-    cursor.execute("SELECT COUNT(*) FROM room WHERE availability_status = 'Booked'")
+    cursor.execute("SELECT COUNT(*) FROM room WHERE availability_status = 'Occupied'")
     occupied_rooms = cursor.fetchone()[0]
     
     cursor.close()

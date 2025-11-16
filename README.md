@@ -1,21 +1,22 @@
-# CCINFOM-DBApp
+# Hotel Management Simulation
 CCINFOM-S26-06 DBApp for Term 1, 2025-2026
 
-# Hotel Management Simulation
-
- _Hotel Management Simulation_ |  _OOP Design Project_
 
 ## 📌 Project Overview
 
-This project simulates a Hotel Management DB System. This Java and SQL application models:
+A comprehensive Hotel Management System built with Flask (Python) and MySQL that streamlines hotel operations including room reservations, guest management, housekeeping, and payment processing.
 
 
 
-**Key Features:**  
-✅ Room reservation System  
-✅ Housekeeping Items tracking  
-✅ Guest Check-in and Check-out
-✅ Guest Payment dashboard
+**Key Features:**
+✅ Room reservation system with real-time availability
+✅ Guest management and check-in/check-out processing
+✅ Housekeeping items tracking and inventory management
+✅ Employee management and shift scheduling
+✅ Payment processing and revenue tracking
+✅ Comprehensive reporting and analytics
+✅ Real-time dashboard with occupancy and revenue metrics
+
 
 ## How to use
 
@@ -45,46 +46,84 @@ Before running the Hotel Management System, make sure the following are installe
      mysql --version
      ```
 
-4. **Python dependencies**  
+## Installation & Setup
+
+1. **Clone the repository**  
+```
+git clone https://github.com/PrinceMPS/S26-06-DBApp.git
+cd S26-06-DBAPP
+```
+
+2. **Install Python dependencies**  
    - Navigate to your project directory and install all required Python packages listed in `requirements.txt`:
      ```bash
      pip install -r requirements.txt
      ```
    - This will install packages such as `Flask`, `PyMySQL`, and any other dependencies your project uses.
 
+3. **Database Configuration** 
 
-
-### Clone Repository
-
+- Create a MySQL database named `hotel_management`
+  ```sql
+  CREATE DATABASE hotel_management;
+  ```
+- Update the `config.py` file with your database credentials:
+  ```python
+  DB_CONFIG = {
+      "host": "localhost",
+      "user": "your_username",
+      "password": "your_password",
+      "database": "hotel_management"
+  }
+  ```
+- Run the Application
+  ```bash
+  python app.py
+  ```
+- Access the Application
+Open your browser and navigate to:
+```text
+http://127.0.0.1:5000
 ```
-git clone https://github.com/PrinceMPS/S26-06-DBApp.git
+
+
+## Project Architecture
+The application follows the **Model-View-Controller (MVC)** pattern:
+
+### Directory Structure
+```text
+S26-06-DBApp/
+├── controllers/          # Application controllers
+│   ├── bookings_controller.py
+│   ├── guests_controller.py
+│   ├── rooms_controller.py
+│   ├── employees_controller.py
+│   ├── housekeeping_controller.py
+│   ├── payments_controller.py
+│   ├── gueststay_controller.py
+│   └── dashboard_controller.py
+├── models/              # Database models and business logic
+│   ├── bookings_model.py
+│   ├── guests_model.py
+│   ├── rooms_model.py
+│   ├── employees_model.py
+│   ├── housekeeping_model.py
+│   ├── payments_model.py
+│   ├── gueststay_model.py
+│   └── dashboard_model.py
+├── templates/           # HTML views
+│   ├── bookings/
+│   ├── guests/
+│   ├── rooms/
+│   ├── employees/
+│   ├── housekeeping/
+│   ├── payments/
+│   ├── gueststay/
+│   ├── reports/
+│   └── dashboard/
+├── static/              # CSS, JS, images
+├── config.py            # Database configuration
+├── app.py              # Flask application entry point
+└── requirements.txt    # Python dependencies
 ```
-
-### How to Run
-```
-cd .\S26-06-DBApp\
-python app.py
-```
-
-## Project organization
-
-The MVC structure is in `src` folder. In it, there are three folders and one files.
-
-### / (root)
-
-| Name           | Type        | Function                        |
-| -------------- | ----------- | ------------------------------- |
-|                |             |                                 |
-|                |           ` |                                 |
-| &#46;gitignore | `File`      | Github generated file           |
-
-### /src
-
-| Name            | Type        | Function                                       |
-| --------------- | ----------- | ---------------------------------------------- |
-| assets          | `Directory` | Contains all application content files         |
-| controller      | `Directory` | Contains all application controller classes    |
-| model           | `Directory` | Contains all application model classes         |
-| view            | `Directory` | Contains all application view classes          |
-| Driver&#46;java | `File`      | Class responsible for starting the application |
 

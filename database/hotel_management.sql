@@ -22,7 +22,7 @@ CREATE TABLE RoomType (
 CREATE TABLE room(
     room_id INT PRIMARY KEY,
     room_type_id INT NOT NULL,
-    availability_status ENUM('Booked', 'Vacant') DEFAULT 'Vacant' NOT NULL,
+    availability_status ENUM('Occupied', 'Reserved', 'Vacant') DEFAULT 'Vacant' NOT NULL,
     housekeeping_status ENUM('For Cleaning', 'Under Maintainance', 'Ready') DEFAULT 'Ready' NOT NULL,
    
    -- Foreign Key

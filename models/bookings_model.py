@@ -114,10 +114,10 @@ def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_
                        VALUES (%s, %s, %s, NOW())
                        """, (booking_id, amount_paid, payment_method))
 
-        #update room availability status
+        # Update room availability status to 'Reserved' when booking is placed
         cursor.execute("""
                        UPDATE room
-                       SET availability_status = 'Booked'
+                       SET availability_status = 'Reserved'
                        WHERE room_id = %s
                        """, (room_id,))
 
@@ -140,21 +140,42 @@ def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE booking
-        SET guest_id = %s, room_id = %s, start_date = %s, end_date = %s
-        WHERE booking_id = %s
-    """, (guest_id, room_id, start_date, end_date, booking_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    
+    try:
+        # Get the current room_id from the booking to check if room is changing
+        cursor.execute("SELECT room_id FROM booking WHERE booking_id = %s", (booking_id,))
+        current_booking = cursor.fetchone()
+        old_room_id = current_booking[0] if current_booking else None
+        
+        # Update the booking
+        cursor.execute("""
+            UPDATE booking
+            SET guest_id = %s, room_id = %s, start_date = %s, end_date = %s
+            WHERE booking_id = %s
+        """, (guest_id, room_id, start_date, end_date, booking_id))
+        
+        # If room is changing, update both room statuses
+        if old_room_id and old_room_id != room_id:
+            # Set old room back to 'Vacant'
+            cursor.execute("UPDATE room SET availability_status = 'Vacant' WHERE room_id = %s", (old_room_id,))
+            
+            # Set new room to 'Reserved'
+            cursor.execute("UPDATE room SET availability_status = 'Reserved' WHERE room_id = %s", (room_id,))
+        
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def delete_booking_db(booking_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        # Get the room id
+        # Get the room id from the booking
         cursor.execute("SELECT room_id FROM booking WHERE booking_id = %s", (booking_id,))
         row = cursor.fetchone()
         if row:
@@ -163,13 +184,16 @@ def delete_booking_db(booking_id):
             # Delete the booking
             cursor.execute("DELETE FROM booking WHERE booking_id = %s", (booking_id,))
 
-            # Update room availability to 'vacant'
+            # Update room availability to 'Vacant' when booking is deleted
             cursor.execute("UPDATE room SET availability_status = 'Vacant' WHERE room_id = %s", (room_id,))
-            conn.commit()
+            
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
     finally:
         cursor.close()
         conn.close()
-
 
 
 #to get amount in exeisting bookings
@@ -222,4 +246,3 @@ def get_booking_total_amount_for_new(room_id, start_date, end_date):
         raise Exception("End date must be after start date")
 
     return result['total_amount']
-

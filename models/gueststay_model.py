@@ -114,11 +114,11 @@ def check_in_guest(booking_id, employee_id, check_in_time, expected_checkout_tim
         
         cursor.execute(query, (booking_id, employee_id, check_in_time, expected_checkout_time, remarks))
         
-        # Update room status to Booked
+        # Update room status to Occupied
         cursor.execute("""
             UPDATE room r
             JOIN booking b ON r.room_id = b.room_id
-            SET r.availability_status = 'Booked'
+            SET r.availability_status = 'Occupied'
             WHERE b.booking_id = %s
         """, (booking_id,))
         

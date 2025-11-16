@@ -22,7 +22,7 @@ def handle_room():
     
     try:
         update_room_db(room_id, availability_status, housekeeping_status)
-        flash('Room updated successfully!', 'success')
+        flash(f'Room #{room_id} updated successfully! Status: {availability_status}', 'success')
     except Exception as e:
         flash(f'Error updating room: {str(e)}', 'error')
     

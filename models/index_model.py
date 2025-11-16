@@ -16,7 +16,7 @@ def get_report_cards():
             'id': 'hotel_revenue',
             'title': '💰 Hotel Revenue',
             'description': 'View daily, weekly, and monthly revenue reports.',
-            'url': 'hotel_revenue.html'
+            'url': 'http://127.0.0.1:5000/reports/hotel-revenue'
         },
         {
             'id': 'guest_stay',
