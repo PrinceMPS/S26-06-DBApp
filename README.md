@@ -8,13 +8,13 @@ A comprehensive Hotel Management System built with Flask (Python) and MySQL that
 
 
 **Key Features:**  
-✅ Room reservation system with real-time availability
-✅ Guest management and check-in/check-out processing
-✅ Housekeeping items tracking and inventory management
-✅ Employee management and shift scheduling
-✅ Payment processing and revenue tracking
-✅ Comprehensive reporting and analytics
-✅ Real-time dashboard with occupancy and revenue metrics
+✅ Room reservation system with real-time availability  
+✅ Guest management and check-in/check-out processing  
+✅ Housekeeping items tracking and inventory management  
+✅ Employee management and shift scheduling  
+✅ Payment processing and revenue tracking  
+✅ Comprehensive reporting and analytics  
+✅ Real-time dashboard with occupancy and revenue metrics  
 
 
 
@@ -121,7 +121,6 @@ S26-06-DBApp/
 │   ├── gueststay/
 │   ├── reports/
 │   └── dashboard/
-├── static/              # CSS, JS, images
 ├── config.py            # Database configuration
 ├── app.py              # Flask application entry point
 └── requirements.txt    # Python dependencies
