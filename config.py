@@ -2,7 +2,7 @@
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "insertpwordhere",
+    "password": "MamsDLSU082805!",
     "database": "Hotel_Management"
 }
 

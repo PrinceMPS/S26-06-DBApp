@@ -101,7 +101,7 @@ CREATE TABLE housekeeping_item_issuance (
     employee_id INT NOT NULL,
     quantity_issued INT NOT NULL,
     date_issued DATETIME DEFAULT CURRENT_TIMESTAMP,
-    issuance_status ENUM('pending','issued'),
+    issuance_status ENUM('issued', 'returned', 'cancelled') DEFAULT 'issued',
     remarks TEXT,
 
     PRIMARY KEY (issuance_id),

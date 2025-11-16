@@ -5,89 +5,169 @@ from models.housekeeping_items_model import (
     add_housekeeping_item_db, 
     update_housekeeping_item_db, 
     delete_housekeeping_item_db,
-    get_low_stock_items
+    get_low_stock_items,
+    get_all_employees,
+    issue_housekeeping_items,
+    get_issuance_history
 )
 
-# Blueprint name must match what is used in url_for()
 housekeeping_bp = Blueprint('housekeeping_items', __name__)
 
 # ---------------------------
-# Display all housekeeping items
+# MAIN HOUSEKEEPING PAGE
 # ---------------------------
-@housekeeping_bp.route('/housekeeping-items')
+@housekeeping_bp.route('/housekeeping-items', methods=['GET', 'POST'])
 def housekeeping_items_page():
-    items = get_all_housekeeping_items()
-    return render_template('housekeeping_items.html', housekeeping_items=items)
+    # Handle POST requests (item management)
+    if request.method == 'POST':
+        # Check if it's a delete action
+        if request.form.get('action') == 'delete':
+            item_id = request.form.get('housekeeping_item_id')
+            if item_id:
+                try:
+                    delete_housekeeping_item_db(item_id)
+                    flash('Item deleted successfully!', 'success')
+                except Exception as e:
+                    flash(f'Cannot delete item: {str(e)}', 'error')
+            return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory'))
+        
+        # Check if it's a save action (add or update)
+        elif request.form.get('action') == 'save':
+            # Handle save/update
+            item_id = request.form.get('housekeeping_item_id')
+            item_name = request.form.get('item_name')
+            cost_per_unit = request.form.get('cost_per_unit')
+            current_stock = request.form.get('current_stock')
+            minimum_stock = request.form.get('minimum_stock')
+            max_stock_storage = request.form.get('max_stock_storage')
 
+            # Validate fields
+            if not all([item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage]):
+                flash('All fields are required.', 'error')
+                # Return to the same page with form data preserved
+                return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
+
+            try:
+                cost_per_unit = float(cost_per_unit)
+                current_stock = int(current_stock)
+                minimum_stock = int(minimum_stock)
+                max_stock_storage = int(max_stock_storage)
+            except ValueError:
+                flash('Invalid numeric values.', 'error')
+                return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
+
+            if item_id and item_id != '':  # UPDATE
+                try:
+                    update_housekeeping_item_db(
+                        item_id, item_name, cost_per_unit,
+                        current_stock, minimum_stock, max_stock_storage
+                    )
+                    flash('Item updated successfully!', 'success')
+                except Exception as e:
+                    flash(f'Error updating item: {str(e)}', 'error')
+                    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id))
+            else:  # ADD NEW
+                try:
+                    add_housekeeping_item_db(
+                        item_name, cost_per_unit, current_stock,
+                        minimum_stock, max_stock_storage
+                    )
+                    flash('New housekeeping item added!', 'success')
+                except Exception as e:
+                    flash(f'Error adding item: {str(e)}', 'error')
+                    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit='new'))
+            
+            return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory'))
+    
+    # Handle GET requests (page display)
+    tab = request.args.get('tab', 'inventory')
+    editing_item_id = request.args.get('edit')
+    
+    items = get_all_housekeeping_items()
+    employees = get_all_employees()
+    issuance_history = get_issuance_history()
+    low_stock_items = get_low_stock_items()
+    
+    editing = None
+    if editing_item_id and editing_item_id != 'new':
+        # Editing existing item
+        editing = get_housekeeping_item_by_id(editing_item_id)
+    elif editing_item_id == 'new':
+        # Adding new item - create empty template
+        editing = {
+            'housekeeping_item_id': None,
+            'item_name': '',
+            'cost_per_unit': '',
+            'current_stock': '',
+            'minimum_stock': '',
+            'max_stock_storage': ''
+        }
+    
+    return render_template('housekeeping_items.html', 
+                         housekeeping_items=items, 
+                         employees=employees,
+                         issuance_history=issuance_history,
+                         low_stock_items=low_stock_items,
+                         editing=editing,
+                         active_tab=tab)
 
 # ---------------------------
-# Edit item
+# EDIT ITEM ROUTE
 # ---------------------------
 @housekeeping_bp.route('/housekeeping-items/edit/<int:item_id>')
 def edit_housekeeping_item(item_id):
-    item = get_housekeeping_item_by_id(item_id)
-    items = get_all_housekeeping_items()
-    return render_template('housekeeping_items.html',
-                           housekeeping_items=items,
-                           editing=item)
-
+    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id))
 
 # ---------------------------
-# Add / Update / Delete
+# ADD NEW ITEM ROUTE
 # ---------------------------
-@housekeeping_bp.route('/housekeeping-items', methods=['POST'])
-def handle_housekeeping_item():
+@housekeeping_bp.route('/housekeeping-items/add')
+def add_housekeeping_item():
+    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit='new'))
 
-    action = request.form.get('action', 'save')
-    item_id = request.form.get('housekeeping_item_id')
-
-    if action == 'delete':
-        delete_housekeeping_item_db(item_id)
-        flash('Item deleted successfully!', 'success')
-        return redirect(url_for('housekeeping_items.housekeeping_items_page'))
-
-    # Otherwise: add or update
-    item_name = request.form.get('item_name')
-    cost_per_unit = request.form.get('cost_per_unit')
-    current_stock = request.form.get('current_stock')
-    minimum_stock = request.form.get('minimum_stock')
-    max_stock_storage = request.form.get('max_stock_storage')
+# ---------------------------
+# HANDLE ITEM ISSUANCE
+# ---------------------------
+@housekeeping_bp.route('/housekeeping-items/issue', methods=['POST'])
+def handle_item_issuance():
+    housekeeping_item_id = request.form.get('housekeeping_item_id')
+    quantity_issued = request.form.get('quantity_issued')
+    employee_id = request.form.get('employee_id')
 
     # Validate fields
-    if not all([item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage]):
-        flash('All fields are required.', 'error')
-        return redirect(url_for('housekeeping_items.housekeeping_items_page'))
+    if not all([housekeeping_item_id, quantity_issued, employee_id]):
+        flash('All fields are required for item issuance.', 'error')
+        return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
     try:
-        cost_per_unit = float(cost_per_unit)
-        current_stock = int(current_stock)
-        minimum_stock = int(minimum_stock)
-        max_stock_storage = int(max_stock_storage)
+        quantity_issued = int(quantity_issued)
+        if quantity_issued <= 0:
+            flash('Quantity must be greater than 0.', 'error')
+            return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
     except ValueError:
-        flash('Invalid numeric values.', 'error')
-        return redirect(url_for('housekeeping_items.housekeeping_items_page'))
+        flash('Invalid quantity value.', 'error')
+        return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
-    if item_id:  # UPDATE
-        update_housekeeping_item_db(
-            item_id, item_name, cost_per_unit,
-            current_stock, minimum_stock, max_stock_storage
-        )
-        flash('Item updated successfully!', 'success')
+    try:
+        issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
+        flash(f'Successfully issued {quantity_issued} items! Stock updated.', 'success')
+    except Exception as e:
+        flash(f'Error issuing items: {str(e)}', 'error')
 
-    else:  # ADD NEW
-        add_housekeeping_item_db(
-            item_name, cost_per_unit, current_stock,
-            minimum_stock, max_stock_storage
-        )
-        flash('New housekeeping item added!', 'success')
-
-    return redirect(url_for('housekeeping_items.housekeeping_items_page'))
-
+    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
 # ---------------------------
-# LOW STOCK PAGE
+# DELETE ISSUANCE RECORD
 # ---------------------------
-@housekeeping_bp.route('/housekeeping-items/low-stock')
-def low_stock_items_page():
-    low_stock = get_low_stock_items()
-    return render_template('low_stock_items.html', low_stock_items=low_stock)
+@housekeeping_bp.route('/housekeeping-items/delete-issuance', methods=['POST'])
+def delete_issuance():
+    issuance_id = request.form.get('issuance_id')
+    
+    if issuance_id:
+        try:
+            delete_issuance_db(issuance_id)
+            flash('Issuance record deleted successfully! Stock has been restored.', 'success')
+        except Exception as e:
+            flash(f'Error deleting issuance record: {str(e)}', 'error')
+    
+    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
