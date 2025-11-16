@@ -37,7 +37,6 @@
           <label for="month" class="block font-semibold text-gray-700">Month</label>
           <select name="month" id="month" required class="w-full border border-gray-300 rounded px-3 py-2">
             <option value="">Select Month</option>
-            {% set month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
             {% for m in range(1, 13) %}
               <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ month_names[m-1] }}</option>
             {% endfor %}
@@ -96,9 +95,9 @@
     </div>
     {% endif %}
 
-    {% if guest_stays is defined and guest_stays|length == 0 %}
+    {% if guest_stays is defined and guest_stays|length == 0 and request.method == 'POST' %}
     <div class="bg-white p-6 rounded shadow">
-      <p class="text-gray-700">No guest stay records found for the selected period.</p>
+      <p class="text-gray-700">No guest stay records found for {{ month_names[selected_month-1] }} {{ selected_year }}.</p>
     </div>
     {% endif %}
   </main>

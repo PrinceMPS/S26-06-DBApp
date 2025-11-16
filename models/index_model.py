@@ -22,7 +22,7 @@ def get_report_cards():
             'id': 'guest_stay',
             'title': '🛎️ Guest Stay',
             'description': 'Track guest stay history and check-in/check-out records.',
-            'url': 'guest-stay.html'
+            'url': 'http://127.0.0.1:5000/reports/guest-stay'
         },
         {
             'id': 'housekeeping_usage',
