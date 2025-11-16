@@ -34,6 +34,7 @@ def edit_booking(booking_id):
                 b[key] = value.strftime('%Y-%m-%d')
                 
     return render_template('bookings.html', bookings=bookings, editing=booking)
+
 @bookings_bp.route('/bookings', methods=['POST'])
 def handle_booking():
     action = request.form.get('action', 'save')
@@ -60,7 +61,7 @@ def handle_booking():
     if action == 'delete':
         try:
             delete_booking_db(booking_id)
-            flash('Booking deleted successfully!', 'success')
+            flash('Booking deleted successfully! Room status updated to Vacant.', 'success')
         except Exception as e:
             flash(f'Error deleting booking: {str(e)}', 'error')
         return redirect(url_for('bookings.bookings_page'))
@@ -104,14 +105,23 @@ def handle_booking():
         # Save booking
         try:
             if booking_id:
+                # For updates, check if room is changing and handle room status updates
+                old_booking = get_booking_by_id(booking_id)
+                old_room_id = old_booking['room_id'] if old_booking else None
+                
                 update_booking_db(booking_id, guest_id, room_id, start_date, end_date)
-                flash('Booking updated successfully!', 'success')
+                
+                # Provide informative message about room status changes
+                if old_room_id and old_room_id != int(room_id):
+                    flash(f'Booking updated successfully! Room {old_room_id} set to Vacant, Room {room_id} set to Reserved.', 'success')
+                else:
+                    flash('Booking updated successfully!', 'success')
             else:
+                # For new bookings, room will be set to Reserved
                 create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method)
-                flash('Booking added and payment recorded successfully!', 'success')
+                flash('Booking added and payment recorded successfully! Room status set to Reserved.', 'success')
         except Exception as e:
             flash(f"Error saving booking: {str(e)}", 'error')
             return render_template('bookings.html', bookings=get_all_bookings(), editing=form_data)
 
     return redirect(url_for('bookings.bookings_page'))
-
