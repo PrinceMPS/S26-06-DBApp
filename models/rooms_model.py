@@ -91,6 +91,32 @@ def update_room_db(room_id, availability_status, housekeeping_status):
     cursor.close()
     conn.close()
 
+def delete_room_db(room_id):
+    """
+    Delete a room from the database
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Check if room has any bookings
+        cursor.execute("SELECT COUNT(*) FROM booking WHERE room_id = %s", (room_id,))
+        booking_count = cursor.fetchone()[0]
+        
+        if booking_count > 0:
+            raise Exception(f"Cannot delete room #{room_id} because it has {booking_count} booking(s). Delete the bookings first.")
+        
+        # Delete the room
+        cursor.execute("DELETE FROM room WHERE room_id = %s", (room_id,))
+        conn.commit()
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
 def get_room_types():
     """
     Get all room types for the dropdown

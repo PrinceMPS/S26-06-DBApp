@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request
-from models.guest_stay_report_model import get_guest_stay_report
+from models.guest_stay_report_model import get_guest_stay_report_month, get_guest_stay_report_year
 
 guest_stay_report_bp = Blueprint('guest_stay_report', __name__, url_prefix='/reports')
 
@@ -10,6 +10,7 @@ def guest_stay_report():
     total_spending_sum = 0
     selected_month = None
     selected_year = None
+    report_type = None
     
     # Month names for display
     month_names = [
@@ -18,16 +19,25 @@ def guest_stay_report():
     ]
     
     if request.method == 'POST':
-        selected_month = int(request.form.get('month'))
+        report_type = request.form.get('report_type')  # "month" or "year"
         selected_year = int(request.form.get('year'))
         
-        try:
-            guest_stays, total_nights_sum, total_spending_sum = get_guest_stay_report(
-                selected_month, selected_year
-            )
-        except Exception as e:
-            # Handle any errors in the report generation
-            print(f"Error generating guest stay report: {e}")
+        if report_type == 'month':
+            selected_month = int(request.form.get('month'))
+            try:
+                guest_stays, total_nights_sum, total_spending_sum = get_guest_stay_report_month(
+                    selected_month, selected_year
+                )
+            except Exception as e:
+                print(f"Error generating monthly guest stay report: {e}")
+        
+        elif report_type == 'year':
+            try:
+                guest_stays, total_nights_sum, total_spending_sum = get_guest_stay_report_year(
+                    selected_year
+                )
+            except Exception as e:
+                print(f"Error generating yearly guest stay report: {e}")
     
     # Set default values for first load
     if not selected_year:
@@ -43,5 +53,6 @@ def guest_stay_report():
         total_spending_sum=total_spending_sum,
         selected_month=selected_month,
         selected_year=selected_year,
+        report_type=report_type,
         month_names=month_names
     )

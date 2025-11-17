@@ -65,7 +65,7 @@ CREATE TABLE booking (
 
 CREATE TABLE payment (
     payment_id INT NOT NULL AUTO_INCREMENT,
-    booking_id INT NOT NULL,
+    booking_id INT NOT NULL UNIQUE,
     amount_paid DECIMAL(10,2) NOT NULL,
     payment_method ENUM('Cash','Credit Card','Debit Card') NOT NULL,
     payment_datetime DATETIME NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE payment (
 
 CREATE TABLE GuestStay(
     transaction_id INT NOT NULL AUTO_INCREMENT,
-    booking_id INT NOT NULL,
+    booking_id INT NOT NULL UNIQUE,
     employee_id INT NOT NULL,
     check_in_time_date DATETIME,
     expected_check_out_time_date DATETIME,
