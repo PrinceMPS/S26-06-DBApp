@@ -23,7 +23,6 @@ CREATE TABLE room(
     room_id INT PRIMARY KEY,
     room_type_id INT NOT NULL,
     availability_status ENUM('Occupied', 'Reserved', 'Vacant') DEFAULT 'Vacant' NOT NULL,
-    housekeeping_status ENUM('For Cleaning', 'Under Maintainance', 'Ready') DEFAULT 'Ready' NOT NULL,
    
    -- Foreign Key
     FOREIGN KEY (room_type_id) REFERENCES roomtype(room_type_id)
@@ -40,7 +39,7 @@ CREATE TABLE employee(
 
 CREATE TABLE housekeeping_item(
     housekeeping_item_id INT NOT NULL AUTO_INCREMENT,
-	item_name VARCHAR(20) NOT NULL,
+	item_name VARCHAR(20) NOT NULL UNIQUE,
     cost_per_unit DECIMAL(10,2) NOT NULL,
     current_stock INT NOT NULL,
     minimum_stock INT NOT NULL,
@@ -552,6 +551,7 @@ INSERT INTO room (room_id, room_type_id, availability_status, housekeeping_statu
 (2018, 2, 'Vacant', 'Ready'),
 (2019, 3, 'Vacant', 'For Cleaning'),
 (2020, 4, 'Vacant', 'Under Maintainance');
+
 -- Employees
 INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
 ('Carla', 'Reyes', 'Front desk',  'Active'),
