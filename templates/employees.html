@@ -50,9 +50,9 @@
         <input name="last_name" type="text" placeholder="Last Name" value="{{ editing.last_name if editing }}" required class="border rounded p-2 w-full">
 
         <select name="emp_position" required class="border rounded p-2 w-full">
-          <option value="frontdesk" {% if editing and editing.emp_position == 'frontdesk' %}selected{% endif %}>Front Desk</option>
-          <option value="housekeeping" {% if editing and editing.emp_position == 'housekeeping' %}selected{% endif %}>Housekeeping</option>
-          <option value="admin" {% if editing and editing.emp_position == 'admin' %}selected{% endif %}>Admin</option>
+          <option value="Front desk" {% if editing and editing.emp_position == 'Front desk' %}selected{% endif %}>Front Desk</option>
+          <option value="Housekeeping" {% if editing and editing.emp_position == 'Housekeeping' %}selected{% endif %}>Housekeeping</option>
+          <option value="Admin" {% if editing and editing.emp_position == 'Admin' %}selected{% endif %}>Admin</option>
         </select>
 
         <select name="emp_status" required class="border rounded p-2 w-full">

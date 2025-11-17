@@ -55,11 +55,12 @@ def handle_employee():
 
 @employees_bp.route('/employees/details/<int:employee_id>')
 def employee_details(employee_id):
-    employee, guests_attended, issued_items = get_employee_full_details(employee_id)
+    employee, guests_attended, items_received, items_issued = get_employee_full_details(employee_id)
 
     return render_template(
         'employee_details.html',  # separate template for clarity
         employee=employee,
         guests_attended=guests_attended,
-        issued_items=issued_items
+        items_received = items_received,
+        items_issued = items_issued
     )
