@@ -10,7 +10,8 @@ from models.housekeeping_items_model import (
     get_all_admin_employees,
     issue_housekeeping_items,
     get_issuance_history,
-    delete_issuance_db
+    delete_issuance_db,
+    get_housekeeping_item_with_issuance_history
 )
 
 housekeeping_bp = Blueprint('housekeeping_items', __name__)
@@ -83,6 +84,7 @@ def housekeeping_items_page():
     # Handle GET requests (page display)
     tab = request.args.get('tab', 'inventory')
     editing_item_id = request.args.get('edit')
+    viewing_item_id = request.args.get('view_item')
     
     items = get_all_housekeeping_items()
     housekeeping_employees = get_all_housekeeping_employees()
@@ -91,6 +93,16 @@ def housekeeping_items_page():
     low_stock_items = get_low_stock_items()
     
     editing = None
+    viewing_item = None
+    
+    # Handle viewing specific item
+    if viewing_item_id:
+        viewing_item = get_housekeeping_item_with_issuance_history(viewing_item_id)
+        if not viewing_item:
+            flash('Housekeeping item not found!', 'error')
+            return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory'))
+    
+    # Handle editing
     if editing_item_id and editing_item_id != 'new':
         editing = get_housekeeping_item_by_id(editing_item_id)
     elif editing_item_id == 'new':
@@ -110,6 +122,7 @@ def housekeeping_items_page():
                          issuance_history=issuance_history,
                          low_stock_items=low_stock_items,
                          editing=editing,
+                         viewing_item=viewing_item,
                          active_tab=tab)
 
 # ---------------------------
