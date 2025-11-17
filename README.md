@@ -66,14 +66,18 @@ cd S26-06-DBAPP
   ```sql
   CREATE DATABASE hotel_management;
   ```
-- Update the `config.py` file with your database credentials:
+create a file called `config.py` file with your database credentials:
   ```python
-  DB_CONFIG = {
-      "host": "localhost",
-      "user": "your_username",
-      "password": "your_password",
-      "database": "hotel_management"
-  }
+# config.py
+DB_CONFIG = {
+    "host": "localhost",
+    "user": "your_username",
+    "password": "your_password",
+    "database": "hotel_management"
+}
+
+# Add this simple secret key (no need to change)
+SECRET_KEY = 'your-secret-key-here-12345'
   ```
 - Run the Application
   ```bash
