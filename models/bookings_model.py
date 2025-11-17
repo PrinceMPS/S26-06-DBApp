@@ -88,7 +88,6 @@ def get_conflicting_booking(room_id, start_date, end_date, exclude_booking_id=No
     
     return conflict
 
-
 def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method):
     # Check room availability first
     if not check_room_availability(room_id, start_date, end_date):
@@ -130,7 +129,6 @@ def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_
     finally:
         cursor.close()
         conn.close()
-
 
 def update_booking_db(booking_id, guest_id, room_id, start_date, end_date):
     # Check availability excluding current booking
@@ -181,7 +179,7 @@ def delete_booking_db(booking_id):
         if row:
             room_id = row[0]
 
-            # Delete the booking
+            # Delete the booking - payments will be automatically deleted due to CASCADE
             cursor.execute("DELETE FROM booking WHERE booking_id = %s", (booking_id,))
 
             # Update room availability to 'Vacant' when booking is deleted
@@ -195,8 +193,6 @@ def delete_booking_db(booking_id):
         cursor.close()
         conn.close()
 
-
-#to get amount in exeisting bookings
 def get_booking_total_amount(booking_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True) #access column names as keys
