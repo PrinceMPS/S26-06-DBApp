@@ -2,7 +2,7 @@
 CCINFOM-S26-06 DBApp for Term 1, 2025-2026
 
 
-## 📌 Project Overview
+## Project Overview
 
 A comprehensive Hotel Management System built with Flask (Python) and MySQL that streamlines hotel operations including room reservations, guest management, housekeeping, and payment processing.
 
@@ -11,7 +11,6 @@ A comprehensive Hotel Management System built with Flask (Python) and MySQL that
 ✅ Room reservation system with real-time availability  
 ✅ Guest management and check-in/check-out processing  
 ✅ Housekeeping items tracking and inventory management  
-✅ Employee management and shift scheduling  
 ✅ Payment processing and revenue tracking  
 ✅ Comprehensive reporting and analytics  
 ✅ Real-time dashboard with occupancy and revenue metrics  
