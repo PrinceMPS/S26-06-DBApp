@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.guests_model import get_all_guests, get_guest_by_id, add_guest_db, update_guest_db, delete_guest_db
+from models.guests_model import get_all_guests, get_guest_by_id, add_guest_db, update_guest_db, delete_guest_db, get_guest_full_details
 
 guests_bp = Blueprint('guests', __name__)
 
@@ -50,3 +50,14 @@ def handle_guest():
             flash(f'Error saving guest: {str(e)}', 'error')
     
     return redirect(url_for('guests.guests_page'))
+
+@guests_bp.route('/guests/details/<int:guest_id>')
+def guest_details(guest_id):
+    guest, bookings, guest_stays = get_guest_full_details(guest_id)
+    
+    return render_template(
+        'guest_details.html',
+        guest=guest,
+        bookings=bookings,
+        guest_stays=guest_stays
+    )
