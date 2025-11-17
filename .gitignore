@@ -141,7 +141,7 @@ venv.bak/
 *.bak
 
 # Ignore sensitive config (optional but recommended)
-config.py
+#config.py
 
 
 
