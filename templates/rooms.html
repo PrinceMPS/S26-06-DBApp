@@ -39,10 +39,56 @@
       {% endif %}
     {% endwith %}
 
+    <!-- Add Room Form (Always visible) -->
+    <form method="POST" action="{{ url_for('rooms.handle_room') }}" class="mb-6 bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-4">Add New Room</h2>
+      <input type="hidden" name="action" value="add">
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600">Room ID</label>
+          <input type="number" name="room_id" value="{{ next_room_number }}" required 
+                 class="border rounded p-2 w-full bg-gray-50" readonly>
+          <p class="text-xs text-gray-500 mt-1">Auto-generated following pattern</p>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Room Type</label>
+          <select name="room_type_id" required class="border rounded p-2 w-full">
+            <option value="">Select Room Type</option>
+            {% for room_type in room_types %}
+            <option value="{{ room_type.room_type_id }}">{{ room_type.room_type_id }} - {{ room_type.type_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Availability Status</label>
+          <select name="availability_status" required class="border rounded p-2 w-full">
+            <option value="Vacant">Vacant</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Occupied">Occupied</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Housekeeping Status</label>
+          <select name="housekeeping_status" required class="border rounded p-2 w-full">
+            <option value="Ready">Ready</option>
+            <option value="For Cleaning">For Cleaning</option>
+            <option value="Under Maintainance">Under Maintenance</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
+            Add Room
+          </button>
+        </div>
+      </div>
+    </form>
+
     <!-- Edit Room Form (Only shown when editing) -->
     {% if editing %}
-    <form method="POST" action="{{ url_for('rooms.handle_room') }}" class="mb-6 bg-white p-4 rounded shadow">
+    <form method="POST" action="{{ url_for('rooms.handle_room') }}" class="mb-6 bg-yellow-50 p-4 rounded shadow">
       <h2 class="text-lg font-semibold mb-4">Edit Room #{{ editing.room_id }}</h2>
+      <input type="hidden" name="action" value="update">
       <input type="hidden" name="room_id" value="{{ editing.room_id }}">
       
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -52,9 +98,11 @@
           <p class="text-xs text-gray-500 mt-1">Room ID cannot be changed</p>
         </div>
         <div>
-          <label class="block text-sm text-gray-600">Room Type ID</label>
-          <p class="border rounded p-2 w-full bg-gray-100">{{ editing.room_type_id }}</p>
-          <p class="text-xs text-gray-500 mt-1">Room Type ID cannot be changed</p>
+          <label class="block text-sm text-gray-600">Room Type</label>
+          <p class="border rounded p-2 w-full bg-gray-100">
+            {{ editing.room_type_id }} - {{ editing.type_name }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Room Type cannot be changed</p>
         </div>
         <div>
           <label class="block text-sm text-gray-600">Availability Status</label>
@@ -90,7 +138,7 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability Status</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Housekeeping Status</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -99,8 +147,11 @@
         <tbody class="bg-white divide-y divide-gray-200">
           {% for room in rooms %}
           <tr class="hover:bg-gray-100">
-            <td class="px-6 py-4 whitespace-nowrap">{{ room.room_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ room.room_type_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap font-medium">{{ room.room_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {{ room.room_type_id }} - {{ room.type_name }}<br>
+              <span class="text-sm text-gray-500">₱{{ "%.2f"|format(room.rate_per_type) }}/night</span>
+            </td>
             <td class="px-6 py-4 whitespace-nowrap font-semibold
                 {% if room.availability_status == 'Vacant' %} text-green-600
                 {% elif room.availability_status == 'Reserved' %} text-orange-600
@@ -113,10 +164,13 @@
                 {% else %} text-red-600 {% endif %}">
               {{ room.housekeeping_status }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-6 py-4 whitespace-nowrap space-x-2">
               <!-- Edit Button -->
               <a href="{{ url_for('rooms.edit_room', room_id=room.room_id) }}" 
                  class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
+              <!-- View Details Button -->
+              <a href="{{ url_for('room_details.room_details_page', room_id=room.room_id) }}" 
+                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">View Details</a>
             </td>
           </tr>
           {% endfor %}
