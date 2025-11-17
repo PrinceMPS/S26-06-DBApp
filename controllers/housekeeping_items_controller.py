@@ -6,9 +6,11 @@ from models.housekeeping_items_model import (
     update_housekeeping_item_db, 
     delete_housekeeping_item_db,
     get_low_stock_items,
-    get_all_employees,
+    get_all_housekeeping_employees,
+    get_all_admin_employees,
     issue_housekeeping_items,
-    get_issuance_history
+    get_issuance_history,
+    delete_issuance_db
 )
 
 housekeeping_bp = Blueprint('housekeeping_items', __name__)
@@ -44,7 +46,6 @@ def housekeeping_items_page():
             # Validate fields
             if not all([item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage]):
                 flash('All fields are required.', 'error')
-                # Return to the same page with form data preserved
                 return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
 
             try:
@@ -84,16 +85,15 @@ def housekeeping_items_page():
     editing_item_id = request.args.get('edit')
     
     items = get_all_housekeeping_items()
-    employees = get_all_employees()
+    housekeeping_employees = get_all_housekeeping_employees()
+    admin_employees = get_all_admin_employees()
     issuance_history = get_issuance_history()
     low_stock_items = get_low_stock_items()
     
     editing = None
     if editing_item_id and editing_item_id != 'new':
-        # Editing existing item
         editing = get_housekeeping_item_by_id(editing_item_id)
     elif editing_item_id == 'new':
-        # Adding new item - create empty template
         editing = {
             'housekeeping_item_id': None,
             'item_name': '',
@@ -105,7 +105,8 @@ def housekeeping_items_page():
     
     return render_template('housekeeping_items.html', 
                          housekeeping_items=items, 
-                         employees=employees,
+                         employees=housekeeping_employees,
+                         admin_employees=admin_employees,
                          issuance_history=issuance_history,
                          low_stock_items=low_stock_items,
                          editing=editing,
@@ -133,9 +134,11 @@ def handle_item_issuance():
     housekeeping_item_id = request.form.get('housekeeping_item_id')
     quantity_issued = request.form.get('quantity_issued')
     employee_id = request.form.get('employee_id')
+    issuer_id = request.form.get('issuer_id')
+    remarks = request.form.get('remarks', '')
 
     # Validate fields
-    if not all([housekeeping_item_id, quantity_issued, employee_id]):
+    if not all([housekeeping_item_id, quantity_issued, employee_id, issuer_id]):
         flash('All fields are required for item issuance.', 'error')
         return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
@@ -149,7 +152,7 @@ def handle_item_issuance():
         return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
     try:
-        issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
+        issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id, issuer_id, remarks)
         flash(f'Successfully issued {quantity_issued} items! Stock updated.', 'success')
     except Exception as e:
         flash(f'Error issuing items: {str(e)}', 'error')

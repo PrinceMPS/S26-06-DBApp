@@ -103,7 +103,7 @@ def get_low_stock_items():
     conn.close()
     return low_stock_items
 
-def get_all_employees():
+def get_all_housekeeping_employees():
     """Get all employees for the issuance form - only active housekeeping staff"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -124,11 +124,33 @@ def get_all_employees():
     conn.close()
     return employees
 
-def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id):
+def get_all_admin_employees():
+    """Get all employees for the issuer field - only active admin staff"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT 
+            employee_id,
+            first_name,
+            last_name,
+            emp_position,
+            emp_status
+        FROM employee
+        WHERE emp_position = 'admin'
+        AND emp_status = 'Active'
+        ORDER BY first_name, last_name
+    """)
+    employees = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return employees
+
+def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id, issuer_id, remarks=None):
     """
     Issue housekeeping items to an employee
     - Check item availability
     - Validate employee is active housekeeping staff
+    - Validate issuer is active admin staff
     - Record the issuance
     - Update item stock
     """
@@ -136,10 +158,22 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # Start transaction
         conn.start_transaction()
         
-        # 1. Validate employee is active housekeeping staff
+        # 1. Validate issuer is active admin staff
+        cursor.execute("""
+            SELECT employee_id, emp_position, emp_status 
+            FROM employee 
+            WHERE employee_id = %s 
+            AND emp_position = 'admin'
+            AND emp_status = 'Active'
+        """, (issuer_id,))
+        issuer = cursor.fetchone()
+        
+        if not issuer:
+            raise Exception("Issuer is not authorized to issue items. Must be active admin staff.")
+        
+        # 2. Validate employee is active housekeeping staff
         cursor.execute("""
             SELECT employee_id, emp_position, emp_status 
             FROM employee 
@@ -150,9 +184,9 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
         employee = cursor.fetchone()
         
         if not employee:
-            raise Exception("Employee is not authorized to issue items. Must be active housekeeping staff.")
+            raise Exception("Employee is not authorized to receive items. Must be active housekeeping staff.")
         
-        # 2. Check current stock availability
+        # 3. Check current stock availability
         cursor.execute("SELECT current_stock, item_name FROM housekeeping_item WHERE housekeeping_item_id = %s", 
                       (housekeeping_item_id,))
         item = cursor.fetchone()
@@ -163,14 +197,14 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
         if item['current_stock'] < quantity_issued:
             raise Exception(f"Insufficient stock. Available: {item['current_stock']}, Requested: {quantity_issued}")
         
-        # 3. Record the issuance
+        # 4. Record the issuance (REMOVED issuance_status since it's always 'issued')
         cursor.execute("""
             INSERT INTO housekeeping_item_issuance 
-            (housekeeping_item_id, quantity_issued, employee_id, date_issued, issuance_status)
-            VALUES (%s, %s, %s, NOW(), 'issued')
-        """, (housekeeping_item_id, quantity_issued, employee_id))
+            (housekeeping_item_id, quantity_issued, employee_id, issuer_id, date_issued, remarks)
+            VALUES (%s, %s, %s, %s, NOW(), %s)
+        """, (housekeeping_item_id, quantity_issued, employee_id, issuer_id, remarks))
         
-        # 4. Update housekeeping item stock
+        # 5. Update housekeeping item stock
         new_stock = item['current_stock'] - quantity_issued
         cursor.execute("""
             UPDATE housekeeping_item 
@@ -187,36 +221,12 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id)
         cursor.close()
         conn.close()
 
-def get_issuance_history(limit=50):
-    """Get recent housekeeping item issuance history"""
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT 
-            hii.issuance_id,
-            hi.item_name,
-            hii.quantity_issued,
-            CONCAT(e.first_name, ' ', e.last_name) as employee_name,
-            e.emp_position,
-            hii.date_issued
-        FROM housekeeping_item_issuance hii
-        JOIN housekeeping_item hi ON hii.housekeeping_item_id = hi.housekeeping_item_id
-        JOIN employee e ON hii.employee_id = e.employee_id
-        ORDER BY hii.date_issued DESC
-        LIMIT %s
-    """, (limit,))
-    issuance_history = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return issuance_history
-
 def delete_issuance_db(issuance_id):
     """Delete a specific issuance record and restore stock"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     
     try:
-        # Start transaction
         conn.start_transaction()
         
         # 1. Get the issuance details before deleting
@@ -248,3 +258,30 @@ def delete_issuance_db(issuance_id):
     finally:
         cursor.close()
         conn.close()
+
+def get_issuance_history(limit=50):
+    """Get recent housekeeping item issuance history (REMOVED issuance_status)"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT 
+            hii.issuance_id,
+            hi.item_name,
+            hii.quantity_issued,
+            CONCAT(e.first_name, ' ', e.last_name) as employee_name,
+            e.emp_position as employee_position,
+            CONCAT(issuer.first_name, ' ', issuer.last_name) as issuer_name,
+            issuer.emp_position as issuer_position,
+            hii.date_issued,
+            hii.remarks
+        FROM housekeeping_item_issuance hii
+        JOIN housekeeping_item hi ON hii.housekeeping_item_id = hi.housekeeping_item_id
+        JOIN employee e ON hii.employee_id = e.employee_id
+        JOIN employee issuer ON hii.issuer_id = issuer.employee_id
+        ORDER BY hii.date_issued DESC
+        LIMIT %s
+    """, (limit,))
+    issuance_history = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return issuance_history

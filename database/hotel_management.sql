@@ -18,7 +18,7 @@ CREATE TABLE RoomType (
     rate_per_type DECIMAL(10,2) NOT NULL,
     capacity INT NOT NULL
 );
-
+ 
 CREATE TABLE room(
     room_id INT PRIMARY KEY,
     room_type_id INT NOT NULL,
@@ -37,7 +37,6 @@ CREATE TABLE employee(
     emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternity') DEFAULT 'Active' NOT NULL,
     PRIMARY KEY (employee_id)
 );
-
 
 CREATE TABLE housekeeping_item(
     housekeeping_item_id INT NOT NULL AUTO_INCREMENT,
@@ -93,22 +92,21 @@ CREATE TABLE GuestStay(
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
 );
 
-
-
 CREATE TABLE housekeeping_item_issuance (
     issuance_id INT NOT NULL AUTO_INCREMENT,
-	housekeeping_item_id  INT NOT NULL,
+    housekeeping_item_id INT NOT NULL,
     employee_id INT NOT NULL,
+    issuer_id INT NOT NULL,
     quantity_issued INT NOT NULL,
     date_issued DATETIME DEFAULT CURRENT_TIMESTAMP,
-    issuance_status ENUM('issued', 'returned', 'cancelled') DEFAULT 'issued',
-    remarks TEXT,
+    remarks TEXT NULL,
 
     PRIMARY KEY (issuance_id),
 
     -- Foreign Keys
-    FOREIGN KEY (housekeeping_item_id ) REFERENCES housekeeping_item(housekeeping_item_id ),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (housekeeping_item_id) REFERENCES housekeeping_item(housekeeping_item_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (issuer_id) REFERENCES employee(employee_id)
 );
 
 -- Guests
@@ -470,9 +468,9 @@ INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_
 
 -- Bookings
 INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALUES
-(1001, 502, '2025-11-01', '2025-11-03', '2025-11-05'),  -- Maria booked Room 2
-(1002, 1203, '2025-11-05', '2025-11-06', '2025-11-08'),  -- John booked Room 3
-(1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');  -- Akira booked Room 1
+(1001, 502, '2025-11-01', '2025-11-03', '2025-11-05'),  
+(1002, 1203, '2025-11-05', '2025-11-06', '2025-11-08'),  
+(1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');  
 
 -- Payments
 INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
@@ -487,11 +485,8 @@ INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_che
 (3, 1, '2025-11-09 13:30:00', '2025-11-10 12:00:00', '2025-11-10 12:05:00', 'On-time check-out');
 
 -- Housekeeping Item Issuance
-INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, quantity_issued, issuance_status, remarks) VALUES
-(1, 2, 5, 'issued', 'Issued for Room 2 cleaning'),
-(2, 2, 10, 'issued', 'Daily cleaning supplies'),
-(3, 4, 8, 'pending', 'Pending approval for restocking'),
-(5, 2, 2, 'issued', 'Bedsheets replacement for Room 1');
-
-
-
+INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, remarks) VALUES
+(1, 2, 3, 5,  'Issued for Room 2 cleaning'),
+(2, 2, 3, 10, 'Daily cleaning supplies'),
+(3, 4, 3, 8, 'Restocking supplies'), 
+(5, 2, 3, 2, 'Bedsheets replacement for Room 1');
