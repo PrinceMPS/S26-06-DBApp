@@ -169,7 +169,7 @@ INSERT INTO guest (first_name, last_name, contact_number, email_address) VALUES
 ('Henry', 'Villena', '09350010047', 'henry.villena@example.com'),
 ('Ella', 'Pascual', '09450010048', 'ella.pascual@example.com'),
 ('Marco', 'Lorenzo', '09170010049', 'marco.lorenzo@example.com'),
-('Clara', 'Francisco', '09280010050', 'clara.francisco@example.com')
+('Clara', 'Francisco', '09280010050', 'clara.francisco@example.com'),
 ('Xander', 'Beltran', '09350010051', 'xander.beltran@example.com'),
 ('Leah', 'De Vera', '09450010052', 'leah.devera@example.com'),
 ('Owen', 'Yap', '09170010053', 'owen.yap@example.com'),
@@ -555,12 +555,21 @@ INSERT INTO room (room_id, room_type_id, availability_status) VALUES
 
 -- Employees
 INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
-('Carla', 'Reyes', 'Front desk',  'Active'),
-('Mark', 'Villanueva', 'Housekeeping',  'Active'),
-('Susan', 'Lim', 'Admin',  'Active'),
+('Carla', 'Reyes', 'Front Desk', 'Active'),
+('Mark', 'Villanueva', 'Housekeeping', 'Active'),
+('Susan', 'Lim', 'Admin', 'Active'),
 ('Rico', 'Lopez', 'Housekeeping', 'Leave-sick');
 
 -- Housekeeping Items
+INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
+('Toilet Paper', 25.50, 100, 20, 200),
+('Soap', 15.75, 150, 30, 300),
+('Shampoo', 35.25, 80, 15, 180),
+('Towel', 120.00, 50, 10, 100),
+('Bedsheet', 280.50, 40, 8, 80),
+('Pillow Case', 85.00, 60, 12, 120);
+
+-- Bookings
 INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALUES
 -- Guest 1001 (Juan Dela Cruz) - 3 bookings
 (1001, 501, '2024-01-05', '2024-01-10', '2024-01-15'),
@@ -601,22 +610,19 @@ INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALU
 (1009, 1807, '2025-02-12', '2025-02-14', '2025-02-18'),
 -- Guest 1010 (Elena Cruz) - 4 bookings
 (1010, 513, '2024-02-17', '2024-02-19', '2024-02-23'),
-(1010, 630, '2024-07-21', '2024-07-23', '2024-07-28'),
+(1010, 610, '2024-07-21', '2024-07-23', '2024-07-28'),
 (1010, 1710, '2025-03-01', '2025-03-03', '2025-03-07'),
-(1010, 2003, '2025-05-10', '2025-05-12', '2025-05-17');
-
-
--- Bookings
-INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALUES
+(1010, 2003, '2025-05-10', '2025-05-12', '2025-05-17'),
+-- Additional recent bookings
 (1001, 502, '2025-11-01', '2025-11-03', '2025-11-05'),  
 (1002, 1203, '2025-11-05', '2025-11-06', '2025-11-08'),  
-(1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');  
+(1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');
 
 -- Payments
 INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
 (1, 5000.00, 'Credit Card', '2025-11-01 11:45:00'),
 (2, 7000.00, 'Cash', '2025-11-05 09:20:00'),
-(3, 1500.00, 'Debit Card','2025-11-08 13:10:00');
+(3, 1500.00, 'Debit Card', '2025-11-08 13:10:00');
 
 -- Guest Stay
 INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
@@ -626,7 +632,7 @@ INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_che
 
 -- Housekeeping Item Issuance
 INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, remarks) VALUES
-(1, 2, 3, 5,  'Issued for Room cleaning'),
+(1, 2, 3, 5, 'Issued for Room cleaning'),
 (2, 2, 3, 10, 'Daily cleaning supplies'),
 (3, 4, 3, 8, 'Restocking supplies'), 
 (5, 2, 3, 2, 'Bedsheets replacement for Room');
