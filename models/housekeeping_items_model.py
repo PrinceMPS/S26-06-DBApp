@@ -260,7 +260,7 @@ def delete_issuance_db(issuance_id):
         conn.close()
 
 def get_issuance_history(limit=50):
-    """Get recent housekeeping item issuance history (REMOVED issuance_status)"""
+    """Get recent housekeeping item issuance history"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -285,3 +285,54 @@ def get_issuance_history(limit=50):
     cursor.close()
     conn.close()
     return issuance_history
+
+def get_housekeeping_item_with_issuance_history(item_id):
+    """Get housekeeping item details with issuance history to employees"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Get item details
+    cursor.execute("""
+        SELECT 
+            housekeeping_item_id,
+            item_name,
+            cost_per_unit,
+            current_stock
+        FROM housekeeping_item 
+        WHERE housekeeping_item_id = %s
+    """, (item_id,))
+    item = cursor.fetchone()
+    
+    if item:
+        # Get issuance history with employee details
+        cursor.execute("""
+            SELECT 
+                hii.issuance_id,
+                hii.quantity_issued,
+                hii.date_issued,
+                hii.remarks,
+                -- Employee who received the item
+                receiver.employee_id as receiver_id,
+                receiver.first_name as receiver_first_name,
+                receiver.last_name as receiver_last_name,
+                receiver.emp_position as receiver_position,
+                receiver.emp_status as receiver_status,
+                -- Employee who issued the item (admin)
+                issuer.employee_id as issuer_id,
+                issuer.first_name as issuer_first_name,
+                issuer.last_name as issuer_last_name,
+                issuer.emp_position as issuer_position,
+                issuer.emp_status as issuer_status
+            FROM housekeeping_item_issuance hii
+            JOIN employee receiver ON hii.employee_id = receiver.employee_id
+            JOIN employee issuer ON hii.issuer_id = issuer.employee_id
+            WHERE hii.housekeeping_item_id = %s
+            ORDER BY hii.date_issued DESC
+        """, (item_id,))
+        issuance_history = cursor.fetchall()
+        
+        item['issuance_history'] = issuance_history
+    
+    cursor.close()
+    conn.close()
+    return item
