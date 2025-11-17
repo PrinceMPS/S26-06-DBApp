@@ -108,6 +108,10 @@
             <td class="p-2">{{ guest.email_address }}</td>
             <td class="p-2">{{ guest.nationality }}</td>
             <td class="p-2 space-x-2">
+              <!-- View Button -->
+              <a href="{{ url_for('guests.guest_details', guest_id=guest.guest_id) }}" 
+                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">View</a>
+              
               <!-- Edit Button -->
               <a href="{{ url_for('guests.edit_guest', guest_id=guest.guest_id) }}" 
                  class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">Edit</a>
