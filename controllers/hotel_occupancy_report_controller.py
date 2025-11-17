@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash
-from models.occupancy_report_model import get_hotel_occupancy_month
+from models.occupancy_report_model import get_hotel_occupancy_month, get_hotel_occupancy_year
 
 hotel_occupancy_bp = Blueprint('hotel_occupancy', __name__, url_prefix='/reports')
 
@@ -9,12 +9,18 @@ def hotel_occupancy_report():
     report = None
     selected_year = None
     selected_month = None
+    report_type = None
 
     if request.method == 'POST':
         try:
+            report_type = request.form.get('report_type')  # "month" or "year"
             selected_year = int(request.form.get('year'))
-            selected_month = int(request.form.get('month'))
-            report = get_hotel_occupancy_month(selected_year, selected_month)
+            
+            if report_type == 'month':
+                selected_month = int(request.form.get('month'))
+                report = get_hotel_occupancy_month(selected_year, selected_month)
+            elif report_type == 'year':
+                report = get_hotel_occupancy_year(selected_year)
         except Exception as e:
             flash(f"Error generating report: {e}", 'error')
 
@@ -22,5 +28,6 @@ def hotel_occupancy_report():
         'reports/hotel_occupancy.html',
         report=report,
         selected_year=selected_year,
-        selected_month=selected_month
+        selected_month=selected_month,
+        report_type=report_type
     )
