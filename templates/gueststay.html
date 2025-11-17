@@ -63,10 +63,39 @@
       </form>
     </div>
 
+    <!-- Filter Buttons -->
+    <div class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Quick Filters</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a href="/gueststay/pending-checkins" class="flex items-center justify-center bg-green-600 text-white px-6 py-4 rounded hover:bg-green-700 transition">
+          <span class="text-2xl mr-3">✅</span>
+          <div class="text-left">
+            <div class="font-semibold text-lg">Pending Check-Ins</div>
+            <div class="text-sm opacity-90">View bookings ready for check-in</div>
+          </div>
+        </a>
+        <a href="/gueststay/pending-checkouts" class="flex items-center justify-center bg-orange-600 text-white px-6 py-4 rounded hover:bg-orange-700 transition">
+          <span class="text-2xl mr-3">🚪</span>
+          <div class="text-left">
+            <div class="font-semibold text-lg">Pending Check-Outs</div>
+            <div class="text-sm opacity-90">View guests ready for check-out</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- Search Results / Booking Details -->
     {% if bookings %}
     <div class="bg-white rounded shadow overflow-hidden mb-6">
-      <h2 class="text-xl font-semibold p-6 bg-gray-50 border-b">Search Results</h2>
+      <h2 class="text-xl font-semibold p-6 bg-gray-50 border-b">
+        {% if filter_type == 'checkin' %}
+          ✅ Pending Check-Ins
+        {% elif filter_type == 'checkout' %}
+          🚪 Pending Check-Outs
+        {% else %}
+          Search Results
+        {% endif %}
+      </h2>
       
       {% for booking in bookings %}
       <div class="p-6 border-b last:border-b-0">
@@ -77,6 +106,22 @@
             <p><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
             <p><strong>Room:</strong> {{ booking.room_id }} ({{ booking.room_type }})</p>
             <p><strong>Dates:</strong> {{ booking.start_date }} to {{ booking.end_date }}</p>
+            {% if booking.days_until_checkin is defined %}
+              {% if booking.days_until_checkin == 0 %}
+                <p class="text-green-600 font-semibold">📅 Check-in: Today!</p>
+              {% elif booking.days_until_checkin > 0 %}
+                <p class="text-blue-600">📅 Check-in: In {{ booking.days_until_checkin }} day(s)</p>
+              {% elif booking.days_until_checkin < 0 %}
+                <p class="text-red-600">⚠️ {{ booking.days_until_checkin|abs }} day(s) overdue</p>
+              {% endif %}
+            {% endif %}
+            {% if booking.days_until_checkout is defined %}
+              {% if booking.days_until_checkout <= 0 %}
+                <p class="text-orange-600 font-semibold">🚪 Check-out: Due now!</p>
+              {% else %}
+                <p class="text-blue-600">🚪 Check-out: In {{ booking.days_until_checkout }} day(s)</p>
+              {% endif %}
+            {% endif %}
           </div>
           <div>
             <h3 class="text-lg font-semibold mb-2">Guest Information</h3>
@@ -182,6 +227,23 @@
       </div>
       {% endfor %}
     </div>
+    {% else %}
+      {% if filter_type %}
+      <div class="bg-white rounded shadow p-6 mb-6">
+        <div class="text-center text-gray-600 py-8">
+          {% if filter_type == 'checkin' %}
+            <div class="text-6xl mb-4">📭</div>
+            <h3 class="text-xl font-semibold mb-2">No Pending Check-Ins</h3>
+            <p>There are no bookings ready for check-in at this time.</p>
+            <p class="text-sm mt-2">Check-ins are shown for bookings within 7 days of their start date that haven't been checked in yet.</p>
+          {% elif filter_type == 'checkout' %}
+            <div class="text-6xl mb-4">✨</div>
+            <h3 class="text-xl font-semibold mb-2">No Pending Check-Outs</h3>
+            <p>There are no guests currently checked in and ready for check-out.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
     {% endif %}
 
   </main>
