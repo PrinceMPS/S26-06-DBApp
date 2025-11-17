@@ -8,7 +8,6 @@ def get_all_rooms():
             r.room_id,
             r.room_type_id,
             r.availability_status,
-            r.housekeeping_status,
             rt.type_name,
             rt.rate_per_type
         FROM room r
@@ -68,25 +67,25 @@ def get_next_room_number():
         # Move to next block (2021 → 2101, 2121 → 2201, etc.)
         return base + 100 + 1
 
-def add_room_db(room_id, room_type_id, availability_status, housekeeping_status):
+def add_room_db(room_id, room_type_id, availability_status):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO room (room_id, room_type_id, availability_status, housekeeping_status)
+        INSERT INTO room (room_id, room_type_id, availability_status)
         VALUES (%s, %s, %s, %s)
-    """, (room_id, room_type_id, availability_status, housekeeping_status))
+    """, (room_id, room_type_id, availability_status))
     conn.commit()
     cursor.close()
     conn.close()
 
-def update_room_db(room_id, availability_status, housekeeping_status):
+def update_room_db(room_id, availability_status):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE room 
-        SET availability_status = %s, housekeeping_status = %s
+        SET availability_status = %s
         WHERE room_id = %s
-    """, (availability_status, housekeeping_status, room_id))
+    """, (availability_status, room_id))
     conn.commit()
     cursor.close()
     conn.close()

@@ -30,34 +30,81 @@ def get_housekeeping_item_by_id(item_id):
     conn.close()
     return item
 
+def check_item_name_exists(item_name, exclude_item_id=None):
+    """Check if an item name already exists (case-insensitive)"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    if exclude_item_id:
+        # For update operations - check if name exists excluding current item
+        cursor.execute("""
+            SELECT COUNT(*) as count 
+            FROM housekeeping_item 
+            WHERE LOWER(item_name) = LOWER(%s) AND housekeeping_item_id != %s
+        """, (item_name.strip(), exclude_item_id))
+    else:
+        # For insert operations - check if name exists anywhere
+        cursor.execute("""
+            SELECT COUNT(*) as count 
+            FROM housekeeping_item 
+            WHERE LOWER(item_name) = LOWER(%s)
+        """, (item_name.strip(),))
+    
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return result['count'] > 0
+
 def add_housekeeping_item_db(item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage):
     """Add a new housekeeping item to the database"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    
+    try:
+        # Check if item name already exists
+        if check_item_name_exists(item_name):
+            raise Exception(f"Item name '{item_name}' already exists. Please use a different name.")
+        
+        cursor.execute("""
+            INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (item_name.strip(), cost_per_unit, current_stock, minimum_stock, max_stock_storage))
+        conn.commit()
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def update_housekeeping_item_db(item_id, item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage):
     """Update an existing housekeeping item"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE housekeeping_item 
-        SET item_name = %s, 
-            cost_per_unit = %s, 
-            current_stock = %s, 
-            minimum_stock = %s, 
-            max_stock_storage = %s
-        WHERE housekeeping_item_id = %s
-    """, (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage, item_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    
+    try:
+        # Check if item name already exists (excluding current item)
+        if check_item_name_exists(item_name, item_id):
+            raise Exception(f"Item name '{item_name}' already exists. Please use a different name.")
+        
+        cursor.execute("""
+            UPDATE housekeeping_item 
+            SET item_name = %s, 
+                cost_per_unit = %s, 
+                current_stock = %s, 
+                minimum_stock = %s, 
+                max_stock_storage = %s
+            WHERE housekeeping_item_id = %s
+        """, (item_name.strip(), cost_per_unit, current_stock, minimum_stock, max_stock_storage, item_id))
+        conn.commit()
+        
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def delete_housekeeping_item_db(item_id):
     """Delete a housekeeping item from the database only if no issuance records exist"""
@@ -197,7 +244,7 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id,
         if item['current_stock'] < quantity_issued:
             raise Exception(f"Insufficient stock. Available: {item['current_stock']}, Requested: {quantity_issued}")
         
-        # 4. Record the issuance (REMOVED issuance_status since it's always 'issued')
+        # 4. Record the issuance
         cursor.execute("""
             INSERT INTO housekeeping_item_issuance 
             (housekeeping_item_id, quantity_issued, employee_id, issuer_id, date_issued, remarks)
