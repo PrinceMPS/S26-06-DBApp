@@ -94,34 +94,67 @@ The application follows the **Model-View-Controller (MVC)** pattern:
 S26-06-DBApp/
 ├── controllers/          # Application controllers
 │   ├── bookings_controller.py
-│   ├── guests_controller.py
-│   ├── rooms_controller.py
+│   ├── dashboard_controller.py
 │   ├── employees_controller.py
-│   ├── housekeeping_controller.py
-│   ├── payments_controller.py
+│   ├── guest_stay_controller.py
+│   ├── guests_controller.py
 │   ├── gueststay_controller.py
-│   └── dashboard_controller.py
+│   ├── hotel_occupancy_report_controller.py
+│   ├── hotel_revenue_report_controller.py
+│   ├── housekeeping_controller.py
+│   ├── index_controller.py
+│   ├── items_usage_report_controller.py
+│   ├── payment_controller.py
+│   ├── reports_controller.py
+│   ├── room_details_controller.py
+│   └── rooms_controller.py
+│
+├── database/            # SQL Database
+│   └── hotel_management.sql
+│
+├── instance/            # Flask instance folder (config per deployment)
+│   └── config.py
+│
 ├── models/              # Database models and business logic
 │   ├── bookings_model.py
-│   ├── guests_model.py
-│   ├── rooms_model.py
+│   ├── dashboard_model.py
 │   ├── employees_model.py
-│   ├── housekeeping_model.py
-│   ├── payments_model.py
+│   ├── guest_stay_model.py
+│   ├── guests_model.py
 │   ├── gueststay_model.py
-│   └── dashboard_model.py
+│   ├── housekeeping_items_model.py
+│   ├── index_model.py
+│   ├── items_usage_report_model.py
+│   ├── occupancy_report_model.py
+│   ├── payment_model.py
+│   ├── reports_model.py
+│   ├── revenue_report_model.py
+│   ├── room_details_model.py
+│   └── rooms_model.py
+│
 ├── templates/           # HTML views
-│   ├── bookings/
-│   ├── guests/
-│   ├── rooms/
-│   ├── employees/
-│   ├── housekeeping/
-│   ├── payments/
-│   ├── gueststay/
 │   ├── reports/
-│   └── dashboard/
-├── config.py            # Database configuration
-├── app.py              # Flask application entry point
-└── requirements.txt    # Python dependencies
+│   │   ├── guest_stay_report.html
+│   │   ├── hotel_occupancy.html
+│   │   ├── hotel_revenue.html
+│   │   ├── index.html
+│   │   └── items_usage_report.html
+│   ├── bookings.html
+│   ├── dashboard.html
+│   ├── employee_details.html
+│   ├── employees.html
+│   ├── guest_details.html
+│   ├── guests.html
+│   ├── gueststay.html
+│   ├── housekeeping_items.html
+│   ├── payment.html
+│   ├── room_details.html
+│   └── rooms.html
+│
+├── app.py              # Flask application entry point: initializes app, blueprints, and server
+├── config.py           # Global configuration (DB URI, secret keys, settings)
+├── db.py               # Database connection helper / wrapper functions
+├── README.md           # Project overview and instructions
+└── requirements.txt    # Python dependencies (Flask, SQLAlchemy, etc.)
 ```
 
