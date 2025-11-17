@@ -108,25 +108,6 @@ CREATE TABLE housekeeping_item_issuance (
     FOREIGN KEY (issuer_id) REFERENCES employee(employee_id)
 );
 
--- For payment table - keep records but set booking_id to NULL
-ALTER TABLE payment
-DROP FOREIGN KEY payment_ibfk_1;
-
-ALTER TABLE payment 
-ADD CONSTRAINT payment_ibfk_1
-FOREIGN KEY (booking_id)
-REFERENCES booking(booking_id)
-ON DELETE SET NULL;
-
--- For gueststay table - either remove constraint or set to NULL
-ALTER TABLE gueststay
-DROP FOREIGN KEY gueststay_ibfk_1;
-
-ALTER TABLE gueststay 
-ADD CONSTRAINT gueststay_ibfk_1
-FOREIGN KEY (booking_id)
-REFERENCES booking(booking_id)
-ON DELETE SET NULL;
 
 -- Guests
 INSERT INTO guest (first_name, last_name, contact_number, email_address) VALUES
