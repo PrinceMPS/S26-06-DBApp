@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hotel Occupancy | Reports</title>
+  <title>Hotel Occupancy Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100 text-gray-800 flex">
 
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
@@ -24,69 +24,142 @@
     </nav>
   </aside>
   
-
   <!-- Main Content -->
-  <main class="flex-1 p-6">
-    <h1 class="text-2xl font-semibold mb-6">Hotel Occupancy Report</h1>
+  <main class="flex-1 p-10">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Hotel Occupancy Report</h1>
 
-    <div class="bg-white p-6 rounded shadow max-w-4xl">
-      <h2 class="text-xl font-semibold mb-4">Hotel Occupancy - Monthly</h2>
-
-      <form method="POST" class="space-y-4 grid grid-cols-3 gap-4 items-end">
+    <!-- Monthly Report Form -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Monthly Occupancy</h2>
+      <form method="POST" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="report_type" value="month">
+        
         <div>
-          <label class="block font-medium text-gray-700">Month</label>
-          <select name="month" id="month" required class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
-            <option value="">Select Month</option>
+          <label for="month_year" class="block font-semibold text-gray-700">Year</label>
+          <input type="number" name="year" id="month_year" min="2000" max="2100" value="{{ selected_year or '' }}" required
+                 class="border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <div>
+          <label for="month" class="block font-semibold text-gray-700">Month</label>
+          <select name="month" id="month" required class="border border-gray-300 rounded px-3 py-2">
+            <option value="">-- Select Month --</option>
             {% set month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
             {% for m in range(1, 13) %}
-                <option value="{{ m }}" {% if selected_month and (m == selected_month) %}selected{% endif %}>{{ month_names[m-1] }}</option>
+              <option value="{{ m }}" {% if selected_month and (m == selected_month) %}selected{% endif %}>{{ month_names[m-1] }}</option>
             {% endfor %}
           </select>
         </div>
 
-        <div>
-          <label class="block font-medium text-gray-700">Year</label>
-          <input type="number" name="year" min="2000" max="2100" required value="{{ selected_year or '' }}" class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
-        </div>
-
-        <div>
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Generate</button>
-        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Generate</button>
       </form>
+    </div>
 
-      {% if report %}
-      <div class="mt-6">
-        <div class="bg-gray-50 p-4 rounded">
-          <p><strong>Total Rooms:</strong> {{ report.total_rooms }}</p>
-          <p><strong>Days in Month:</strong> {{ report.days_in_month }}</p>
-          <p><strong>Total Room-Nights (capacity):</strong> {{ report.total_room_nights }}</p>
-          <p><strong>Booked Room-Nights:</strong> {{ report.booked_room_nights }}</p>
-          <p><strong>Occupancy Rate:</strong> {{ report.occupancy_rate }}%</p>
+    <!-- Yearly Report Form -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Yearly Occupancy</h2>
+      <form method="POST" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="report_type" value="year">
+        
+        <div>
+          <label for="year_only" class="block font-semibold text-gray-700">Year</label>
+          <input type="number" name="year" id="year_only" min="2000" max="2100" value="{{ selected_year or '' }}" required
+                 class="border border-gray-300 rounded px-3 py-2">
         </div>
 
-        <div class="mt-4 overflow-auto bg-white rounded shadow">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied Rooms</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Rooms</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              {% for d in report.daily_counts %}
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ d.date }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ d.occupied }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ report.total_rooms - d.occupied }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Generate</button>
+      </form>
+    </div>
+
+    <!-- Report Display -->
+    {% if report %}
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+        Occupancy for 
+        {% if report_type == 'month' %}
+          {{ month_names[selected_month-1] }} {{ selected_year }}
+        {% else %}
+          {{ selected_year }}
+        {% endif %}
+      </h2>
+
+      <!-- Summary Statistics -->
+      <div class="bg-gray-50 p-4 rounded mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div>
+            <p class="text-sm text-gray-600">Total Rooms</p>
+            <p class="text-xl font-semibold">{{ report.total_rooms }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">{% if report_type == 'month' %}Days in Month{% else %}Days in Year{% endif %}</p>
+            <p class="text-xl font-semibold">{% if report_type == 'month' %}{{ report.days_in_month }}{% else %}{{ report.days_in_year }}{% endif %}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Total Room-Nights (Capacity)</p>
+            <p class="text-xl font-semibold">{{ report.total_room_nights }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Booked Room-Nights</p>
+            <p class="text-xl font-semibold">{{ report.booked_room_nights }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Occupancy Rate</p>
+            <p class="text-xl font-semibold text-blue-600">{{ report.occupancy_rate }}%</p>
+          </div>
         </div>
       </div>
+
+      {% if report_type == 'month' %}
+      <!-- Daily Breakdown Table -->
+      <h3 class="text-lg font-semibold mb-2">Daily Breakdown</h3>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-800 text-gray-100">
+            <th class="text-left py-2 px-4">Date</th>
+            <th class="text-left py-2 px-4">Occupied Rooms</th>
+            <th class="text-left py-2 px-4">Available Rooms</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in report.daily_counts %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-4">{{ d.date }}</td>
+            <td class="py-2 px-4">{{ d.occupied }}</td>
+            <td class="py-2 px-4">{{ report.total_rooms - d.occupied }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <!-- Monthly Breakdown Table -->
+      <h3 class="text-lg font-semibold mb-2">Monthly Breakdown</h3>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-800 text-gray-100">
+            <th class="text-left py-2 px-4">Month</th>
+            <th class="text-left py-2 px-4">Total Room-Nights</th>
+            <th class="text-left py-2 px-4">Occupied Room-Nights</th>
+            <th class="text-left py-2 px-4">Occupancy Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in report.monthly_counts %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-4">{{ m.month_name }}</td>
+            <td class="py-2 px-4">{{ m.total_room_nights }}</td>
+            <td class="py-2 px-4">{{ m.occupied_nights }}</td>
+            <td class="py-2 px-4 font-semibold {% if m.occupancy_rate >= 70 %}text-green-600{% elif m.occupancy_rate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">{{ m.occupancy_rate }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       {% endif %}
     </div>
+    {% elif selected_year %}
+    <div class="bg-white p-6 rounded-lg shadow text-gray-600">
+      No occupancy records found for this period.
+    </div>
+    {% endif %}
   </main>
 
 </body>
