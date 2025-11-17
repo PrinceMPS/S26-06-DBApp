@@ -11,7 +11,8 @@ from models.housekeeping_items_model import (
     issue_housekeeping_items,
     get_issuance_history,
     delete_issuance_db,
-    get_housekeeping_item_with_issuance_history
+    get_housekeeping_item_with_issuance_history,
+    check_item_name_exists
 )
 
 housekeeping_bp = Blueprint('housekeeping_items', __name__)
@@ -38,7 +39,7 @@ def housekeeping_items_page():
         elif request.form.get('action') == 'save':
             # Handle save/update
             item_id = request.form.get('housekeeping_item_id')
-            item_name = request.form.get('item_name')
+            item_name = request.form.get('item_name', '').strip()
             cost_per_unit = request.form.get('cost_per_unit')
             current_stock = request.form.get('current_stock')
             minimum_stock = request.form.get('minimum_stock')
@@ -49,11 +50,22 @@ def housekeeping_items_page():
                 flash('All fields are required.', 'error')
                 return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
 
+            # Validate item name is not empty after stripping
+            if not item_name:
+                flash('Item name cannot be empty.', 'error')
+                return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
+
             try:
                 cost_per_unit = float(cost_per_unit)
                 current_stock = int(current_stock)
                 minimum_stock = int(minimum_stock)
                 max_stock_storage = int(max_stock_storage)
+                
+                # Validate numeric values
+                if cost_per_unit < 0 or current_stock < 0 or minimum_stock < 0 or max_stock_storage <= 0:
+                    flash('All numeric values must be positive.', 'error')
+                    return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
+                    
             except ValueError:
                 flash('Invalid numeric values.', 'error')
                 return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))

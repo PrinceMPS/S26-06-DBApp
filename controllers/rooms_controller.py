@@ -34,10 +34,9 @@ def handle_room():
         room_id = request.form.get('room_id')
         room_type_id = request.form.get('room_type_id')
         availability_status = request.form.get('availability_status')
-        housekeeping_status = request.form.get('housekeeping_status')
         
         try:
-            add_room_db(room_id, room_type_id, availability_status, housekeeping_status)
+            add_room_db(room_id, room_type_id, availability_status)
             flash(f'Room #{room_id} added successfully!', 'success')
         except Exception as e:
             flash(f'Error adding room: {str(e)}', 'error')
@@ -46,10 +45,9 @@ def handle_room():
         # Handle updating existing room
         room_id = request.form.get('room_id')
         availability_status = request.form.get('availability_status')
-        housekeeping_status = request.form.get('housekeeping_status')
         
         try:
-            update_room_db(room_id, availability_status, housekeeping_status)
+            update_room_db(room_id, availability_status)
             flash(f'Room #{room_id} updated successfully! Status: {availability_status}', 'success')
         except Exception as e:
             flash(f'Error updating room: {str(e)}', 'error')
