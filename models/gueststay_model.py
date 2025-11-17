@@ -237,3 +237,104 @@ def get_booking_details(booking_id):
     conn.close()
     
     return booking
+
+
+def get_pending_checkins():
+    """
+    Get all bookings that are ready for check-in (not yet checked in)
+    Sorted by start_date (nearest first)
+    Shows bookings from 7 days before start date up to 30 days in the future
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    query = """
+        SELECT 
+            b.booking_id,
+            b.guest_id,
+            b.room_id,
+            b.booking_date,
+            b.start_date,
+            b.end_date,
+            g.first_name AS guest_first_name,
+            g.last_name AS guest_last_name,
+            g.contact_number,
+            g.email_address,
+            r.room_id,
+            rt.type_name AS room_type,
+            rt.rate_per_type,
+            gs.transaction_id,
+            gs.employee_id,
+            gs.check_in_time_date,
+            gs.expected_check_out_time_date,
+            gs.actual_check_out_time_date,
+            gs.remarks,
+            CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+            DATEDIFF(b.start_date, CURDATE()) AS days_until_checkin
+        FROM booking b
+        LEFT JOIN guest g ON b.guest_id = g.guest_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        LEFT JOIN RoomType rt ON r.room_type_id = rt.room_type_id
+        LEFT JOIN GuestStay gs ON b.booking_id = gs.booking_id
+        LEFT JOIN employee e ON gs.employee_id = e.employee_id
+        WHERE gs.check_in_time_date IS NULL
+        AND b.start_date BETWEEN CURDATE() - INTERVAL 7 DAY AND CURDATE() + INTERVAL 30 DAY
+        ORDER BY b.start_date ASC, b.booking_id ASC
+    """
+    
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return results
+
+
+def get_pending_checkouts():
+    """
+    Get all bookings that are ready for check-out (checked in but not checked out)
+    Sorted by expected_check_out_time_date (nearest first)
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    query = """
+        SELECT 
+            b.booking_id,
+            b.guest_id,
+            b.room_id,
+            b.booking_date,
+            b.start_date,
+            b.end_date,
+            g.first_name AS guest_first_name,
+            g.last_name AS guest_last_name,
+            g.contact_number,
+            g.email_address,
+            r.room_id,
+            rt.type_name AS room_type,
+            rt.rate_per_type,
+            gs.transaction_id,
+            gs.employee_id,
+            gs.check_in_time_date,
+            gs.expected_check_out_time_date,
+            gs.actual_check_out_time_date,
+            gs.remarks,
+            CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
+            DATEDIFF(gs.expected_check_out_time_date, NOW()) AS days_until_checkout
+        FROM booking b
+        INNER JOIN GuestStay gs ON b.booking_id = gs.booking_id
+        LEFT JOIN guest g ON b.guest_id = g.guest_id
+        LEFT JOIN room r ON b.room_id = r.room_id
+        LEFT JOIN RoomType rt ON r.room_type_id = rt.room_type_id
+        LEFT JOIN employee e ON gs.employee_id = e.employee_id
+        WHERE gs.check_in_time_date IS NOT NULL
+        AND gs.actual_check_out_time_date IS NULL
+        ORDER BY gs.expected_check_out_time_date ASC, b.booking_id ASC
+    """
+    
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return results
