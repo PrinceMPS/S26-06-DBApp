@@ -1,9 +1,9 @@
 # config.py
 DB_CONFIG = {
     "host": "localhost",
-    "user": "root",
-    "password": "MamsDLSU082805!",
-    "database": "Hotel_Management"
+    "user": "your_username",
+    "password": "your_password",
+    "database": "hotel_management"
 }
 
 # Add this simple secret key
