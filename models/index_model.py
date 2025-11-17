@@ -28,7 +28,7 @@ def get_report_cards():
             'id': 'housekeeping_usage',
             'title': '🧹 Housekeeping Usage',
             'description': 'Analyze housekeeping item consumption and stock usage.',
-            'url': 'housekeeping-usage.html'
+            'url': 'http://127.0.0.1:5000/reports/items-usage'
         }
     ]
     return reports

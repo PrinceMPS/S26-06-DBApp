@@ -115,7 +115,7 @@ def get_all_housekeeping_employees():
             emp_position,
             emp_status
         FROM employee
-        WHERE emp_position = 'housekeeping'
+        WHERE emp_position = 'Housekeeping'
         AND emp_status = 'Active'
         ORDER BY first_name, last_name
     """)
@@ -136,7 +136,7 @@ def get_all_admin_employees():
             emp_position,
             emp_status
         FROM employee
-        WHERE emp_position = 'admin'
+        WHERE emp_position = 'Admin'
         AND emp_status = 'Active'
         ORDER BY first_name, last_name
     """)
@@ -165,7 +165,7 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id,
             SELECT employee_id, emp_position, emp_status 
             FROM employee 
             WHERE employee_id = %s 
-            AND emp_position = 'admin'
+            AND emp_position = 'Admin'
             AND emp_status = 'Active'
         """, (issuer_id,))
         issuer = cursor.fetchone()
@@ -178,7 +178,7 @@ def issue_housekeeping_items(housekeeping_item_id, quantity_issued, employee_id,
             SELECT employee_id, emp_position, emp_status 
             FROM employee 
             WHERE employee_id = %s 
-            AND emp_position = 'housekeeping'
+            AND emp_position = 'Housekeeping'
             AND emp_status = 'Active'
         """, (employee_id,))
         employee = cursor.fetchone()
