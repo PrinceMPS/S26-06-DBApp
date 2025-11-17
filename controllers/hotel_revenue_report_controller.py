@@ -11,6 +11,10 @@ def hotel_revenue_report():
     selected_year = None
     selected_month = None
 
+    month_names = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
     if request.method == 'POST':
         report_type = request.form.get('report_type')  # "month" or "year"
         selected_year = request.form.get('year')
@@ -33,5 +37,7 @@ def hotel_revenue_report():
         report_data=report_data,
         grand_total=grand_total,
         selected_year=selected_year,
-        selected_month=selected_month
+        selected_month=selected_month,
+        month_names=month_names
+
     )

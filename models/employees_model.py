@@ -90,7 +90,6 @@ def get_employee_full_details(employee_id):
             h.item_name,
             i.quantity_issued,
             i.date_issued,
-            i.issuance_status
         FROM housekeeping_item_issuance i
         JOIN housekeeping_item h 
             ON i.housekeeping_item_id = h.housekeeping_item_id
