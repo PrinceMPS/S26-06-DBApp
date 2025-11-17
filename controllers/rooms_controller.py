@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.rooms_model import get_all_rooms, get_room_by_id, update_room_db, get_next_room_number, add_room_db, get_room_types
+from models.rooms_model import get_all_rooms, get_room_by_id, update_room_db, get_next_room_number, add_room_db, get_room_types, delete_room_db
 
 rooms_bp = Blueprint('rooms', __name__)
 
@@ -53,5 +53,15 @@ def handle_room():
             flash(f'Room #{room_id} updated successfully! Status: {availability_status}', 'success')
         except Exception as e:
             flash(f'Error updating room: {str(e)}', 'error')
+    
+    elif action == 'delete':
+        # Handle deleting room
+        room_id = request.form.get('room_id')
+        
+        try:
+            delete_room_db(room_id)
+            flash(f'Room #{room_id} deleted successfully!', 'success')
+        except Exception as e:
+            flash(f'Error deleting room: {str(e)}', 'error')
     
     return redirect(url_for('rooms.rooms_page'))

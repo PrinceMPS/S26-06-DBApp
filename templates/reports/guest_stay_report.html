@@ -6,7 +6,7 @@
   <title>Guest Stay Report | Reports</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100 text-gray-800 flex">
 
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
@@ -23,84 +23,82 @@
       <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
-  
 
   <!-- Main Content -->
-  <main class="flex-1 p-6">
-    <h1 class="text-2xl font-semibold mb-6">Guest Stay Report</h1>
+  <main class="flex-1 p-10">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Guest Stay Report</h1>
 
-    <div class="bg-white p-6 rounded shadow max-w-lg mb-6">
-      <h2 class="text-xl font-semibold mb-4">Guest Stay Summary Report</h2>
+    <!-- Monthly Report Form -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Guest Stay Summary</h2>
+      <form method="POST" action="{{ url_for('guest_stay_report.guest_stay_report') }}" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="report_type" value="month">
 
-      <form method="POST" class="space-y-4">
+        <div>
+          <label for="month_year" class="block font-semibold text-gray-700">Year</label>
+          <input type="number" name="year" id="month_year" min="2000" max="2100" value="{{ selected_year }}" required
+                 class="border border-gray-300 rounded px-3 py-2">
+        </div>
+
         <div>
           <label for="month" class="block font-semibold text-gray-700">Month</label>
-          <select name="month" id="month" required class="w-full border border-gray-300 rounded px-3 py-2">
-            <option value="">Select Month</option>
-            {% for m in range(1, 13) %}
-              <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ month_names[m-1] }}</option>
+          <select name="month" id="month" required class="border border-gray-300 rounded px-3 py-2">
+            <option value="">-- Select Month --</option>
+            {% for i in range(1, 13) %}
+              <option value="{{ i }}" {% if selected_month|int == i %}selected{% endif %}>{{ month_names[i-1] }}</option>
             {% endfor %}
           </select>
         </div>
 
-        <div>
-          <label class="block font-medium text-gray-700">Year:</label>
-          <input type="number" name="year" min="2000" max="2100" value="{{ selected_year }}" required 
-                 class="mt-1 block w-full border border-gray-300 rounded px-3 py-2">
-        </div>
-
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Generate Report</button>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Generate Report</button>
       </form>
     </div>
 
+    <!-- Report Table -->
     {% if guest_stays %}
-    <div class="bg-white p-6 rounded shadow">
-      <h2 class="text-xl font-semibold mb-4">
-        Guest Stay Report for {{ month_names[selected_month-1] }} {{ selected_year }}
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+        Guest Stay Report for {{ month_names[selected_month|int - 1] }} {{ selected_year }}
       </h2>
-      
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Stays</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Nights</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spending</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            {% for guest in guest_stays %}
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">{{ guest.guest_id }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ guest.first_name }} {{ guest.last_name }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ guest.email_address }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ guest.total_stays }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">{{ guest.total_nights }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">₱{{ "%.2f"|format(guest.total_spending) }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-          <tfoot class="bg-gray-50">
-            <tr>
-              <td colspan="4" class="px-6 py-4 text-right font-semibold">Totals:</td>
-              <td class="px-6 py-4 whitespace-nowrap font-semibold">{{ total_nights_sum }}</td>
-              <td class="px-6 py-4 whitespace-nowrap font-semibold">₱{{ "%.2f"|format(total_spending_sum) }}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-    {% endif %}
 
-    {% if guest_stays is defined and guest_stays|length == 0 and request.method == 'POST' %}
-    <div class="bg-white p-6 rounded shadow">
-      <p class="text-gray-700">No guest stay records found for {{ month_names[selected_month-1] }} {{ selected_year }}.</p>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-800 text-gray-100">
+            <th class="text-left py-2 px-4">Guest ID</th>
+            <th class="text-left py-2 px-4">Guest Name</th>
+            <th class="text-left py-2 px-4">Email</th>
+            <th class="text-left py-2 px-4">Total Stays</th>
+            <th class="text-left py-2 px-4">Total Nights</th>
+            <th class="text-left py-2 px-4">Total Spending (₱)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for guest in guest_stays %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-4">{{ guest.guest_id }}</td>
+            <td class="py-2 px-4">{{ guest.first_name }} {{ guest.last_name }}</td>
+            <td class="py-2 px-4">{{ guest.email_address }}</td>
+            <td class="py-2 px-4">{{ guest.total_stays }}</td>
+            <td class="py-2 px-4">{{ guest.total_nights }}</td>
+            <td class="py-2 px-4">{{ "{:,.2f}".format(guest.total_spending) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-100 font-bold">
+            <td class="py-2 px-4" colspan="3">Total Guests: {{ guest_stays|length }}</td>
+            <td class="py-2 px-4">{{ guest_stays|sum(attribute='total_stays') }}</td>
+            <td class="py-2 px-4">{{ total_nights_sum }}</td>
+            <td class="py-2 px-4">{{ "{:,.2f}".format(total_spending_sum) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% elif selected_year and selected_month %}
+    <div class="bg-white p-6 rounded-lg shadow text-gray-600">
+      No guest stay records found for {{ month_names[selected_month|int - 1] }} {{ selected_year }}.
     </div>
     {% endif %}
   </main>
-
 </body>
 </html>

@@ -171,6 +171,15 @@
               <!-- View Details Button -->
               <a href="{{ url_for('room_details.room_details_page', room_id=room.room_id) }}" 
                  class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">View Details</a>
+              <!-- Delete Button -->
+              <form method="POST" action="{{ url_for('rooms.handle_room') }}" style="display:inline;">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="room_id" value="{{ room.room_id }}">
+                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                        onclick="return confirm('Are you sure you want to delete Room #{{ room.room_id }}? This action cannot be undone.')">
+                  Delete
+                </button>
+              </form>
             </td>
           </tr>
           {% endfor %}

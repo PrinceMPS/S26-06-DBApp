@@ -1,6 +1,7 @@
 from db import get_db_connection
 from datetime import datetime, date
 
+
 def search_booking(booking_id=None, guest_id=None, search_date=None):
     """
     Search for bookings based on booking_id, guest_id, or date
@@ -8,9 +9,9 @@ def search_booking(booking_id=None, guest_id=None, search_date=None):
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+   
     query = """
-        SELECT 
+        SELECT
             b.booking_id,
             b.guest_id,
             b.room_id,
@@ -39,29 +40,31 @@ def search_booking(booking_id=None, guest_id=None, search_date=None):
         LEFT JOIN employee e ON gs.employee_id = e.employee_id
         WHERE 1=1
     """
-    
+   
     params = []
-    
+   
     if booking_id:
         query += " AND b.booking_id = %s"
         params.append(booking_id)
-    
+   
     if guest_id:
         query += " AND b.guest_id = %s"
         params.append(guest_id)
-    
+   
     if search_date:
         query += " AND %s BETWEEN b.start_date AND b.end_date"
         params.append(search_date)
-    
+   
     query += " ORDER BY b.booking_date DESC"
-    
+   
     cursor.execute(query, params)
     results = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+   
     return results
+
+
 
 
 def get_frontdesk_employees():
@@ -70,9 +73,9 @@ def get_frontdesk_employees():
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+   
     query = """
-        SELECT 
+        SELECT
             employee_id,
             CONCAT(first_name, ' ', last_name) AS employee_name,
             emp_position
@@ -81,13 +84,15 @@ def get_frontdesk_employees():
         AND emp_status = 'Active'
         ORDER BY first_name, last_name
     """
-    
+   
     cursor.execute(query)
     employees = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+   
     return employees
+
+
 
 
 def check_in_guest(booking_id, employee_id, check_in_time, expected_checkout_time, remarks=None):
@@ -96,24 +101,24 @@ def check_in_guest(booking_id, employee_id, check_in_time, expected_checkout_tim
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+   
     try:
         # Check if guest stay already exists
         cursor.execute("SELECT transaction_id FROM GuestStay WHERE booking_id = %s", (booking_id,))
         existing = cursor.fetchone()
-        
+       
         if existing:
             raise Exception("Guest is already checked in for this booking")
-        
+       
         # Insert new guest stay record
         query = """
-            INSERT INTO GuestStay 
+            INSERT INTO GuestStay
             (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, remarks)
             VALUES (%s, %s, %s, %s, %s)
         """
-        
+       
         cursor.execute(query, (booking_id, employee_id, check_in_time, expected_checkout_time, remarks))
-        
+       
         # Update room status to Occupied
         cursor.execute("""
             UPDATE room r
@@ -121,19 +126,21 @@ def check_in_guest(booking_id, employee_id, check_in_time, expected_checkout_tim
             SET r.availability_status = 'Occupied'
             WHERE b.booking_id = %s
         """, (booking_id,))
-        
+       
         conn.commit()
         transaction_id = cursor.lastrowid
         cursor.close()
         conn.close()
-        
+       
         return transaction_id
-        
+       
     except Exception as e:
         conn.rollback()
         cursor.close()
         conn.close()
         raise e
+
+
 
 
 def check_out_guest(booking_id, employee_id, actual_checkout_time, remarks=None):
@@ -143,35 +150,35 @@ def check_out_guest(booking_id, employee_id, actual_checkout_time, remarks=None)
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+   
     try:
         # Check if guest stay exists and guest is checked in
         cursor.execute("""
-            SELECT transaction_id, actual_check_out_time_date 
-            FROM GuestStay 
+            SELECT transaction_id, actual_check_out_time_date
+            FROM GuestStay
             WHERE booking_id = %s
         """, (booking_id,))
-        
+       
         guest_stay = cursor.fetchone()
-        
+       
         if not guest_stay:
             raise Exception("Guest is not checked in for this booking")
-        
+       
         if guest_stay[1] is not None:  # actual_check_out_time_date
             raise Exception("Guest has already checked out")
-        
+       
         # Update guest stay with checkout time
         # Note: We keep the original employee_id (who checked in) and just update checkout time
         # If you want to track checkout employee separately, you'd need to add a checkout_employee_id column
         query = """
-            UPDATE GuestStay 
+            UPDATE GuestStay
             SET actual_check_out_time_date = %s,
                 remarks = %s
             WHERE booking_id = %s
         """
-        
+       
         cursor.execute(query, (actual_checkout_time, remarks, booking_id))
-        
+       
         # Update room status back to Vacant
         cursor.execute("""
             UPDATE room r
@@ -179,16 +186,18 @@ def check_out_guest(booking_id, employee_id, actual_checkout_time, remarks=None)
             SET r.availability_status = 'Vacant'
             WHERE b.booking_id = %s
         """, (booking_id,))
-        
+       
         conn.commit()
         cursor.close()
         conn.close()
-        
+       
     except Exception as e:
         conn.rollback()
         cursor.close()
         conn.close()
         raise e
+
+
 
 
 def get_booking_details(booking_id):
@@ -197,9 +206,9 @@ def get_booking_details(booking_id):
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+   
     query = """
-        SELECT 
+        SELECT
             b.booking_id,
             b.guest_id,
             b.room_id,
@@ -230,13 +239,15 @@ def get_booking_details(booking_id):
         LEFT JOIN employee e ON gs.employee_id = e.employee_id
         WHERE b.booking_id = %s
     """
-    
+   
     cursor.execute(query, (booking_id,))
     booking = cursor.fetchone()
     cursor.close()
     conn.close()
-    
+   
     return booking
+
+
 
 
 def get_pending_checkins():
@@ -247,9 +258,9 @@ def get_pending_checkins():
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+   
     query = """
-        SELECT 
+        SELECT
             b.booking_id,
             b.guest_id,
             b.room_id,
@@ -281,13 +292,15 @@ def get_pending_checkins():
         AND b.start_date BETWEEN CURDATE() - INTERVAL 7 DAY AND CURDATE() + INTERVAL 30 DAY
         ORDER BY b.start_date ASC, b.booking_id ASC
     """
-    
+   
     cursor.execute(query)
     results = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+   
     return results
+
+
 
 
 def get_pending_checkouts():
@@ -297,9 +310,9 @@ def get_pending_checkouts():
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    
+   
     query = """
-        SELECT 
+        SELECT
             b.booking_id,
             b.guest_id,
             b.room_id,
@@ -331,10 +344,13 @@ def get_pending_checkouts():
         AND gs.actual_check_out_time_date IS NULL
         ORDER BY gs.expected_check_out_time_date ASC, b.booking_id ASC
     """
-    
+   
     cursor.execute(query)
     results = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+   
     return results
+
+
+
