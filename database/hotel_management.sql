@@ -607,13 +607,36 @@ INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) 
 
 -- Guest Stay
 INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
-(1, 1, '2025-11-03 14:00:00', '2025-11-05 12:00:00', '2025-11-05 11:30:00', 'Smooth check-out'),
-(2, 1, '2025-11-06 15:00:00', '2025-11-08 12:00:00', NULL, 'Guest still checked in'),
-(3, 1, '2025-11-09 13:30:00', '2025-11-10 12:00:00', '2025-11-10 12:05:00', 'On-time check-out');
+(1001, 1, '2025-11-01 14:00:00', '2025-11-03 12:00:00', '2025-11-03 11:30:00', 'Smooth check-out'),
+(1002, 1, '2025-11-05 15:30:00', '2025-11-08 12:00:00', '2025-11-08 11:45:00', 'Early check-out requested'),
+(1003, 5, '2025-11-08 13:15:00', '2025-11-12 12:00:00', '2025-11-12 12:10:00', 'On-time check-out'),
+(1004, 1, '2025-11-10 16:00:00', '2025-11-14 12:00:00', '2025-11-14 11:20:00', 'Express check-out'),
+(1005, 5, '2025-11-12 14:45:00', '2025-11-14 12:00:00', '2025-11-14 12:05:00', 'Late check-out approved'),
+(1006, 1, '2025-11-15 15:30:00', '2025-11-18 12:00:00', NULL, 'Guest still checked in'),
+(1007, 5, '2025-11-20 13:00:00', '2025-11-23 12:00:00', NULL, 'Guest extended stay'),
+(1008, 1, '2025-11-25 17:15:00', '2025-11-30 12:00:00', NULL, 'VIP guest - special handling'),
+(1009, 5, '2025-12-01 14:30:00', '2025-12-03 12:00:00', NULL, 'Early check-in requested'),
+(1010, 1, '2025-12-05 16:45:00', '2025-12-08 12:00:00', NULL, 'Family with children');
 
 -- Housekeeping Item Issuance
-INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, remarks) VALUES
-(1, 2, 3, 5, 'Issued for Room cleaning'),
-(2, 2, 3, 10, 'Daily cleaning supplies'),
-(3, 4, 3, 8, 'Restocking supplies'), 
-(5, 2, 3, 2, 'Bedsheets replacement for Room');
+INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, date_issued, remarks) VALUES
+(1, 2, 3, 8, '2025-01-15 09:00:00', 'Issued for floor 5-6 room cleaning'),
+(1, 4, 3, 12, '2025-01-20 10:30:00', 'Restock for VIP suite preparation'),
+(1, 2, 13, 6, '2025-02-05 14:15:00', 'Regular monthly restocking'),
+(1, 9, 3, 10, '2025-02-18 11:00:00', 'Emergency supply for conference rooms'),
+(2, 2, 13, 15, '2025-01-10 08:45:00', 'Standard monthly soap distribution'),
+(2, 4, 3, 20, '2025-01-25 13:20:00', 'Extra supply for high-occupancy weekend'),
+(2, 9, 13, 12, '2025-02-12 10:00:00', 'Replacement for expired stock'),
+(2, 2, 3, 18, '2025-02-28 15:30:00', 'End of month bulk issuance'),
+(3, 4, 13, 5, '2025-01-08 11:10:00', 'For deluxe rooms only'),
+(3, 2, 3, 7, '2025-01-22 09:45:00', 'New herbal shampoo trial'),
+(3, 9, 13, 6, '2025-02-14 16:20:00', 'Valentine special package'),
+(4, 2, 3, 3, '2025-01-12 14:00:00', 'Pool towel replacement'),
+(4, 4, 13, 4, '2025-01-30 10:15:00', 'Spa and wellness center'),
+(4, 9, 3, 2, '2025-02-22 13:45:00', 'Executive suite towels'),
+(5, 2, 13, 1, '2025-01-18 15:00:00', 'Replacement for damaged bedsheet'),
+(5, 4, 3, 2, '2025-02-08 11:30:00', 'Suite room upgrade'),
+(5, 9, 13, 1, '2025-02-25 09:15:00', 'Emergency replacement'),
+(6, 2, 3, 4, '2025-01-14 12:30:00', 'Standard pillow case rotation'),
+(6, 4, 13, 3, '2025-02-16 14:45:00', 'Memory foam pillow cases'),
+(6, 9, 3, 5, '2025-02-27 16:00:00', 'End of quarter replacement');
