@@ -10,7 +10,7 @@ def get_report_cards():
             'id': 'hotel_occupancy',
             'title': '🏨 Hotel Occupancy',
             'description': 'View room occupancy trends and current utilization.',
-            'url': 'hotel_occupancy.html'
+            'url': '/reports/hotel-occupancy'
         },
         {
             'id': 'hotel_revenue',
