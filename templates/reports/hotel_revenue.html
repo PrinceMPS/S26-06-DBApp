@@ -23,8 +23,7 @@
       <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
-
-  <!-- Main Content -->
+<!-- Main Content -->
   <main class="flex-1 p-10">
     <h1 class="text-3xl font-bold text-gray-900 mb-6">Hotel Revenue Report</h1>
 
@@ -44,8 +43,8 @@
           <label for="month" class="block font-semibold text-gray-700">Month</label>
           <select name="month" id="month" required class="border border-gray-300 rounded px-3 py-2">
             <option value="">-- Select Month --</option>
-            {% for m in range(1,13) %}
-              <option value="{{ m }}" {% if selected_month|int == m %}selected{% endif %}>{{ m }}</option>
+            {% for i in range(1, 13) %}
+              <option value="{{ i }}" {% if selected_month|int == i %}selected{% endif %}>{{ month_names[i-1] }}</option>
             {% endfor %}
           </select>
         </div>
@@ -75,7 +74,11 @@
     <div class="bg-white p-6 rounded-lg shadow">
       <h2 class="text-2xl font-semibold mb-4 text-gray-800">
         Revenue for
-        {% if selected_month %}{{ selected_month }}/{{ selected_year }}{% else %}{{ selected_year }}{% endif %}
+        {% if selected_month %}
+          {{ month_names[selected_month|int - 1] }}/{{ selected_year }}
+        {% else %}
+          {{ selected_year }}
+        {% endif %}
       </h2>
 
       <table class="w-full border-collapse">
