@@ -108,6 +108,15 @@ CREATE TABLE housekeeping_item_issuance (
     FOREIGN KEY (issuer_id) REFERENCES employee(employee_id)
 );
 
+ALTER TABLE payment
+DROP FOREIGN KEY payment_ibfk_1;
+
+ALTER TABLE payment 
+ADD CONSTRAINT payment_ibfk_1
+FOREIGN KEY (booking_id)
+REFERENCES booking(booking_id)
+ON DELETE CASCADE;
+
 -- Guests
 INSERT INTO guest (first_name, last_name, contact_number, email_address) VALUES
 ('Juan', 'Dela Cruz', '09171234567', 'juan.delacruz@example.com'),
