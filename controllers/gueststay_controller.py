@@ -4,7 +4,9 @@ from models.gueststay_model import (
     get_frontdesk_employees,
     check_in_guest,
     check_out_guest,
-    get_booking_details
+    get_booking_details,
+    get_pending_checkins,
+    get_pending_checkouts
 )
 from datetime import datetime, date
 
@@ -171,3 +173,43 @@ def checkout():
         flash(f'Error during check-out: {str(e)}', 'error')
     
     return redirect(url_for('gueststay.gueststay_page'))
+
+
+@gueststay_bp.route('/gueststay/pending-checkins', methods=['GET'])
+def pending_checkins():
+    """
+    Display list of bookings pending check-in
+    """
+    employees = get_frontdesk_employees()
+    bookings = get_pending_checkins()
+    current_date = date.today()
+    
+    # Determine action for each booking
+    for booking in bookings:
+        booking['action'] = determine_action(booking, str(current_date))
+    
+    return render_template('gueststay.html', 
+                         bookings=bookings, 
+                         employees=employees,
+                         filter_type='checkin',
+                         current_date=str(current_date))
+
+
+@gueststay_bp.route('/gueststay/pending-checkouts', methods=['GET'])
+def pending_checkouts():
+    """
+    Display list of bookings pending check-out
+    """
+    employees = get_frontdesk_employees()
+    bookings = get_pending_checkouts()
+    current_date = date.today()
+    
+    # Determine action for each booking
+    for booking in bookings:
+        booking['action'] = determine_action(booking, str(current_date))
+    
+    return render_template('gueststay.html', 
+                         bookings=bookings, 
+                         employees=employees,
+                         filter_type='checkout',
+                         current_date=str(current_date))
