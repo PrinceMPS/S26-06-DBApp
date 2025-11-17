@@ -77,7 +77,7 @@ def get_frontdesk_employees():
             CONCAT(first_name, ' ', last_name) AS employee_name,
             emp_position
         FROM employee
-        WHERE emp_position IN ('frontdesk', 'admin')
+        WHERE emp_position IN ('Front Desk', 'Admin')
         AND emp_status = 'Active'
         ORDER BY first_name, last_name
     """

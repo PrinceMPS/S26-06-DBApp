@@ -85,6 +85,8 @@
         <thead>
           <tr class="bg-gray-800 text-gray-100">
             <th class="text-left py-2 px-4">Room Type</th>
+            <th class="text-left py-2 px-4">Per Night Cost (₱)</th>
+            <<th class="text-left py-2 px-4">Total Nights</th>
             <th class="text-left py-2 px-4">Total Revenue (₱)</th>
           </tr>
         </thead>
@@ -92,13 +94,15 @@
           {% for row in report_data %}
           <tr class="border-b hover:bg-gray-50">
             <td class="py-2 px-4">{{ row.room_type }}</td>
+            <td class="py-2 px-4">₱{{ "{:,.2f}".format(row.per_night_cost) }}</td>
+            <td class="py-2 px-4">{{ row.total_nights }}</td>
             <td class="py-2 px-4">{{ "{:,.2f}".format(row.total_revenue) }}</td>
           </tr>
           {% endfor %}
         </tbody>
         <tfoot>
           <tr class="bg-gray-100 font-bold">
-            <td class="py-2 px-4">Total Revenue</td>
+            <td class="py-2 px-4" colspan="3">Total Revenue</td>
             <td class="py-2 px-4">{{ "{:,.2f}".format(grand_total) }}</td>
           </tr>
         </tfoot>

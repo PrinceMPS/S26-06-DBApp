@@ -11,7 +11,7 @@ def get_all_employees():
             emp_position,
             emp_status
         FROM employee
-        ORDER BY last_name ASC
+        ORDER BY employee_id ASC
     """)
     employees = cursor.fetchall()
     cursor.close()
@@ -32,7 +32,7 @@ def add_employee_db(first_name, last_name, emp_position, emp_status='Active'):
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO employee (first_name, last_name, emp_position, emp_status)
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s)
     """, (first_name, last_name, emp_position, emp_status))
     conn.commit()
     cursor.close()
@@ -67,7 +67,7 @@ def get_employee_full_details(employee_id):
     cursor.execute("SELECT * FROM employee WHERE employee_id = %s", (employee_id,))
     employee = cursor.fetchone()
 
-    # 2. Guests attended by employee (GuestStay → booking → guest)
+    # 2. Guests attended by employee
     cursor.execute("""
         SELECT 
             g.guest_id,
@@ -84,19 +84,35 @@ def get_employee_full_details(employee_id):
     """, (employee_id,))
     guests_attended = cursor.fetchall()
 
-    # 3. Housekeeping items issued to employee
+    # Items issued TO the employee
     cursor.execute("""
-        SELECT 
-            h.item_name,
-            i.quantity_issued,
-            i.date_issued,
-        FROM housekeeping_item_issuance i
-        JOIN housekeeping_item h 
-            ON i.housekeeping_item_id = h.housekeeping_item_id
-        WHERE i.employee_id = %s
-        ORDER BY i.date_issued DESC
-    """, (employee_id,))
-    issued_items = cursor.fetchall()
+                   SELECT h.item_name,
+                          i.quantity_issued,
+                          i.date_issued,
+                          e.first_name AS issuer_first_name,
+                          e.last_name  AS issuer_last_name
+                   FROM housekeeping_item_issuance i
+                            JOIN housekeeping_item h ON i.housekeeping_item_id = h.housekeeping_item_id
+                            JOIN employee e ON i.issuer_id = e.employee_id
+                   WHERE i.employee_id = %s
+                   ORDER BY i.date_issued DESC
+                   """, (employee_id,))
+    items_received = cursor.fetchall()
+
+    # Items issued BY the employee
+    cursor.execute("""
+                   SELECT h.item_name,
+                          i.quantity_issued,
+                          i.date_issued,
+                          e.first_name AS recipient_first_name,
+                          e.last_name  AS recipient_last_name
+                   FROM housekeeping_item_issuance i
+                            JOIN housekeeping_item h ON i.housekeeping_item_id = h.housekeeping_item_id
+                            JOIN employee e ON i.employee_id = e.employee_id
+                   WHERE i.issuer_id = %s
+                   ORDER BY i.date_issued DESC
+                   """, (employee_id,))
+    items_issued = cursor.fetchall()
 
 
-    return employee, guests_attended, issued_items
+    return employee, guests_attended, items_received, items_issued

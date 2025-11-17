@@ -33,7 +33,7 @@ CREATE TABLE employee(
     employee_id INT NOT NULL AUTO_INCREMENT ,
 	first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
-    emp_position ENUM ('frontdesk','housekeeping','admin') NOT NULL,
+    emp_position ENUM ('Front Desk','Housekeeping','Admin') NOT NULL,
     emp_status ENUM('Active', 'Leave-vacation', 'Leave-sick', 'Leave-maternity') DEFAULT 'Active' NOT NULL,
     PRIMARY KEY (employee_id)
 );
@@ -453,10 +453,10 @@ INSERT INTO room (room_id, room_type_id, availability_status, housekeeping_statu
 (2020, 4, 'Vacant', 'Under Maintainance');
 -- Employees
 INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
-('Carla', 'Reyes', 'frontdesk',  'Active'),
-('Mark', 'Villanueva', 'housekeeping',  'Active'),
-('Susan', 'Lim', 'admin',  'Active'),
-('Rico', 'Lopez', 'housekeeping', 'Leave-sick');
+('Carla', 'Reyes', 'Front desk',  'Active'),
+('Mark', 'Villanueva', 'Housekeeping',  'Active'),
+('Susan', 'Lim', 'Admin',  'Active'),
+('Rico', 'Lopez', 'Housekeeping', 'Leave-sick');
 
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
@@ -474,8 +474,8 @@ INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALU
 
 -- Payments
 INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
-(1, 3000.00, 'Credit Card', '2025-11-01 11:45:00'),
-(2, 5000.00, 'Cash', '2025-11-05 09:20:00'),
+(1, 5000.00, 'Credit Card', '2025-11-01 11:45:00'),
+(2, 7000.00, 'Cash', '2025-11-05 09:20:00'),
 (3, 1500.00, 'Debit Card','2025-11-08 13:10:00');
 
 -- Guest Stay
@@ -486,7 +486,7 @@ INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_che
 
 -- Housekeeping Item Issuance
 INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, remarks) VALUES
-(1, 2, 3, 5,  'Issued for Room 2 cleaning'),
+(1, 2, 3, 5,  'Issued for Room cleaning'),
 (2, 2, 3, 10, 'Daily cleaning supplies'),
 (3, 4, 3, 8, 'Restocking supplies'), 
-(5, 2, 3, 2, 'Bedsheets replacement for Room 1');
+(5, 2, 3, 2, 'Bedsheets replacement for Room');
