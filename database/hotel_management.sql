@@ -558,7 +558,17 @@ INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
 ('Carla', 'Reyes', 'Front Desk', 'Active'),
 ('Mark', 'Villanueva', 'Housekeeping', 'Active'),
 ('Susan', 'Lim', 'Admin', 'Active'),
-('Rico', 'Lopez', 'Housekeeping', 'Leave-sick');
+('Rico', 'Lopez', 'Housekeeping', 'Leave-sick'),
+('Anna', 'Torres', 'Front Desk', 'Active'),
+('James', 'Gomez', 'Housekeeping', 'Leave-vacation'),
+('Liza', 'Santos', 'Admin', 'Leave-sick'),
+('Marie', 'Diaz', 'Front Desk', 'Leave-maternity'),
+('Maria', 'Cruz', 'Housekeeping', 'Active'),
+('John', 'Reyes', 'Admin', 'Leave-vacation'),
+('Nina', 'Valdez', 'Front Desk', 'Leave-sick'),
+('Carla', 'Fernandez', 'Housekeeping', 'Leave-maternity'),
+('Elaine', 'Morales', 'Admin', 'Active'),
+('Victor', 'Alcantara', 'Front Desk', 'Leave-vacation');
 
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
@@ -570,59 +580,30 @@ INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_
 ('Pillow Case', 85.00, 60, 12, 120);
 
 -- Bookings
-INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date) VALUES
--- Guest 1001 (Juan Dela Cruz) - 3 bookings
-(1001, 501, '2024-01-05', '2024-01-10', '2024-01-15'),
-(1001, 605, '2024-06-12', '2024-06-15', '2024-06-18'),
-(1001, 1203, '2025-02-03', '2025-02-05', '2025-02-10'),
--- Guest 1002 (Maria Santos) - 2 bookings
-(1002, 520, '2024-03-11', '2024-03-20', '2024-03-25'),
-(1002, 705, '2025-01-08', '2025-01-10', '2025-01-14'),
--- Guest 1003 (Jose Reyes) - 4 bookings
-(1003, 602, '2024-02-02', '2024-02-05', '2024-02-09'),
-(1003, 1804, '2024-09-20', '2024-09-21', '2024-09-25'),
-(1003, 805, '2025-03-15', '2025-03-18', '2025-03-23'),
-(1003, 2008, '2025-05-05', '2025-05-07', '2025-05-12'),
--- Guest 1004 (Ana Lopez) - 3 bookings
-(1004, 516, '2024-04-10', '2024-04-12', '2024-04-16'),
-(1004, 1107, '2024-12-05', '2024-12-07', '2024-12-12'),
-(1004, 1902, '2025-04-02', '2025-04-04', '2025-04-09'),
--- Guest 1005 (Pedro Garcia) - 2 bookings
-(1005, 619, '2024-05-03', '2024-05-05', '2024-05-07'),
-(1005, 1308, '2025-02-25', '2025-02-27', '2025-03-02'),
--- Guest 1006 (Carmen Mendoza) - 4 bookings
-(1006, 707, '2024-07-10', '2024-07-12', '2024-07-18'),
-(1006, 1701, '2024-10-22', '2024-10-24', '2024-10-28'),
-(1006, 802, '2025-03-08', '2025-03-09', '2025-03-13'),
-(1006, 1406, '2025-05-20', '2025-05-22', '2025-05-26'),
--- Guest 1007 (Ramon Castro) - 5 bookings
-(1007, 515, '2024-01-25', '2024-01-27', '2024-02-01'),
-(1007, 615, '2024-06-18', '2024-06-20', '2024-06-25'),
-(1007, 905, '2024-11-08', '2024-11-10', '2024-11-14'),
-(1007, 1502, '2025-04-12', '2025-04-14', '2025-04-19'),
-(1007, 2005, '2025-06-01', '2025-06-03', '2025-06-08'),
--- Guest 1008 (Lucia Torres) - 3 bookings
-(1008, 520, '2024-03-04', '2024-03-06', '2024-03-10'),
-(1008, 905, '2024-08-13', '2024-08-15', '2024-08-19'),
-(1008, 1604, '2025-01-20', '2025-01-22', '2025-01-27'),
--- Guest 1009 (Diego Bautista) - 2 bookings
-(1009, 718, '2024-09-01', '2024-09-03', '2024-09-06'),
-(1009, 1807, '2025-02-12', '2025-02-14', '2025-02-18'),
--- Guest 1010 (Elena Cruz) - 4 bookings
-(1010, 513, '2024-02-17', '2024-02-19', '2024-02-23'),
-(1010, 610, '2024-07-21', '2024-07-23', '2024-07-28'),
-(1010, 1710, '2025-03-01', '2025-03-03', '2025-03-07'),
-(1010, 2003, '2025-05-10', '2025-05-12', '2025-05-17'),
--- Additional recent bookings
-(1001, 502, '2025-11-01', '2025-11-03', '2025-11-05'),  
-(1002, 1203, '2025-11-05', '2025-11-06', '2025-11-08'),  
-(1003, 501, '2025-11-08', '2025-11-09', '2025-11-10');
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, start_date, end_date) VALUES
+(1001, 1001, 501, '2025-11-01', '2025-11-01', '2025-11-03'), -- Single Room 2 nights
+(1002, 1002, 502, '2025-11-02', '2025-11-05', '2025-11-08'), -- Double Room 3 nights
+(1003, 1003, 503, '2025-11-03', '2025-11-08', '2025-11-12'), -- Deluxe Room 4 nights
+(1004, 1004, 504, '2025-11-04', '2025-11-10', '2025-11-14'), -- Suite 4 nights
+(1005, 1005, 505, '2025-11-05', '2025-11-12', '2025-11-14'), -- Single Room 2 nights
+(1006, 1006, 506, '2025-11-06', '2025-11-15', '2025-11-18'), -- Double Room 3 nights
+(1007, 1007, 507, '2025-11-07', '2025-11-20', '2025-11-23'), -- Deluxe Room 3 nights
+(1008, 1008, 508, '2025-11-08', '2025-11-25', '2025-11-30'), -- Suite 5 nights
+(1009, 1009, 509, '2025-11-09', '2025-12-01', '2025-12-03'), -- Single Room 2 nights
+(1010, 1010, 510, '2025-11-10', '2025-12-05', '2025-12-08'); -- Double Room 3 nights
 
--- Payments
+-- Payments (amount = room rate * nights)
 INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
-(1, 5000.00, 'Credit Card', '2025-11-01 11:45:00'),
-(2, 7000.00, 'Cash', '2025-11-05 09:20:00'),
-(3, 1500.00, 'Debit Card', '2025-11-08 13:10:00');
+(1001, 3000.00, 'Cash', '2025-11-01 10:00:00'),
+(1002, 7500.00, 'Credit Card', '2025-11-02 11:30:00'),
+(1003, 14000.00, 'Debit Card', '2025-11-03 12:00:00'),
+(1004, 20000.00, 'Cash', '2025-11-04 14:00:00'),
+(1005, 3000.00, 'Credit Card', '2025-11-05 09:00:00'),
+(1006, 7500.00, 'Debit Card', '2025-11-06 10:30:00'),
+(1007, 10500.00, 'Cash', '2025-11-07 13:00:00'),
+(1008, 25000.00, 'Credit Card', '2025-11-08 15:00:00'),
+(1009, 3000.00, 'Debit Card', '2025-11-09 16:00:00'),
+(1010, 7500.00, 'Cash', '2025-11-10 11:00:00');
 
 -- Guest Stay
 INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
