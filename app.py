@@ -11,6 +11,7 @@ from controllers.index_controller import reports_bp
 
 from controllers.hotel_revenue_report_controller import hotel_revenue_bp
 from controllers.guest_stay_report_controller import guest_stay_report_bp
+from controllers.hotel_occupancy_report_controller import hotel_occupancy_bp
 app = Flask(__name__, instance_relative_config=True)
 # Set a secret key for sessions (flash messages require this)
 app.secret_key = 'secret_key'
@@ -29,6 +30,7 @@ app.register_blueprint(reports_bp)
 
 app.register_blueprint(hotel_revenue_bp)
 app.register_blueprint(guest_stay_report_bp)
+app.register_blueprint(hotel_occupancy_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
