@@ -11,6 +11,7 @@ def get_all_bookings():
             DATE(b.booking_date) as booking_date,
             b.start_date,
             b.end_date,
+            b.payment_status,
             g.first_name AS guest_first_name,
             g.last_name  AS guest_last_name,
             rt.type_name as room_type
