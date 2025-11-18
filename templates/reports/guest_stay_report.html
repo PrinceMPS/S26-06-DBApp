@@ -21,13 +21,32 @@
       <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
       <a href="http://127.0.0.1:5000/gueststay" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
       <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
-      <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+      <a href="http://127.0.0.1:5000/reports/guest-stay" class="block bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
 
   <!-- Main Content -->
   <main class="flex-1 p-10">
-    <h1 class="text-3xl font-bold text-gray-900 mb-6">Guest Stay Report</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Guest Stay Report</h1>
+      <a href="/reports/debug-data" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">
+        🔍 Debug Data
+      </a>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-info-circle text-blue-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-blue-700">
+            <strong>Tip:</strong> Check the Flask console for detailed debug information about what data is being found.
+          </p>
+        </div>
+      </div>
+    </div>
 
     <!-- Monthly Report Form -->
     <div class="bg-white p-6 rounded-lg shadow mb-6">
@@ -76,9 +95,14 @@
     <div class="bg-white p-6 rounded-lg shadow mb-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Guest Nationality Distribution</h2>
-        <span class="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">
-          {{ nationality_stats|length }} Nationalit{% if nationality_stats|length > 1 %}ies{% else %}y{% endif %}
-        </span>
+        <div class="flex gap-2">
+          <span class="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">
+            {{ nationality_stats|length }} Nationalit{% if nationality_stats|length > 1 %}ies{% else %}y{% endif %}
+          </span>
+          <span class="bg-green-600 text-white text-sm px-3 py-1 rounded-full">
+            {{ guest_stays|length }} Total Guests
+          </span>
+        </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -229,12 +253,18 @@
     </div>
     {% elif selected_year and (selected_month or report_type == 'year') %}
     <div class="bg-white p-6 rounded-lg shadow text-gray-600">
-      No guest stay records found for 
-      {% if report_type == 'month' %}
-        {{ month_names[selected_month|int - 1] }} {{ selected_year }}.
-      {% else %}
-        {{ selected_year }}.
-      {% endif %}
+      <div class="text-center">
+        <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+        <h3 class="text-xl font-semibold mb-2">No guest stay records found</h3>
+        <p>
+          {% if report_type == 'month' %}
+            No records found for {{ month_names[selected_month|int - 1] }} {{ selected_year }}.
+          {% else %}
+            No records found for {{ selected_year }}.
+          {% endif %}
+        </p>
+        <p class="text-sm mt-2">Check the Flask console for debug information about what data exists.</p>
+      </div>
     </div>
     {% endif %}
   </main>
