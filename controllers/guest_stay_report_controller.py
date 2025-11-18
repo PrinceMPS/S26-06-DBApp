@@ -65,7 +65,7 @@ def guest_stay_report():
         else:  # default sort by guest_id
             guest_stays.sort(key=lambda x: x.get('guest_id', 0), reverse=reverse)
     
-return render_template(
+    return render_template(
     'reports/guest_stay_report.html',
     guest_stays=guest_stays,
     total_nights_sum=total_nights_sum,
