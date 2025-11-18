@@ -14,7 +14,7 @@ def get_guest_stay_report_month(month, year):
             g.first_name,
             g.last_name,
             g.email_address,
-            g.nationality,
+            COALESCE(g.nationality, 'Unknown') as nationality,
             COUNT(DISTINCT gs.transaction_id) as total_stays,
             SUM(DATEDIFF(gs.actual_check_out_time_date, gs.check_in_time_date)) as total_nights,
             COALESCE(SUM(p.amount_paid), 0) as total_spending
@@ -42,7 +42,7 @@ def get_guest_stay_report_month(month, year):
     # Get nationality statistics with nights and spending
     nationality_stats = {}
     for guest in guest_stays:
-        nationality = guest['nationality'] or 'Unknown'
+        nationality = guest['nationality']
         if nationality not in nationality_stats:
             nationality_stats[nationality] = {
                 'count': 0,
@@ -73,7 +73,7 @@ def get_guest_stay_report_year(year):
             g.first_name,
             g.last_name,
             g.email_address,
-            g.nationality,
+            COALESCE(g.nationality, 'Unknown') as nationality,
             COUNT(DISTINCT gs.transaction_id) as total_stays,
             SUM(DATEDIFF(gs.actual_check_out_time_date, gs.check_in_time_date)) as total_nights,
             COALESCE(SUM(p.amount_paid), 0) as total_spending
@@ -100,7 +100,7 @@ def get_guest_stay_report_year(year):
     # Get nationality statistics with nights and spending
     nationality_stats = {}
     for guest in guest_stays:
-        nationality = guest['nationality'] or 'Unknown'
+        nationality = guest['nationality']
         if nationality not in nationality_stats:
             nationality_stats[nationality] = {
                 'count': 0,
