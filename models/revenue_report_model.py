@@ -26,12 +26,32 @@ def get_hotel_revenue_report_month(year: int, month: int):
 
     return report_data, grand_total
 
-
 def get_hotel_revenue_report_year(year: int):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    query = """
+    # ----------------------------
+    # 1. Monthly totals
+    # ----------------------------
+    cursor.execute("""
+        SELECT MONTH(b.booking_date) AS month,
+               SUM(DATEDIFF(b.end_date, b.start_date) * rt.rate_per_type) AS total_revenue
+        FROM booking b
+        JOIN room r ON b.room_id = r.room_id
+        JOIN roomtype rt ON r.room_type_id = rt.room_type_id
+        WHERE YEAR(b.booking_date) = %s
+        GROUP BY MONTH(b.booking_date)
+        ORDER BY MONTH(b.booking_date)
+    """, (year,))
+    monthly_rows = cursor.fetchall()
+
+    month_names = ['January','February','March','April','May','June','July','August','September','October','November','December']
+    monthly_summary = [(month_names[row['month']-1], row['total_revenue']) for row in monthly_rows]
+
+    # ----------------------------
+    # 2. Room-type breakdown
+    # ----------------------------
+    cursor.execute("""
         SELECT rt.type_name AS room_type,
                rt.rate_per_type AS per_night_cost,
                SUM(DATEDIFF(b.end_date, b.start_date)) AS total_nights,
@@ -42,8 +62,7 @@ def get_hotel_revenue_report_year(year: int):
         JOIN roomtype rt ON r.room_type_id = rt.room_type_id
         WHERE YEAR(b.booking_date) = %s
         GROUP BY rt.type_name, rt.rate_per_type
-    """
-    cursor.execute(query, (year,))
+    """, (year,))
     report_data = cursor.fetchall()
 
     cursor.close()
@@ -51,4 +70,4 @@ def get_hotel_revenue_report_year(year: int):
 
     grand_total = sum(row['total_revenue'] for row in report_data) if report_data else 0
 
-    return report_data, grand_total
+    return report_data, grand_total, monthly_summary

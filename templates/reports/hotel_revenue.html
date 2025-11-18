@@ -68,52 +68,116 @@
         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Generate</button>
       </form>
     </div>
+{% if report_data %}
+  {% if report_type == 'year' %}
+    <!-- YEARLY REPORT -->
+    <div class="mb-4">
+      <h1 class="text-3xl font-bold text-gray-900">Yearly Revenue Report - {{ selected_year }}</h1>
+    </div>
 
-    <!-- Report Table -->
-    {% if report_data %}
+    <!-- Total Revenue at Top -->
+    <div class="bg-green-100 p-6 rounded-lg shadow mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">Total Revenue for {{ selected_year }}</h2>
+      <p class="text-xl font-bold text-green-700">₱{{ "{:,.2f}".format(grand_total) }}</p>
+    </div>
+
+    <!-- Monthly Breakdown -->
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4 text-gray-800">Revenue For {{ selected_year }} By Month</h2>
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-800 text-gray-100">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Month</th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Revenue (₱)</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      {% for month, total in monthly_summary %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4">{{ month }}</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(total) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="bg-gray-100 font-bold">
+      <tr>
+        <td class="px-6 py-4">Total Revenue</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(grand_total) }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- Room Type Breakdown -->
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4 text-gray-800">Revenue For {{ selected_year }} by Room Type</h2>
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-800 text-gray-100">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Room Type</th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Per Night Cost (₱)</th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Nights</th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Revenue (₱)</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      {% for row in report_data %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4">{{ row.room_type }}</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(row.per_night_cost) }}</td>
+        <td class="px-6 py-4">{{ row.total_nights }}</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(row.total_revenue) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="bg-gray-100 font-bold">
+      <tr>
+        <td class="px-6 py-4" colspan="3">Total Revenue</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(grand_total) }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+  {% else %}
+    <!-- MONTHLY REPORT stays unchanged -->
+
     <div class="bg-white p-6 rounded-lg shadow">
+     <h1 class="text-3xl font-bold text-gray-900 mb-6">Monthly Revenue Report</h1>
       <h2 class="text-2xl font-semibold mb-4 text-gray-800">
-        Revenue for
-        {% if selected_month %}
-          {{ month_names[selected_month|int - 1] }}/{{ selected_year }}
-        {% else %}
-          {{ selected_year }}
-        {% endif %}
+        Revenue for {{ month_names[selected_month|int - 1] }}({{ selected_year }})
       </h2>
 
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-800 text-gray-100">
-            <th class="text-left py-2 px-4">Room Type</th>
-            <th class="text-left py-2 px-4">Per Night Cost (₱)</th>
-            <<th class="text-left py-2 px-4">Total Nights</th>
-            <th class="text-left py-2 px-4">Total Revenue (₱)</th>
+      <!-- Grand Total at the Top -->
+      <div class="mb-4 p-4 bg-green-100 rounded">
+        <h2 class="text-xl font-semibold text-green-700">Total Revenue for {{ month_names[selected_month|int - 1] }} ({{ selected_year }})</h2>
+        <p class="text-2xl font-bold text-green-800">₱{{ "{:,.2f}".format(grand_total) }}</p>
+      </div>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-800 text-gray-100">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Room Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Per Night Cost (₱)</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Nights</th>
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Revenue (₱)</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="bg-white divide-y divide-gray-200">
           {% for row in report_data %}
-          <tr class="border-b hover:bg-gray-50">
-            <td class="py-2 px-4">{{ row.room_type }}</td>
-            <td class="py-2 px-4">₱{{ "{:,.2f}".format(row.per_night_cost) }}</td>
-            <td class="py-2 px-4">{{ row.total_nights }}</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(row.total_revenue) }}</td>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">{{ row.room_type }}</td>
+            <td class="px-6 py-4">₱{{ "{:,.2f}".format(row.per_night_cost) }}</td>
+            <td class="px-6 py-4">{{ row.total_nights }}</td>
+            <td class="px-6 py-4">₱{{ "{:,.2f}".format(row.total_revenue) }}</td>
           </tr>
           {% endfor %}
         </tbody>
-        <tfoot>
-          <tr class="bg-gray-100 font-bold">
-            <td class="py-2 px-4" colspan="3">Total Revenue</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(grand_total) }}</td>
+        <tfoot class="bg-gray-100 font-bold">
+          <tr>
+            <td class="px-6 py-4" colspan="3">Total Revenue</td>
+            <td class="px-6 py-4">₱{{ "{:,.2f}".format(grand_total) }}</td>
           </tr>
         </tfoot>
       </table>
     </div>
-    {% elif selected_year %}
-    <div class="bg-white p-6 rounded-lg shadow text-gray-600">
-      No revenue records found for this period.
-    </div>
-    {% endif %}
-  </main>
-
-</body>
-</html>
+  {% endif %}
+{% endif %}

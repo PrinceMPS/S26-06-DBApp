@@ -88,7 +88,7 @@ def get_conflicting_booking(room_id, start_date, end_date, exclude_booking_id=No
     
     return conflict
 
-def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_paid, payment_method):
+def create_booking(guest_id, room_id, start_date, end_date, payment_status='Pending'):
     # Check room availability first
     if not check_room_availability(room_id, start_date, end_date):
         conflict = get_conflicting_booking(room_id, start_date, end_date)
@@ -101,18 +101,11 @@ def create_booking_with_payment(guest_id, room_id, start_date, end_date, amount_
     try:
         # Start transaction
         cursor.execute("""
-                       INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date)
-                       VALUES (%s, %s, CURDATE(), %s, %s)
-                       """, (guest_id, room_id, start_date, end_date))
+                       INSERT INTO booking (guest_id, room_id, booking_date, start_date, end_date,payment_status)
+                       VALUES (%s, %s, CURDATE(), %s, %s,%s)
+                       """, (guest_id, room_id, start_date, end_date,payment_status))
 
-        booking_id = cursor.lastrowid  # get the inserted booking's ID
-
-        # Insert payment linked to the booking
-        cursor.execute("""
-                       INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime)
-                       VALUES (%s, %s, %s, NOW())
-                       """, (booking_id, amount_paid, payment_method))
-
+        booking_id = cursor.lastrowid  # get new booking id
         # Update room availability status to 'Reserved' when booking is placed
         cursor.execute("""
                        UPDATE room
