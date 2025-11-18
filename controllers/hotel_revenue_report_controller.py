@@ -18,20 +18,20 @@ def hotel_revenue_report():
         'July', 'August', 'September', 'October', 'November', 'December'
     ]
     if request.method == 'POST':
-        report_type = request.form.get('report_type')  # "month" or "year"
-        selected_year = request.form.get('year')
-        selected_month = request.form.get('month')
         report_type = request.form.get('report_type')
+        selected_year = int(request.form.get('year')) if request.form.get('year') else None
+        selected_month = int(request.form.get('month')) if request.form.get('month') else None
+
 
         if report_type == 'month':
             if selected_year and selected_month:
-                report_data, grand_total = get_hotel_revenue_report_month(int(selected_year), int(selected_month))
+                report_data, grand_total, highest_monthly= get_hotel_revenue_report_month(int(selected_year), int(selected_month))
             else:
                 flash("Please select both month and year for monthly report.", "error")
 
         elif report_type == 'year':
             if selected_year:
-                report_data, grand_total, monthly_summary= get_hotel_revenue_report_year(int(selected_year))
+                report_data, grand_total, monthly_summary, highest_yearly = get_hotel_revenue_report_year(int(selected_year))
             else:
                 flash("Please select a year for yearly report.", "error")
 
@@ -43,6 +43,9 @@ def hotel_revenue_report():
         selected_year=selected_year,
         selected_month=selected_month,
         month_names=month_names,
-        report_type = report_type
+        report_type = report_type,
+        highest_monthly = highest_monthly if report_type == 'month' else None,
+        highest_yearly = highest_yearly if report_type == 'year' else None,
+
 
     )
