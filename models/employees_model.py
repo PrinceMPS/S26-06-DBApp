@@ -56,6 +56,8 @@ def delete_employee_db(employee_id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM employee WHERE employee_id = %s", (employee_id,))
     conn.commit()
+    print("Employee deleted successfully.")
+
     cursor.close()
     conn.close()
 
