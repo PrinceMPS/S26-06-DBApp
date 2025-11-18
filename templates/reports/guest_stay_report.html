@@ -27,26 +27,7 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-10">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Guest Stay Report</h1>
-      <a href="/reports/debug-data" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-sm">
-        🔍 Debug Data
-      </a>
-    </div>
-
-    <!-- Info Box -->
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <i class="fas fa-info-circle text-blue-400"></i>
-        </div>
-        <div class="ml-3">
-          <p class="text-sm text-blue-700">
-            <strong>Tip:</strong> Check the Flask console for detailed debug information about what data is being found.
-          </p>
-        </div>
-      </div>
-    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Guest Stay Report</h1>
 
     <!-- Monthly Report Form -->
     <div class="bg-white p-6 rounded-lg shadow mb-6">
@@ -263,7 +244,6 @@
             No records found for {{ selected_year }}.
           {% endif %}
         </p>
-        <p class="text-sm mt-2">Check the Flask console for debug information about what data exists.</p>
       </div>
     </div>
     {% endif %}

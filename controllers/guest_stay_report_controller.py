@@ -25,26 +25,15 @@ def guest_stay_report():
         report_type = request.form.get('report_type')
         selected_year = int(request.form.get('year'))
         
-        print(f"🎯 CONTROLLER: Generating {report_type} report for year {selected_year}")
-        
         if report_type == 'month':
             selected_month = int(request.form.get('month'))
-            try:
-                guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_month(
-                    selected_month, selected_year
-                )
-                print(f"✅ CONTROLLER: Monthly report completed - {len(guest_stays)} guests, {len(nationality_stats)} nationalities")
-            except Exception as e:
-                print(f"❌ CONTROLLER ERROR in monthly report: {e}")
-        
+            guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_month(
+                selected_month, selected_year
+            )
         elif report_type == 'year':
-            try:
-                guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_year(
-                    selected_year
-                )
-                print(f"✅ CONTROLLER: Yearly report completed - {len(guest_stays)} guests, {len(nationality_stats)} nationalities")
-            except Exception as e:
-                print(f"❌ CONTROLLER ERROR in yearly report: {e}")
+            guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_year(
+                selected_year
+            )
     
     # Set default values for first load
     if not selected_year:
@@ -52,8 +41,7 @@ def guest_stay_report():
         current_date = datetime.now()
         selected_month = current_date.month
         selected_year = current_date.year
-        print(f"🔄 CONTROLLER: Defaulting to {selected_month}/{selected_year}")
-
+    
     # Apply sorting
     if guest_stays:
         reverse = sort_order == 'desc'
@@ -69,10 +57,6 @@ def guest_stay_report():
             guest_stays.sort(key=lambda x: x.get('total_spending', 0), reverse=reverse)
         else:
             guest_stays.sort(key=lambda x: x.get('guest_id', 0), reverse=reverse)
-        
-        print(f"🔀 CONTROLLER: Sorted {len(guest_stays)} guests by {sort_by} {sort_order}")
-
-    print(f"📤 CONTROLLER: Rendering template with {len(guest_stays)} guests and {len(nationality_stats)} nationalities")
     
     return render_template(
         'reports/guest_stay_report.html',
@@ -87,18 +71,3 @@ def guest_stay_report():
         sort_by=sort_by,
         sort_order=sort_order
     )
-
-# Add a debug route to check current data
-@guest_stay_report_bp.route('/debug-data')
-def debug_data():
-    """Debug route to check what data exists"""
-    from datetime import datetime
-    current_date = datetime.now()
-    
-    return f"""
-    <h1>Debug Data</h1>
-    <p>Current date: {current_date}</p>
-    <p>Current month: {current_date.month}</p>
-    <p>Current year: {current_date.year}</p>
-    <p><a href="/reports/guest-stay">Back to Report</a></p>
-    """
