@@ -65,16 +65,16 @@ def guest_stay_report():
         else:  # default sort by guest_id
             guest_stays.sort(key=lambda x: x.get('guest_id', 0), reverse=reverse)
     
-    return render_template(
-        'reports/guest_stay_report.html',
-        guest_stays=guest_stays,
-        total_nights_sum=total_nights_sum,
-        total_spending_sum=total_spending_sum,
-        nationality_counts=nationality_counts,
-        selected_month=selected_month,
-        selected_year=selected_year,
-        report_type=report_type,
-        month_names=month_names,
-        sort_by=sort_by,
-        sort_order=sort_order
-    )
+return render_template(
+    'reports/guest_stay_report.html',
+    guest_stays=guest_stays,
+    total_nights_sum=total_nights_sum,
+    total_spending_sum=total_spending_sum,
+    nationality_counts=nationality_stats, 
+    selected_month=selected_month,
+    selected_year=selected_year,
+    report_type=report_type,
+    month_names=month_names,
+    sort_by=sort_by,
+    sort_order=sort_order
+)
