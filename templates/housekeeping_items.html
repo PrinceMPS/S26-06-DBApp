@@ -139,7 +139,7 @@
       </div>
       {% endif %}
 
-      <!-- Items Table (Only show when not viewing a specific item) -->
+      <!-- Items Table -->
       {% if not viewing_item %}
       <div class="overflow-x-auto bg-white rounded shadow">
         <table class="min-w-full divide-y divide-gray-200">
@@ -429,7 +429,6 @@
   </main>
 
   <script>
-    // Update max quantity based on selected item's stock
     document.querySelector('select[name="housekeeping_item_id"]')?.addEventListener('change', function() {
       const selectedOption = this.options[this.selectedIndex];
       const maxStock = selectedOption.getAttribute('data-stock');
