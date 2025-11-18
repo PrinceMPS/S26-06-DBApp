@@ -8,7 +8,7 @@ def guest_stay_report():
     guest_stays = []
     total_nights_sum = 0
     total_spending_sum = 0
-    nationality_counts = {}
+    nationality_stats = {}  # Changed variable name
     selected_month = None
     selected_year = None
     report_type = None
@@ -28,7 +28,7 @@ def guest_stay_report():
         if report_type == 'month':
             selected_month = int(request.form.get('month'))
             try:
-                guest_stays, total_nights_sum, total_spending_sum, nationality_counts = get_guest_stay_report_month(
+                guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_month(
                     selected_month, selected_year
                 )
             except Exception as e:
@@ -36,7 +36,7 @@ def guest_stay_report():
         
         elif report_type == 'year':
             try:
-                guest_stays, total_nights_sum, total_spending_sum, nationality_counts = get_guest_stay_report_year(
+                guest_stays, total_nights_sum, total_spending_sum, nationality_stats = get_guest_stay_report_year(
                     selected_year
                 )
             except Exception as e:
@@ -66,15 +66,15 @@ def guest_stay_report():
             guest_stays.sort(key=lambda x: x.get('guest_id', 0), reverse=reverse)
     
     return render_template(
-    'reports/guest_stay_report.html',
-    guest_stays=guest_stays,
-    total_nights_sum=total_nights_sum,
-    total_spending_sum=total_spending_sum,
-    nationality_counts=nationality_stats, 
-    selected_month=selected_month,
-    selected_year=selected_year,
-    report_type=report_type,
-    month_names=month_names,
-    sort_by=sort_by,
-    sort_order=sort_order
-)
+        'reports/guest_stay_report.html',
+        guest_stays=guest_stays,
+        total_nights_sum=total_nights_sum,
+        total_spending_sum=total_spending_sum,
+        nationality_stats=nationality_stats,  # Changed to nationality_stats
+        selected_month=selected_month,
+        selected_year=selected_year,
+        report_type=report_type,
+        month_names=month_names,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
