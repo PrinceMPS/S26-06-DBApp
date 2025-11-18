@@ -14,6 +14,7 @@ def get_guest_stay_report_month(month, year):
             g.first_name,
             g.last_name,
             g.email_address,
+            g.nationality,
             COUNT(DISTINCT gs.transaction_id) as total_stays,
             SUM(
                 CASE 
@@ -30,21 +31,27 @@ def get_guest_stay_report_month(month, year):
         LEFT JOIN payment p ON b.booking_id = p.booking_id
         WHERE MONTH(gs.check_in_time_date) = %s 
           AND YEAR(gs.check_in_time_date) = %s
-        GROUP BY g.guest_id, g.first_name, g.last_name, g.email_address
+        GROUP BY g.guest_id, g.first_name, g.last_name, g.email_address, g.nationality
         ORDER BY total_spending DESC
     """
     
     cursor.execute(query, (month, year))
     guest_stays = cursor.fetchall()
     
-    # Calculate totals
+    # Calculate totals and nationality counts
     total_nights_sum = sum(guest['total_nights'] or 0 for guest in guest_stays)
     total_spending_sum = sum(float(guest['total_spending'] or 0) for guest in guest_stays)
+    
+    # Get nationality counts
+    nationality_counts = {}
+    for guest in guest_stays:
+        nationality = guest['nationality'] or 'Unknown'
+        nationality_counts[nationality] = nationality_counts.get(nationality, 0) + 1
     
     cursor.close()
     conn.close()
     
-    return guest_stays, total_nights_sum, total_spending_sum
+    return guest_stays, total_nights_sum, total_spending_sum, nationality_counts
 
 def get_guest_stay_report_year(year):
     """
@@ -60,6 +67,7 @@ def get_guest_stay_report_year(year):
             g.first_name,
             g.last_name,
             g.email_address,
+            g.nationality,
             COUNT(DISTINCT gs.transaction_id) as total_stays,
             SUM(
                 CASE 
@@ -75,18 +83,24 @@ def get_guest_stay_report_year(year):
         INNER JOIN guest g ON b.guest_id = g.guest_id
         LEFT JOIN payment p ON b.booking_id = p.booking_id
         WHERE YEAR(gs.check_in_time_date) = %s
-        GROUP BY g.guest_id, g.first_name, g.last_name, g.email_address
+        GROUP BY g.guest_id, g.first_name, g.last_name, g.email_address, g.nationality
         ORDER BY total_spending DESC
     """
     
     cursor.execute(query, (year,))
     guest_stays = cursor.fetchall()
     
-    # Calculate totals
+    # Calculate totals and nationality counts
     total_nights_sum = sum(guest['total_nights'] or 0 for guest in guest_stays)
     total_spending_sum = sum(float(guest['total_spending'] or 0) for guest in guest_stays)
+    
+    # Get nationality counts
+    nationality_counts = {}
+    for guest in guest_stays:
+        nationality = guest['nationality'] or 'Unknown'
+        nationality_counts[nationality] = nationality_counts.get(nationality, 0) + 1
     
     cursor.close()
     conn.close()
     
-    return guest_stays, total_nights_sum, total_spending_sum
+    return guest_stays, total_nights_sum, total_spending_sum, nationality_counts
