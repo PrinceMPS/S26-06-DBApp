@@ -575,11 +575,20 @@ INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
 ('Toilet Paper', 25.50, 100, 20, 200),
-('Soap', 15.75, 150, 30, 300),
-('Shampoo', 35.25, 80, 15, 180),
-('Towel', 120.00, 50, 10, 100),
-('Bedsheet', 280.50, 40, 8, 80),
-('Pillow Case', 85.00, 60, 12, 120);
+('Hand Soap', 18.75, 120, 25, 250),
+('Shampoo', 45.25, 80, 15, 180),
+('Conditioner', 42.00, 75, 15, 160),
+('Bath Towel', 120.00, 60, 12, 120),
+('Hand Towel', 65.00, 80, 16, 150),
+('Bath Mat', 85.50, 40, 8, 80),
+('Bedsheet Set', 320.00, 35, 7, 70),
+('Pillow Case', 45.00, 90, 18, 180),
+('Blanket', 280.75, 30, 6, 60),
+('Pillow', 180.25, 25, 5, 50),
+('Toilet Seat Cover', 12.50, 150, 30, 300),
+('Tissue Box', 35.00, 100, 20, 200),
+('Glass Cleaner', 68.00, 40, 8, 80),
+('Floor Cleaner', 95.50, 35, 7, 70);
 
 -- Bookings
 INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
@@ -614,23 +623,253 @@ INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_che
 
 -- Housekeeping Item Issuance
 INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, date_issued, remarks) VALUES
-(1, 2, 3, 8, '2025-01-15 09:00:00', 'Issued for floor 5-6 room cleaning'),
-(1, 4, 3, 12, '2025-01-20 10:30:00', 'Restock for VIP suite preparation'),
-(1, 2, 13, 6, '2025-02-05 14:15:00', 'Regular monthly restocking'),
-(1, 9, 3, 10, '2025-02-18 11:00:00', 'Emergency supply for conference rooms'),
-(2, 2, 13, 15, '2025-01-10 08:45:00', 'Standard monthly soap distribution'),
-(2, 4, 3, 20, '2025-01-25 13:20:00', 'Extra supply for high-occupancy weekend'),
-(2, 9, 13, 12, '2025-02-12 10:00:00', 'Replacement for expired stock'),
-(2, 2, 3, 18, '2025-02-28 15:30:00', 'End of month bulk issuance'),
-(3, 4, 13, 5, '2025-01-08 11:10:00', 'For deluxe rooms only'),
-(3, 2, 3, 7, '2025-01-22 09:45:00', 'New herbal shampoo trial'),
-(3, 9, 13, 6, '2025-02-14 16:20:00', 'Valentine special package'),
-(4, 2, 3, 3, '2025-01-12 14:00:00', 'Pool towel replacement'),
-(4, 4, 13, 4, '2025-01-30 10:15:00', 'Spa and wellness center'),
-(4, 9, 3, 2, '2025-02-22 13:45:00', 'Executive suite towels'),
-(5, 2, 13, 1, '2025-01-18 15:00:00', 'Replacement for damaged bedsheet'),
-(5, 4, 3, 2, '2025-02-08 11:30:00', 'Suite room upgrade'),
-(5, 9, 13, 1, '2025-02-25 09:15:00', 'Emergency replacement'),
-(6, 2, 3, 4, '2025-01-14 12:30:00', 'Standard pillow case rotation'),
-(6, 4, 13, 3, '2025-02-16 14:45:00', 'Memory foam pillow cases'),
-(6, 9, 3, 5, '2025-02-27 16:00:00', 'End of quarter replacement');
+-- January 2023
+(1, 2, 3, 10, '2023-01-10 09:00:00', 'Monthly restock for floors 1-3'),
+(2, 4, 3, 15, '2023-01-12 10:30:00', 'Hand soap for guest rooms'),
+(3, 2, 13, 8, '2023-01-15 14:15:00', 'Shampoo for VIP suites'),
+(4, 9, 3, 7, '2023-01-18 11:00:00', 'Conditioner restock'),
+(5, 2, 13, 4, '2023-01-20 08:45:00', 'Bath towel replacement'),
+
+-- February 2023
+(6, 4, 3, 12, '2023-02-05 13:20:00', 'Hand towels for all floors'),
+(7, 9, 13, 3, '2023-02-08 10:00:00', 'Bath mat replacement'),
+(8, 2, 3, 2, '2023-02-12 15:30:00', 'Bedsheet set for suite rooms'),
+(9, 4, 13, 8, '2023-02-18 11:10:00', 'Pillow case rotation'),
+(10, 2, 3, 2, '2023-02-22 09:45:00', 'Blankets for winter season'),
+
+-- March 2023
+(11, 9, 13, 3, '2023-03-10 16:20:00', 'Pillow replacement'),
+(12, 2, 3, 20, '2023-03-15 14:00:00', 'Toilet seat covers bulk'),
+(13, 4, 13, 15, '2023-03-20 10:15:00', 'Tissue box restock'),
+(14, 9, 3, 5, '2023-03-25 13:45:00', 'Glass cleaner for windows'),
+(15, 2, 13, 4, '2023-03-28 15:00:00', 'Floor cleaner monthly'),
+
+-- April 2023
+(1, 4, 3, 12, '2023-04-05 11:30:00', 'Toilet paper for high occupancy'),
+(2, 9, 13, 18, '2023-04-10 09:15:00', 'Hand soap spring cleaning'),
+(3, 2, 3, 6, '2023-04-15 12:30:00', 'Shampoo regular supply'),
+(4, 4, 13, 5, '2023-04-20 14:45:00', 'Conditioner restock'),
+(5, 9, 3, 3, '2023-04-25 16:00:00', 'Bath towel replacement'),
+
+-- May 2023
+(6, 2, 13, 10, '2023-05-03 09:00:00', 'Hand towels monthly'),
+(7, 4, 3, 2, '2023-05-08 10:30:00', 'Bath mat damaged replacement'),
+(8, 9, 13, 1, '2023-05-12 14:15:00', 'Bedsheet set for new room'),
+(9, 2, 3, 6, '2023-05-18 11:00:00', 'Pillow case standard'),
+(10, 4, 13, 1, '2023-05-22 08:45:00', 'Blanket for special request'),
+
+-- June 2023
+(11, 9, 3, 2, '2023-06-05 13:20:00', 'Pillow guest complaint'),
+(12, 2, 13, 25, '2023-06-10 10:00:00', 'Toilet seat covers bulk'),
+(13, 4, 3, 12, '2023-06-15 15:30:00', 'Tissue box summer stock'),
+(14, 9, 13, 4, '2023-06-20 11:10:00', 'Glass cleaner maintenance'),
+(15, 2, 3, 3, '2023-06-25 09:45:00', 'Floor cleaner quarterly'),
+
+-- July 2023
+(1, 4, 13, 8, '2023-07-08 16:20:00', 'Toilet paper mid-year'),
+(2, 9, 3, 14, '2023-07-12 14:00:00', 'Hand soap summer'),
+(3, 2, 13, 7, '2023-07-18 10:15:00', 'Shampoo peak season'),
+(4, 4, 3, 6, '2023-07-22 13:45:00', 'Conditioner restock'),
+(5, 9, 13, 2, '2023-07-28 15:00:00', 'Bath towel replacement'),
+
+-- August 2023
+(6, 2, 3, 8, '2023-08-05 11:30:00', 'Hand towels August'),
+(7, 4, 13, 1, '2023-08-10 09:15:00', 'Bath mat replacement'),
+(8, 9, 3, 2, '2023-08-15 12:30:00', 'Bedsheet set upgrade'),
+(9, 2, 13, 7, '2023-08-20 14:45:00', 'Pillow case rotation'),
+(10, 4, 3, 2, '2023-08-25 16:00:00', 'Blanket stock'),
+
+-- September 2023
+(11, 9, 13, 1, '2023-09-03 09:00:00', 'Pillow replacement'),
+(12, 2, 3, 18, '2023-09-08 10:30:00', 'Toilet seat covers'),
+(13, 4, 13, 10, '2023-09-12 14:15:00', 'Tissue box autumn'),
+(14, 9, 3, 3, '2023-09-18 11:00:00', 'Glass cleaner windows'),
+(15, 2, 13, 2, '2023-09-22 08:45:00', 'Floor cleaner monthly'),
+
+-- October 2023
+(1, 4, 3, 15, '2023-10-05 13:20:00', 'Toilet paper October'),
+(2, 9, 13, 16, '2023-10-10 10:00:00', 'Hand soap fall season'),
+(3, 2, 3, 8, '2023-10-15 15:30:00', 'Shampoo regular'),
+(4, 4, 13, 7, '2023-10-20 11:10:00', 'Conditioner restock'),
+(5, 9, 3, 3, '2023-10-25 09:45:00', 'Bath towel replacement'),
+
+-- November 2023
+(6, 2, 13, 9, '2023-11-03 16:20:00', 'Hand towels November'),
+(7, 4, 3, 2, '2023-11-08 14:00:00', 'Bath mat maintenance'),
+(8, 9, 13, 1, '2023-11-12 10:15:00', 'Bedsheet set replacement'),
+(9, 2, 3, 8, '2023-11-18 13:45:00', 'Pillow case standard'),
+(10, 4, 13, 3, '2023-11-22 15:00:00', 'Blanket winter prep'),
+
+-- December 2023
+(11, 9, 3, 2, '2023-12-05 11:30:00', 'Pillow holiday season'),
+(12, 2, 13, 22, '2023-12-10 09:15:00', 'Toilet seat covers bulk'),
+(13, 4, 3, 18, '2023-12-15 12:30:00', 'Tissue box December'),
+(14, 9, 13, 6, '2023-12-20 14:45:00', 'Glass cleaner year-end'),
+(15, 2, 3, 5, '2023-12-27 16:00:00', 'Floor cleaner deep clean'),
+
+-- January 2024
+(1, 2, 3, 12, '2024-01-08 09:00:00', 'Toilet paper new year stock'),
+(2, 4, 13, 17, '2024-01-12 10:30:00', 'Hand soap January'),
+(3, 9, 3, 9, '2024-01-16 14:15:00', 'Shampoo VIP rooms'),
+(4, 2, 13, 8, '2024-01-20 11:00:00', 'Conditioner restock'),
+(5, 4, 3, 4, '2024-01-24 08:45:00', 'Bath towel replacement'),
+
+-- February 2024
+(6, 9, 13, 11, '2024-02-05 13:20:00', 'Hand towels February'),
+(7, 2, 3, 3, '2024-02-09 10:00:00', 'Bath mat replacement'),
+(8, 4, 13, 2, '2024-02-14 15:30:00', 'Bedsheet set valentine'),
+(9, 9, 3, 9, '2024-02-19 11:10:00', 'Pillow case rotation'),
+(10, 2, 13, 2, '2024-02-23 09:45:00', 'Blanket winter'),
+
+-- March 2024
+(11, 4, 3, 3, '2024-03-07 16:20:00', 'Pillow replacement'),
+(12, 9, 13, 23, '2024-03-12 14:00:00', 'Toilet seat covers'),
+(13, 2, 3, 16, '2024-03-17 10:15:00', 'Tissue box spring'),
+(14, 4, 13, 5, '2024-03-22 13:45:00', 'Glass cleaner windows'),
+(15, 9, 3, 4, '2024-03-28 15:00:00', 'Floor cleaner monthly'),
+
+-- April 2024
+(1, 2, 13, 14, '2024-04-04 11:30:00', 'Toilet paper April'),
+(2, 4, 3, 19, '2024-04-09 09:15:00', 'Hand soap spring'),
+(3, 9, 13, 7, '2024-04-14 12:30:00', 'Shampoo regular'),
+(4, 2, 3, 6, '2024-04-19 14:45:00', 'Conditioner restock'),
+(5, 4, 13, 3, '2024-04-24 16:00:00', 'Bath towel replacement'),
+
+-- May 2024
+(6, 9, 3, 10, '2024-05-03 09:00:00', 'Hand towels May'),
+(7, 2, 13, 2, '2024-05-08 10:30:00', 'Bath mat maintenance'),
+(8, 4, 3, 1, '2024-05-13 14:15:00', 'Bedsheet set new'),
+(9, 9, 13, 8, '2024-05-18 11:00:00', 'Pillow case standard'),
+(10, 2, 3, 1, '2024-05-23 08:45:00', 'Blanket stock'),
+
+-- June 2024
+(11, 4, 13, 2, '2024-06-05 13:20:00', 'Pillow summer'),
+(12, 9, 3, 26, '2024-06-10 10:00:00', 'Toilet seat covers bulk'),
+(13, 2, 13, 14, '2024-06-15 15:30:00', 'Tissue box June'),
+(14, 4, 3, 4, '2024-06-20 11:10:00', 'Glass cleaner maintenance'),
+(15, 9, 13, 3, '2024-06-25 09:45:00', 'Floor cleaner quarterly'),
+
+-- July 2024
+(1, 2, 3, 11, '2024-07-08 16:20:00', 'Toilet paper July'),
+(2, 4, 13, 15, '2024-07-12 14:00:00', 'Hand soap summer'),
+(3, 9, 3, 8, '2024-07-18 10:15:00', 'Shampoo peak season'),
+(4, 2, 13, 7, '2024-07-22 13:45:00', 'Conditioner restock'),
+(5, 4, 3, 2, '2024-07-28 15:00:00', 'Bath towel replacement'),
+
+-- August 2024
+(6, 9, 13, 9, '2024-08-05 11:30:00', 'Hand towels August'),
+(7, 2, 3, 1, '2024-08-10 09:15:00', 'Bath mat replacement'),
+(8, 4, 13, 2, '2024-08-15 12:30:00', 'Bedsheet set upgrade'),
+(9, 9, 3, 7, '2024-08-20 14:45:00', 'Pillow case rotation'),
+(10, 2, 13, 2, '2024-08-25 16:00:00', 'Blanket stock'),
+
+-- September 2024
+(11, 4, 3, 1, '2024-09-03 09:00:00', 'Pillow replacement'),
+(12, 9, 13, 20, '2024-09-08 10:30:00', 'Toilet seat covers'),
+(13, 2, 3, 12, '2024-09-12 14:15:00', 'Tissue box autumn'),
+(14, 4, 13, 3, '2024-09-18 11:00:00', 'Glass cleaner windows'),
+(15, 9, 3, 2, '2024-09-22 08:45:00', 'Floor cleaner monthly'),
+
+-- October 2024
+(1, 2, 13, 16, '2024-10-05 13:20:00', 'Toilet paper October'),
+(2, 4, 3, 18, '2024-10-10 10:00:00', 'Hand soap fall'),
+(3, 9, 13, 9, '2024-10-15 15:30:00', 'Shampoo regular'),
+(4, 2, 3, 8, '2024-10-20 11:10:00', 'Conditioner restock'),
+(5, 4, 13, 4, '2024-10-25 09:45:00', 'Bath towel replacement'),
+
+-- November 2024
+(6, 9, 3, 10, '2024-11-03 16:20:00', 'Hand towels November'),
+(7, 2, 13, 2, '2024-11-08 14:00:00', 'Bath mat maintenance'),
+(8, 4, 3, 1, '2024-11-12 10:15:00', 'Bedsheet set replacement'),
+(9, 9, 13, 9, '2024-11-18 13:45:00', 'Pillow case standard'),
+(10, 2, 3, 3, '2024-11-22 15:00:00', 'Blanket winter prep'),
+
+-- December 2024
+(11, 4, 13, 2, '2024-12-05 11:30:00', 'Pillow holiday'),
+(12, 9, 3, 24, '2024-12-10 09:15:00', 'Toilet seat covers bulk'),
+(13, 2, 13, 20, '2024-12-15 12:30:00', 'Tissue box December'),
+(14, 4, 3, 7, '2024-12-20 14:45:00', 'Glass cleaner year-end'),
+(15, 9, 13, 6, '2024-12-27 16:00:00', 'Floor cleaner deep clean'),
+
+-- January 2025
+(1, 2, 3, 13, '2025-01-07 09:00:00', 'Toilet paper new year'),
+(2, 4, 13, 16, '2025-01-11 10:30:00', 'Hand soap January'),
+(3, 9, 3, 10, '2025-01-15 14:15:00', 'Shampoo VIP rooms'),
+(4, 2, 13, 9, '2025-01-19 11:00:00', 'Conditioner restock'),
+(5, 4, 3, 5, '2025-01-23 08:45:00', 'Bath towel replacement'),
+
+-- February 2025
+(6, 9, 13, 12, '2025-02-04 13:20:00', 'Hand towels February'),
+(7, 2, 3, 4, '2025-02-08 10:00:00', 'Bath mat replacement'),
+(8, 4, 13, 3, '2025-02-13 15:30:00', 'Bedsheet set valentine'),
+(9, 9, 3, 10, '2025-02-18 11:10:00', 'Pillow case rotation'),
+(10, 2, 13, 3, '2025-02-22 09:45:00', 'Blanket winter'),
+
+-- March 2025
+(11, 4, 3, 4, '2025-03-06 16:20:00', 'Pillow replacement'),
+(12, 9, 13, 25, '2025-03-11 14:00:00', 'Toilet seat covers'),
+(13, 2, 3, 18, '2025-03-16 10:15:00', 'Tissue box spring'),
+(14, 4, 13, 6, '2025-03-21 13:45:00', 'Glass cleaner windows'),
+(15, 9, 3, 5, '2025-03-27 15:00:00', 'Floor cleaner monthly'),
+
+-- April 2025
+(1, 2, 13, 15, '2025-04-03 11:30:00', 'Toilet paper April stock'),
+(2, 4, 3, 20, '2025-04-08 09:15:00', 'Hand soap spring season'),
+(3, 9, 13, 8, '2025-04-13 12:30:00', 'Shampoo regular supply'),
+(4, 2, 3, 7, '2025-04-18 14:45:00', 'Conditioner restock'),
+(5, 4, 13, 4, '2025-04-23 16:00:00', 'Bath towel replacement'),
+
+-- May 2025
+(6, 9, 3, 11, '2025-05-02 09:00:00', 'Hand towels May distribution'),
+(7, 2, 13, 3, '2025-05-07 10:30:00', 'Bath mat maintenance'),
+(8, 4, 3, 2, '2025-05-12 14:15:00', 'Bedsheet set new rooms'),
+(9, 9, 13, 9, '2025-05-17 11:00:00', 'Pillow case standard rotation'),
+(10, 2, 3, 2, '2025-05-22 08:45:00', 'Blanket light stock'),
+
+-- June 2025
+(11, 4, 13, 3, '2025-06-04 13:20:00', 'Pillow summer replacement'),
+(12, 9, 3, 28, '2025-06-09 10:00:00', 'Toilet seat covers bulk order'),
+(13, 2, 13, 16, '2025-06-14 15:30:00', 'Tissue box June summer'),
+(14, 4, 3, 5, '2025-06-19 11:10:00', 'Glass cleaner maintenance'),
+(15, 9, 13, 4, '2025-06-24 09:45:00', 'Floor cleaner quarterly'),
+
+-- July 2025
+(1, 2, 3, 14, '2025-07-07 16:20:00', 'Toilet paper peak season'),
+(2, 4, 13, 18, '2025-07-11 14:00:00', 'Hand soap summer high usage'),
+(3, 9, 3, 9, '2025-07-16 10:15:00', 'Shampoo VIP and regular'),
+(4, 2, 13, 8, '2025-07-21 13:45:00', 'Conditioner restock'),
+(5, 4, 3, 3, '2025-07-26 15:00:00', 'Bath towel replacement'),
+
+-- August 2025
+(6, 9, 13, 10, '2025-08-04 11:30:00', 'Hand towels August'),
+(7, 2, 3, 2, '2025-08-09 09:15:00', 'Bath mat replacement'),
+(8, 4, 13, 2, '2025-08-14 12:30:00', 'Bedsheet set room upgrade'),
+(9, 9, 3, 8, '2025-08-19 14:45:00', 'Pillow case rotation'),
+(10, 2, 13, 2, '2025-08-24 16:00:00', 'Blanket stock preparation'),
+
+-- September 2025
+(11, 4, 3, 2, '2025-09-02 09:00:00', 'Pillow replacement autumn'),
+(12, 9, 13, 22, '2025-09-07 10:30:00', 'Toilet seat covers'),
+(13, 2, 3, 14, '2025-09-12 14:15:00', 'Tissue box back to school'),
+(14, 4, 13, 4, '2025-09-17 11:00:00', 'Glass cleaner windows'),
+(15, 9, 3, 3, '2025-09-22 08:45:00', 'Floor cleaner monthly'),
+
+-- October 2025
+(1, 2, 13, 17, '2025-10-05 13:20:00', 'Toilet paper October busy'),
+(2, 4, 3, 19, '2025-10-10 10:00:00', 'Hand soap fall season'),
+(3, 9, 13, 10, '2025-10-15 15:30:00', 'Shampoo regular supply'),
+(4, 2, 3, 9, '2025-10-20 11:10:00', 'Conditioner restock'),
+(5, 4, 13, 5, '2025-10-25 09:45:00', 'Bath towel replacement'),
+
+-- November 2025
+(6, 9, 3, 11, '2025-11-03 16:20:00', 'Hand towels November'),
+(7, 2, 13, 3, '2025-11-08 14:00:00', 'Bath mat maintenance'),
+(8, 4, 3, 2, '2025-11-13 10:15:00', 'Bedsheet set replacement'),
+(9, 9, 13, 10, '2025-11-18 13:45:00', 'Pillow case standard'),
+(10, 2, 3, 4, '2025-11-23 15:00:00', 'Blanket winter preparation'),
+
+(11, 4, 13, 3, '2025-11-28 11:30:00', 'Pillow pre-winter'),
+(12, 9, 3, 26, '2025-11-05 09:15:00', 'Toilet seat covers bulk'),
+(13, 2, 13, 19, '2025-11-10 12:30:00', 'Tissue box November'),
+(14, 4, 3, 5, '2025-11-15 14:45:00', 'Glass cleaner maintenance'),
+(15, 9, 13, 4, '2025-11-20 16:00:00', 'Floor cleaner monthly');

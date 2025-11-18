@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Housekeeping Item Usage Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Ensure Peso symbol displays correctly */
+    .peso-symbol {
+      font-family: 'Arial', 'Helvetica', 'Segoe UI', system-ui, sans-serif;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800 flex">
 
@@ -36,8 +42,12 @@
 
         <div>
           <label for="month_year" class="block font-semibold text-gray-700">Year</label>
-          <input type="number" name="year" id="month_year" min="2000" max="2100" value="{{ selected_year }}" required
-                 class="border border-gray-300 rounded px-3 py-2">
+          <select name="year" id="month_year" required class="border border-gray-300 rounded px-3 py-2">
+            <option value="">-- Select Year --</option>
+            {% for year in available_years %}
+              <option value="{{ year }}" {% if selected_year|int == year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+          </select>
         </div>
 
         <div>
@@ -74,8 +84,12 @@
 
         <div>
           <label for="year_only" class="block font-semibold text-gray-700">Year</label>
-          <input type="number" name="year" id="year_only" min="2000" max="2100" value="{{ selected_year }}" required
-                 class="border border-gray-300 rounded px-3 py-2">
+          <select name="year" id="year_only" required class="border border-gray-300 rounded px-3 py-2">
+            <option value="">-- Select Year --</option>
+            {% for year in available_years %}
+              <option value="{{ year }}" {% if selected_year|int == year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+          </select>
         </div>
 
         <div>
@@ -94,18 +108,304 @@
       </form>
     </div>
 
+    <!-- Yearly Overview for All Items -->
+    {% if yearly_metrics and not selected_item %}
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-2xl font-semibold mb-6 text-gray-800">Yearly Overview - {{ selected_year }}</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <!-- Total Annual Spend -->
+        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-blue-600">Total Annual Spend</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(yearly_metrics.total_spend) }}</p>
+            </div>
+            <div class="text-blue-600">
+              <span class="peso-symbol text-3xl font-bold">₱</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Quantity Used -->
+        <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-indigo-600">Total Quantity Used</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2">{{ yearly_metrics.total_quantity }}</p>
+              <p class="text-xs text-gray-500 mt-1">units</p>
+            </div>
+            <div class="text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- YoY Change (Red for up, Green for down) -->
+        <div class="{% if yearly_metrics.yoy_change >= 0 %}bg-red-50 border-red-200{% else %}bg-green-50 border-green-200{% endif %} p-6 rounded-lg border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium {% if yearly_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %}">Year-over-Year Change</p>
+              <p class="text-2xl font-bold {% if yearly_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %} mt-2">
+                {{ "{:+.1f}".format(yearly_metrics.yoy_change) }}%
+              </p>
+              <p class="text-xs text-gray-500 mt-1">vs {{ selected_year|int - 1 }}</p>
+            </div>
+            <div class="{% if yearly_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %}">
+              {% if yearly_metrics.yoy_change >= 0 %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Highest Cost Item -->
+        <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-purple-600">Highest Cost Item</p>
+              {% if yearly_metrics.highest_cost_item %}
+                <p class="text-lg font-bold text-gray-900 mt-2 truncate">{{ yearly_metrics.highest_cost_item.item_name }}</p>
+                <p class="text-sm text-gray-600"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(yearly_metrics.highest_cost_item.total_cost) }}</p>
+              {% else %}
+                <p class="text-lg font-bold text-gray-900 mt-2">No data</p>
+              {% endif %}
+            </div>
+            <div class="text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Previous Year Spend -->
+        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Previous Year Spend</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(yearly_metrics.previous_year_spend) }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ selected_year|int - 1 }}</p>
+            </div>
+            <div class="text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Breakdown Table -->
+      {% if monthly_breakdown %}
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Monthly Cost Breakdown</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse bg-white rounded-lg shadow">
+            <thead>
+              <tr class="bg-gray-800 text-gray-100">
+                <th class="text-left py-3 px-4">Month</th>
+                <th class="text-left py-3 px-4">Quantity Used</th>
+                <th class="text-left py-3 px-4">Monthly Cost (<span class="peso-symbol">₱</span>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for month_data in monthly_breakdown %}
+              <tr class="border-b hover:bg-gray-50">
+                <td class="py-3 px-4 font-medium">{{ month_names[month_data.month - 1] }}</td>
+                <td class="py-3 px-4">{{ month_data.quantity_used }}</td>
+                <td class="py-3 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(month_data.monthly_cost) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-100 font-bold">
+                <td class="py-3 px-4">Total</td>
+                <td class="py-3 px-4">{{ yearly_metrics.total_quantity }}</td>
+                <td class="py-3 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(yearly_metrics.total_spend) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Top 5 Most Used Items -->
+      <div class="bg-orange-50 p-6 rounded-lg border border-orange-200">
+        <h3 class="text-lg font-semibold text-orange-800 mb-4">Top 5 Most Used Items</h3>
+        <div class="space-y-3">
+          {% if yearly_metrics.top_used_items %}
+            {% for item in yearly_metrics.top_used_items %}
+            <div class="flex justify-between items-center bg-white p-3 rounded border">
+              <span class="font-medium text-gray-700">{{ item.item_name }}</span>
+              <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">
+                {{ item.total_quantity }} units
+              </span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-gray-500 text-center py-4">No usage data available</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Specific Item Yearly Overview -->
+    {% if specific_item_metrics and selected_item %}
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-2xl font-semibold mb-6 text-gray-800">
+        Yearly Overview - {{ selected_year }} ({{ selected_item_name }})
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <!-- Total Annual Spend for Item -->
+        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-blue-600">Total Annual Spend</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                <span class="peso-symbol">₱</span> {{ "{:,.2f}".format(specific_item_metrics.item_data.total_cost) }}
+              </p>
+            </div>
+            <div class="text-blue-600">
+              <span class="peso-symbol text-3xl font-bold">₱</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Quantity Used for Item -->
+        <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-indigo-600">Total Quantity Used</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2">{{ specific_item_metrics.item_data.total_quantity }}</p>
+              <p class="text-xs text-gray-500 mt-1">units</p>
+            </div>
+            <div class="text-indigo-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Per Unit -->
+        <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-green-600">Cost Per Unit</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                <span class="peso-symbol">₱</span> {{ "{:,.2f}".format(specific_item_metrics.item_data.cost_per_unit) }}
+              </p>
+            </div>
+            <div class="text-green-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- YoY Change for Specific Item -->
+        <div class="{% if specific_item_metrics.yoy_change >= 0 %}bg-red-50 border-red-200{% else %}bg-green-50 border-green-200{% endif %} p-6 rounded-lg border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium {% if specific_item_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %}">Year-over-Year Change</p>
+              <p class="text-2xl font-bold {% if specific_item_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %} mt-2">
+                {{ "{:+.1f}".format(specific_item_metrics.yoy_change) }}%
+              </p>
+              <p class="text-xs text-gray-500 mt-1">vs {{ selected_year|int - 1 }}</p>
+            </div>
+            <div class="{% if specific_item_metrics.yoy_change >= 0 %}text-red-600{% else %}text-green-600{% endif %}">
+              {% if specific_item_metrics.yoy_change >= 0 %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Previous Year Spend for Specific Item -->
+        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Previous Year Spend</p>
+              <p class="text-2xl font-bold text-gray-900 mt-2">
+                <span class="peso-symbol">₱</span> {{ "{:,.2f}".format(specific_item_metrics.previous_year_cost) }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">{{ selected_year|int - 1 }}</p>
+            </div>
+            <div class="text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Breakdown for Specific Item -->
+      {% if monthly_breakdown %}
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Monthly Usage Breakdown</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse bg-white rounded-lg shadow">
+            <thead>
+              <tr class="bg-gray-800 text-gray-100">
+                <th class="text-left py-3 px-4">Month</th>
+                <th class="text-left py-3 px-4">Quantity Used</th>
+                <th class="text-left py-3 px-4">Monthly Cost (<span class="peso-symbol">₱</span>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for month_data in monthly_breakdown %}
+              <tr class="border-b hover:bg-gray-50">
+                <td class="py-3 px-4 font-medium">{{ month_names[month_data.month - 1] }}</td>
+                <td class="py-3 px-4">{{ month_data.quantity_used }}</td>
+                <td class="py-3 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(month_data.monthly_cost) }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="bg-gray-100 font-bold">
+                <td class="py-3 px-4">Total</td>
+                <td class="py-3 px-4">{{ specific_item_metrics.item_data.total_quantity }}</td>
+                <td class="py-3 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(specific_item_metrics.item_data.total_cost) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
     <!-- Report Table -->
     {% if report_data %}
     <div class="bg-white p-6 rounded-lg shadow">
       <h2 class="text-2xl font-semibold mb-4 text-gray-800">
         Item Usage Report for
         {% if selected_month %}
-          {{ month_names[selected_month|int - 1] }}/{{ selected_year }}
+          {{ month_names[selected_month|int - 1] }} - {{ selected_year }}
         {% else %}
           {{ selected_year }}
         {% endif %}
         {% if selected_item_name %}
-          - {{ selected_item_name }}
+           ({{ selected_item_name }})
         {% endif %}
       </h2>
 
@@ -114,8 +414,8 @@
           <tr class="bg-gray-800 text-gray-100">
             <th class="text-left py-2 px-4">Item Name</th>
             <th class="text-left py-2 px-4">Quantity Used</th>
-            <th class="text-left py-2 px-4">Total Cost (₱)</th>
-            <th class="text-left py-2 px-4">Cost Per Unit (₱)</th>
+            <th class="text-left py-2 px-4">Total Cost (<span class="peso-symbol">₱</span>)</th>
+            <th class="text-left py-2 px-4">Cost Per Unit (<span class="peso-symbol">₱</span>)</th>
           </tr>
         </thead>
         <tbody>
@@ -123,8 +423,8 @@
           <tr class="border-b hover:bg-gray-50">
             <td class="py-2 px-4">{{ row.item_name }}</td>
             <td class="py-2 px-4">{{ row.quantity_used }}</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(row.total_cost) }}</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(row.cost_per_unit) }}</td>
+            <td class="py-2 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(row.total_cost) }}</td>
+            <td class="py-2 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(row.cost_per_unit) }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -132,13 +432,13 @@
           <tr class="bg-gray-100 font-bold">
             <td class="py-2 px-4">Total</td>
             <td class="py-2 px-4">{{ total_quantity }}</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(grand_total) }}</td>
+            <td class="py-2 px-4"><span class="peso-symbol">₱</span> {{ "{:,.2f}".format(grand_total) }}</td>
             <td class="py-2 px-4">-</td>
           </tr>
         </tfoot>
       </table>
     </div>
-    {% elif selected_year %}
+    {% elif selected_year and not yearly_metrics and not specific_item_metrics %}
     <div class="bg-white p-6 rounded-lg shadow text-gray-600">
       No item usage records found for this period.
     </div>
