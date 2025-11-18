@@ -17,9 +17,7 @@ from models.housekeeping_items_model import (
 
 housekeeping_bp = Blueprint('housekeeping_items', __name__)
 
-# ---------------------------
 # MAIN HOUSEKEEPING PAGE
-# ---------------------------
 @housekeeping_bp.route('/housekeeping-items', methods=['GET', 'POST'])
 def housekeeping_items_page():
     # Handle POST requests (item management)
@@ -70,7 +68,7 @@ def housekeeping_items_page():
                 flash('Invalid numeric values.', 'error')
                 return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id if item_id else 'new'))
 
-            if item_id and item_id != '':  # UPDATE
+            if item_id and item_id != '':  
                 try:
                     update_housekeeping_item_db(
                         item_id, item_name, cost_per_unit,
@@ -80,7 +78,7 @@ def housekeeping_items_page():
                 except Exception as e:
                     flash(f'Error updating item: {str(e)}', 'error')
                     return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id))
-            else:  # ADD NEW
+            else:  
                 try:
                     add_housekeeping_item_db(
                         item_name, cost_per_unit, current_stock,
@@ -137,23 +135,17 @@ def housekeeping_items_page():
                          viewing_item=viewing_item,
                          active_tab=tab)
 
-# ---------------------------
 # EDIT ITEM ROUTE
-# ---------------------------
 @housekeeping_bp.route('/housekeeping-items/edit/<int:item_id>')
 def edit_housekeeping_item(item_id):
     return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit=item_id))
 
-# ---------------------------
 # ADD NEW ITEM ROUTE
-# ---------------------------
 @housekeeping_bp.route('/housekeeping-items/add')
 def add_housekeeping_item():
     return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='inventory', edit='new'))
 
-# ---------------------------
 # HANDLE ITEM ISSUANCE
-# ---------------------------
 @housekeeping_bp.route('/housekeeping-items/issue', methods=['POST'])
 def handle_item_issuance():
     housekeeping_item_id = request.form.get('housekeeping_item_id')
@@ -184,9 +176,7 @@ def handle_item_issuance():
 
     return redirect(url_for('housekeeping_items.housekeeping_items_page', tab='issuance'))
 
-# ---------------------------
 # DELETE ISSUANCE RECORD
-# ---------------------------
 @housekeeping_bp.route('/housekeeping-items/delete-issuance', methods=['POST'])
 def delete_issuance():
     issuance_id = request.form.get('issuance_id')
