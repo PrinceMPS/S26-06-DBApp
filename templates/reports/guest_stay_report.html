@@ -72,19 +72,50 @@
     </div>
 
     <!-- Nationality Statistics -->
-    {% if nationality_counts %}
-    <div class="bg-white p-6 rounded-lg shadow mb-6">
-      <h2 class="text-xl font-semibold mb-4">Guest Nationality Distribution</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {% for nationality, count in nationality_counts.items() %}
-        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <div class="text-2xl font-bold text-blue-700">{{ count }}</div>
-          <div class="text-sm text-blue-600">{{ nationality }}</div>
+<!-- Nationality Statistics -->
+{% if nationality_counts %}
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+  <h2 class="text-xl font-semibold mb-4">Guest Nationality Distribution</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for nationality, stats in nationality_counts.items() %}
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 shadow-sm">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="text-lg font-bold text-blue-800">{{ nationality }}</h3>
+        <span class="bg-blue-600 text-white text-sm px-2 py-1 rounded-full">
+          {{ stats.count }} guest{% if stats.count > 1 %}s{% endif %}
+        </span>
+      </div>
+      
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-blue-600">Total Nights:</span>
+          <span class="font-semibold text-blue-800">{{ stats.total_nights }}</span>
         </div>
-        {% endfor %}
+        
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-blue-600">Total Spending:</span>
+          <span class="font-semibold text-blue-800">₱{{ "{:,.2f}".format(stats.total_spending) }}</span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-blue-600">Avg. Nights/Guest:</span>
+          <span class="font-semibold text-blue-800">
+            {{ "%.1f"|format(stats.total_nights / stats.count) }}
+          </span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-blue-600">Avg. Spend/Guest:</span>
+          <span class="font-semibold text-blue-800">
+            ₱{{ "{:,.2f}".format(stats.total_spending / stats.count) }}
+          </span>
+        </div>
       </div>
     </div>
-    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
     <!-- Report Table -->
     {% if guest_stays %}

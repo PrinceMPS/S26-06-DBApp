@@ -35,20 +35,29 @@ def get_guest_stay_report_month(month, year):
     cursor.execute(query, (month, year))
     guest_stays = cursor.fetchall()
     
-    # Calculate totals and nationality counts
+    # Calculate totals
     total_nights_sum = sum(guest['total_nights'] or 0 for guest in guest_stays)
     total_spending_sum = sum(float(guest['total_spending'] or 0) for guest in guest_stays)
     
-    # Get nationality counts
-    nationality_counts = {}
+    # Get nationality statistics with nights and spending
+    nationality_stats = {}
     for guest in guest_stays:
         nationality = guest['nationality'] or 'Unknown'
-        nationality_counts[nationality] = nationality_counts.get(nationality, 0) + 1
+        if nationality not in nationality_stats:
+            nationality_stats[nationality] = {
+                'count': 0,
+                'total_nights': 0,
+                'total_spending': 0
+            }
+        
+        nationality_stats[nationality]['count'] += 1
+        nationality_stats[nationality]['total_nights'] += guest['total_nights'] or 0
+        nationality_stats[nationality]['total_spending'] += float(guest['total_spending'] or 0)
     
     cursor.close()
     conn.close()
     
-    return guest_stays, total_nights_sum, total_spending_sum, nationality_counts
+    return guest_stays, total_nights_sum, total_spending_sum, nationality_stats
 
 def get_guest_stay_report_year(year):
     """
@@ -84,17 +93,26 @@ def get_guest_stay_report_year(year):
     cursor.execute(query, (year,))
     guest_stays = cursor.fetchall()
     
-    # Calculate totals and nationality counts
+    # Calculate totals
     total_nights_sum = sum(guest['total_nights'] or 0 for guest in guest_stays)
     total_spending_sum = sum(float(guest['total_spending'] or 0) for guest in guest_stays)
     
-    # Get nationality counts
-    nationality_counts = {}
+    # Get nationality statistics with nights and spending
+    nationality_stats = {}
     for guest in guest_stays:
         nationality = guest['nationality'] or 'Unknown'
-        nationality_counts[nationality] = nationality_counts.get(nationality, 0) + 1
+        if nationality not in nationality_stats:
+            nationality_stats[nationality] = {
+                'count': 0,
+                'total_nights': 0,
+                'total_spending': 0
+            }
+        
+        nationality_stats[nationality]['count'] += 1
+        nationality_stats[nationality]['total_nights'] += guest['total_nights'] or 0
+        nationality_stats[nationality]['total_spending'] += float(guest['total_spending'] or 0)
     
     cursor.close()
     conn.close()
     
-    return guest_stays, total_nights_sum, total_spending_sum, nationality_counts
+    return guest_stays, total_nights_sum, total_spending_sum, nationality_stats
