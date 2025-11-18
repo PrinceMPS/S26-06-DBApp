@@ -32,7 +32,7 @@ def handle_employee():
             delete_employee_db(employee_id)
             flash('Employee deleted successfully!', 'success')
         except Exception as e:
-            flash(f'Error deleting employee: {str(e)}', 'error')
+            flash('Cannot delete employee: deletion failed due to connection to other records.', 'error')
     else:
         # Handle add/update
         first_name = request.form.get('first_name')
