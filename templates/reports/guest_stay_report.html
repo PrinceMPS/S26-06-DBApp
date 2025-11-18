@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guest Stay Report | Reports</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-800 flex">
 
@@ -70,6 +71,21 @@
       </form>
     </div>
 
+    <!-- Nationality Statistics -->
+    {% if nationality_counts %}
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Guest Nationality Distribution</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% for nationality, count in nationality_counts.items() %}
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <div class="text-2xl font-bold text-blue-700">{{ count }}</div>
+          <div class="text-sm text-blue-600">{{ nationality }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Report Table -->
     {% if guest_stays %}
     <div class="bg-white p-6 rounded-lg shadow">
@@ -85,12 +101,67 @@
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-800 text-gray-100">
-            <th class="text-left py-2 px-4">Guest ID</th>
-            <th class="text-left py-2 px-4">Guest Name</th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=guest_id&sort_order={% if sort_by == 'guest_id' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Guest ID
+                {% if sort_by == 'guest_id' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=guest_name&sort_order={% if sort_by == 'guest_name' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Guest Name
+                {% if sort_by == 'guest_name' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=nationality&sort_order={% if sort_by == 'nationality' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Nationality
+                {% if sort_by == 'nationality' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
             <th class="text-left py-2 px-4">Email</th>
-            <th class="text-left py-2 px-4">Total Stays</th>
-            <th class="text-left py-2 px-4">Total Nights</th>
-            <th class="text-left py-2 px-4">Total Spending (₱)</th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_stays&sort_order={% if sort_by == 'total_stays' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Stays
+                {% if sort_by == 'total_stays' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_nights&sort_order={% if sort_by == 'total_nights' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Nights
+                {% if sort_by == 'total_nights' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_spending&sort_order={% if sort_by == 'total_spending' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Spending (₱)
+                {% if sort_by == 'total_spending' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -98,16 +169,21 @@
           <tr class="border-b hover:bg-gray-50">
             <td class="py-2 px-4">{{ guest.guest_id }}</td>
             <td class="py-2 px-4">{{ guest.first_name }} {{ guest.last_name }}</td>
+            <td class="py-2 px-4">
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                {{ guest.nationality or 'Unknown' }}
+              </span>
+            </td>
             <td class="py-2 px-4">{{ guest.email_address }}</td>
             <td class="py-2 px-4">{{ guest.total_stays }}</td>
             <td class="py-2 px-4">{{ guest.total_nights }}</td>
-            <td class="py-2 px-4">{{ "{:,.2f}".format(guest.total_spending) }}</td>
+            <td class="py-2 px-4 font-semibold">{{ "{:,.2f}".format(guest.total_spending) }}</td>
           </tr>
           {% endfor %}
         </tbody>
         <tfoot>
           <tr class="bg-gray-100 font-bold">
-            <td class="py-2 px-4" colspan="3">Total Guests: {{ guest_stays|length }}</td>
+            <td class="py-2 px-4" colspan="4">Total Guests: {{ guest_stays|length }}</td>
             <td class="py-2 px-4">{{ guest_stays|sum(attribute='total_stays') }}</td>
             <td class="py-2 px-4">{{ total_nights_sum }}</td>
             <td class="py-2 px-4">{{ "{:,.2f}".format(total_spending_sum) }}</td>
