@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Guests | Hotel Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookings | Hotel Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body class="flex bg-gray-100">
+<body class="bg-gray-100 flex">
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
     <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
@@ -18,121 +18,206 @@
       <a href="http://127.0.0.1:5000/housekeeping-items" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
       <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
       <a href="http://127.0.0.1:5000/gueststay" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
-      <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
       <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
 
   <!-- Main Content -->
   <main class="flex-1 p-6">
-    <h1 class="text-2xl font-semibold mb-4">Guest Management</h1>
+    <h1 class="text-2xl font-semibold mb-4">Bookings</h1>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="p-4 mb-4 rounded {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+          <div class="p-4 mb-4 rounded {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white whitespace-pre-wrap">
             {{ message }}
           </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <!-- Add/Edit Guest Form -->
-    <form method="POST" action="{{ url_for('guests.handle_guest') }}" class="mb-6 bg-white p-4 rounded shadow">
-      <h2 class="text-lg font-semibold mb-4">
-        {% if editing %}Edit Guest #{{ editing.guest_id }}{% else %}Add New Guest{% endif %}
-      </h2>
-      <input type="hidden" name="guest_id" value="{{ editing.guest_id if editing }}">
-      
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm text-gray-600">First Name</label>
-          <input name="first_name" type="text" value="{{ editing.first_name if editing }}" required 
-                 class="border rounded p-2 w-full" maxlength="20">
+    <!-- Single Form for Add -->
+    {% if not editing.booking_id %}
+    <form method="POST" action="{{ url_for('bookings.handle_booking') }}" class="mb-6 bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-4">Add New Booking</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Guest Selection Section -->
+        <div class="space-y-4">
+          <h3 class="text-md font-semibold text-gray-700">Guest Information</h3>
+          
+          <!-- Guest Search -->
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Search Guest</label>
+            <div class="relative">
+              <input type="text" 
+                     id="guestSearch" 
+                     placeholder="Type guest name to search..."
+                     class="border rounded p-2 w-full"
+                     autocomplete="off">
+              <div id="guestResults" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg hidden max-h-60 overflow-y-auto"></div>
+            </div>
+          </div>
+
+          <!-- Guest ID Input (auto-filled from search) -->
+          <div>
+            <label class="block text-sm text-gray-600">Guest ID</label>
+            <input name="guest_id" 
+                   id="guest_id" 
+                   type="number" 
+                   value="{{ editing.guest_id if editing }}" 
+                   required 
+                   class="border rounded p-2 w-full bg-gray-50"
+                   readonly>
+            <div id="selectedGuestInfo" class="text-sm text-gray-600 mt-1"></div>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm text-gray-600">Last Name</label>
-          <input name="last_name" type="text" value="{{ editing.last_name if editing }}" required 
-                 class="border rounded p-2 w-full" maxlength="20">
+
+        <!-- Room Selection Section -->
+        <div class="space-y-4">
+          <h3 class="text-md font-semibold text-gray-700">Room Information</h3>
+          
+          <!-- Room Selection -->
+          <div>
+            <label class="block text-sm text-gray-600">Select Room</label>
+            <select name="room_id" required class="border rounded p-2 w-full">
+              <option value="">Select a room</option>
+              {% for room in vacant_rooms %}
+              <option value="{{ room.room_id }}" 
+                      {% if editing.room_id == room.room_id %}selected{% endif %}>
+                Room {{ room.room_number }} - {{ room.type_name }} (₱{{ room.rate_per_type }}/night)
+              </option>
+              {% endfor %}
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Showing first 20 vacant rooms</p>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm text-gray-600">Contact Number</label>
-          <input name="contact_number" type="text" value="{{ editing.contact_number if editing }}" required 
-                 class="border rounded p-2 w-full" maxlength="15">
-        </div>
-        <div>
-          <label class="block text-sm text-gray-600">Email Address</label>
-          <input name="email_address" type="email" value="{{ editing.email_address if editing }}" required 
-                 class="border rounded p-2 w-full" maxlength="35">
-        </div>
-        <div>
-          <label class="block text-sm text-gray-600">Nationality</label>
-          <input name="nationality" type="text" value="{{ editing.nationality if editing else 'Filipino' }}" 
-                 class="border rounded p-2 w-full" maxlength="20">
-        </div>
-        <div class="flex items-end space-x-2">
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1">
-            {% if editing %}Update{% else %}Add{% endif %} Guest
-          </button>
-          {% if editing %}
-            <a href="{{ url_for('guests.guests_page') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-              Cancel
-            </a>
-          {% endif %}
+
+        <!-- Date Selection Section -->
+        <div class="space-y-4">
+          <h3 class="text-md font-semibold text-gray-700">Booking Dates</h3>
+          
+          <div>
+            <label class="block text-sm text-gray-600">Start Date</label>
+            <input name="start_date" 
+                   type="date" 
+                   value="{{ editing.start_date if editing }}" 
+                   required 
+                   class="border rounded p-2 w-full">
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600">End Date</label>
+            <input name="end_date" 
+                   type="date" 
+                   value="{{ editing.end_date if editing }}" 
+                   required 
+                   class="border rounded p-2 w-full">
+          </div>
         </div>
       </div>
-    </form>
 
-    <!-- Guests Table -->
-    <div class="bg-white p-4 rounded shadow">
-      <table class="w-full border-collapse">
-        <thead class="bg-gray-200">
+      <div class="flex items-end space-x-2 mt-6">
+        <button type="submit" name="action" value="save" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 flex-1">
+          Create Booking
+        </button>
+      </div>
+    </form>
+    {% endif %}
+
+    <!-- Bookings Table -->
+    <div class="overflow-x-auto bg-white rounded shadow">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
           <tr>
-            <th class="p-2 text-left">Guest ID</th>
-            <th class="p-2 text-left">First Name</th>
-            <th class="p-2 text-left">Last Name</th>
-            <th class="p-2 text-left">Contact</th>
-            <th class="p-2 text-left">Email</th>
-            <th class="p-2 text-left">Nationality</th>
-            <th class="p-2 text-left">Actions</th>
+            {% if bookings %}
+              {% for column in bookings[0].keys() %}
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {{ column.replace('_', ' ') | title }}
+                </th>
+              {% endfor %}
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            {% endif %}
           </tr>
         </thead>
-        <tbody>
-          {% for guest in guests %}
-          <tr class="border-t hover:bg-gray-50">
-            <td class="p-2">{{ guest.guest_id }}</td>
-            <td class="p-2">{{ guest.first_name }}</td>
-            <td class="p-2">{{ guest.last_name }}</td>
-            <td class="p-2">{{ guest.contact_number }}</td>
-            <td class="p-2">{{ guest.email_address }}</td>
-            <td class="p-2">{{ guest.nationality }}</td>
-            <td class="p-2 space-x-2">
-              <!-- View Button -->
-              <a href="{{ url_for('guests.guest_details', guest_id=guest.guest_id) }}" 
-                 class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">View</a>
-              
-              <!-- Edit Button -->
-              <a href="{{ url_for('guests.edit_guest', guest_id=guest.guest_id) }}" 
-                 class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">Edit</a>
-              
-              <!-- Delete Button -->
-              <form method="POST" action="{{ url_for('guests.handle_guest') }}" style="display:inline;">
-                <input type="hidden" name="guest_id" value="{{ guest.guest_id }}">
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for booking in bookings %}
+          <tr>
+            {% for value in booking.values() %}
+              <td class="px-6 py-4 whitespace-nowrap">{{ value }}</td>
+            {% endfor %}
+            <td class="px-6 py-4 whitespace-nowrap space-x-2">
+              <!-- Only Delete after booking is saved -->
+              <form method="POST" action="{{ url_for('bookings.handle_booking') }}" style="display:inline;">
+                <input type="hidden" name="booking_id" value="{{ booking['booking_id'] }}">
                 <input type="hidden" name="action" value="delete">
-                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm" 
-                        onclick="return confirm('Delete this guest?')">Delete</button>
+                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                        onclick="return confirm('Delete this booking?')">Delete</button>
               </form>
             </td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="7" class="text-center text-gray-500 p-4">No guests found.</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </main>
+
+  <script>
+    // Guest search functionality
+    document.getElementById('guestSearch').addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      const resultsContainer = document.getElementById('guestResults');
+      
+      if (query.length < 2) {
+        resultsContainer.classList.add('hidden');
+        return;
+      }
+      
+      fetch(`/bookings/search-guests?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(guests => {
+          resultsContainer.innerHTML = '';
+          
+          if (guests.length === 0) {
+            resultsContainer.innerHTML = '<div class="p-3 text-gray-500">No guests found</div>';
+            resultsContainer.classList.remove('hidden');
+            return;
+          }
+          
+          guests.forEach(guest => {
+            const guestElement = document.createElement('div');
+            guestElement.className = 'p-3 border-b border-gray-200 hover:bg-gray-100 cursor-pointer';
+            guestElement.innerHTML = `
+              <div class="font-semibold">${guest.first_name} ${guest.last_name}</div>
+              <div class="text-sm text-gray-600">ID: ${guest.guest_id} | ${guest.email_address}</div>
+            `;
+            
+            guestElement.addEventListener('click', function() {
+              document.getElementById('guest_id').value = guest.guest_id;
+              document.getElementById('selectedGuestInfo').innerHTML = 
+                `<strong>${guest.first_name} ${guest.last_name}</strong><br>
+                 ${guest.email_address} | ${guest.contact_number}`;
+              document.getElementById('guestSearch').value = '';
+              resultsContainer.classList.add('hidden');
+            });
+            
+            resultsContainer.appendChild(guestElement);
+          });
+          
+          resultsContainer.classList.remove('hidden');
+        })
+        .catch(error => {
+          console.error('Error searching guests:', error);
+        });
+    });
+    
+    // Hide results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#guestSearch') && !e.target.closest('#guestResults')) {
+        document.getElementById('guestResults').classList.add('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
