@@ -52,6 +52,7 @@ CREATE TABLE booking (
     guest_id INT NOT NULL,
     room_id INT NOT NULL,
     booking_date DATE NOT NULL,
+    payment_status ENUM('Paid','Pending') NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     
@@ -581,30 +582,22 @@ INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_
 ('Pillow Case', 85.00, 60, 12, 120);
 
 -- Bookings
-INSERT INTO booking (booking_id, guest_id, room_id, booking_date, start_date, end_date) VALUES
-(1001, 1001, 501, '2025-11-01', '2025-11-01', '2025-11-03'), -- Single Room 2 nights
-(1002, 1002, 502, '2025-11-02', '2025-11-05', '2025-11-08'), -- Double Room 3 nights
-(1003, 1003, 503, '2025-11-03', '2025-11-08', '2025-11-12'), -- Deluxe Room 4 nights
-(1004, 1004, 504, '2025-11-04', '2025-11-10', '2025-11-14'), -- Suite 4 nights
-(1005, 1005, 505, '2025-11-05', '2025-11-12', '2025-11-14'), -- Single Room 2 nights
-(1006, 1006, 506, '2025-11-06', '2025-11-15', '2025-11-18'), -- Double Room 3 nights
-(1007, 1007, 507, '2025-11-07', '2025-11-20', '2025-11-23'), -- Deluxe Room 3 nights
-(1008, 1008, 508, '2025-11-08', '2025-11-25', '2025-11-30'), -- Suite 5 nights
-(1009, 1009, 509, '2025-11-09', '2025-12-01', '2025-12-03'), -- Single Room 2 nights
-(1010, 1010, 510, '2025-11-10', '2025-12-05', '2025-12-08'); -- Double Room 3 nights
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+(1001, 1001, 501, '2025-11-01', 'Paid', '2025-11-01', '2025-11-03'),       -- Single Room 2 nights
+(1002, 1002, 502, '2025-11-02', 'Paid', '2025-11-05', '2025-11-08'),       -- Double Room 3 nights
+(1003, 1003, 503, '2025-11-03', 'Pending', '2025-11-08', '2025-11-12'),    -- Deluxe Room 4 nights
+(1004, 1004, 504, '2025-11-04', 'Pending', '2025-11-10', '2025-11-14'),    -- Suite 4 nights
+(1005, 1005, 505, '2025-11-05', 'Pending', '2025-11-12', '2025-11-14'),    -- Single Room 2 nights
+(1006, 1006, 506, '2025-11-06', 'Pending', '2025-11-15', '2025-11-18'),    -- Double Room 3 nights
+(1007, 1007, 507, '2025-11-07', 'Pending', '2025-11-20', '2025-11-23'),    -- Deluxe Room 3 nights
+(1008, 1008, 508, '2025-11-08', 'Pending', '2025-11-25', '2025-11-30'),    -- Suite 5 nights
+(1009, 1009, 509, '2025-11-09', 'Pending', '2025-12-01', '2025-12-03'),    -- Single Room 2 nights
+(1010, 1010, 510, '2025-11-10', 'Pending', '2025-12-05', '2025-12-08');    -- Double Room 3 nights
 
 -- Payments (amount = room rate * nights)
 INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
 (1001, 3000.00, 'Cash', '2025-11-01 10:00:00'),
-(1002, 7500.00, 'Credit Card', '2025-11-02 11:30:00'),
-(1003, 14000.00, 'Debit Card', '2025-11-03 12:00:00'),
-(1004, 20000.00, 'Cash', '2025-11-04 14:00:00'),
-(1005, 3000.00, 'Credit Card', '2025-11-05 09:00:00'),
-(1006, 7500.00, 'Debit Card', '2025-11-06 10:30:00'),
-(1007, 10500.00, 'Cash', '2025-11-07 13:00:00'),
-(1008, 25000.00, 'Credit Card', '2025-11-08 15:00:00'),
-(1009, 3000.00, 'Debit Card', '2025-11-09 16:00:00'),
-(1010, 7500.00, 'Cash', '2025-11-10 11:00:00');
+(1002, 7500.00, 'Credit Card', '2025-11-02 11:30:00');
 
 -- Guest Stay
 INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES

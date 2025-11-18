@@ -1,17 +1,32 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.payments_model import get_all_payments
+from models.payments_model import get_all_payments, create_payment,get_booking_total_amount,get_pending_bookings_with_amount
 
 
 payments_bp = Blueprint('payments', __name__)
 
-# Display all payments
-@payments_bp.route('/payments', methods=['GET'])
-def payments_page():
-    payments = get_all_payments()
-    # Convert datetime to string for display
-    for payment in payments:
-        for key, value in payment.items():
-            if hasattr(value, "strftime"):
-                payment[key] = value.strftime('%Y-%m-%d %H:%M:%S')
-    return render_template('payments.html', payments=payments)
 
+@payments_bp.route('/payments', methods=['GET', 'POST'])
+def payments_page():
+    # ---------- PENDING BOOKINGS ----------
+    pending_bookings = get_pending_bookings_with_amount()
+
+    # ---------- ADD PAYMENT ----------
+    if request.method == 'POST' and request.form.get('action') == 'add_payment':
+        try:
+            create_payment(request.form)
+            flash("Payment added successfully!", "success")
+        except Exception as e:
+            flash(f"Error adding payment: {str(e)}", "error")
+        return redirect(url_for('payments.payments_page'))
+
+    # ---------- SUCCESSFUL PAYMENTS ----------
+    payments = get_all_payments()
+    for p in payments:
+        if hasattr(p['payment_datetime'], "strftime"):
+            p['payment_datetime'] = p['payment_datetime'].strftime('%Y-%m-%d %H:%M:%S')
+
+    return render_template(
+        'payments.html',
+        pending_bookings=pending_bookings,
+        payments=payments
+    )

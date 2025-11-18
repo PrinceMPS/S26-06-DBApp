@@ -23,56 +23,134 @@
       <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
     </nav>
   </aside>
+<main class="flex-1 p-6">
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6">
-    <h1 class="text-2xl font-semibold mb-4">Payments</h1>
+  <!-- Navigation Tabs -->
+  <div class="mb-6 border-b border-gray-200">
+    <nav class="-mb-px flex space-x-8">
+      <a href="{{ url_for('payments.payments_page', tab='pending') }}"
+         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm {% if not request.args.get('tab') or request.args.get('tab') == 'pending' %}border-blue-500 text-blue-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %}">
+        ⏳ Pending / Add Payment
+      </a>
+      <a href="{{ url_for('payments.payments_page', tab='completed') }}"
+         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm {% if request.args.get('tab') == 'completed' %}border-blue-500 text-blue-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %}">
+        ✅ Completed Payments
+      </a>
+    </nav>
+  </div>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="p-4 mb-4 rounded {% if category == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-   <!-- Payments Table -->
-<div class="overflow-x-auto bg-white rounded shadow">
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-      <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Number of Nights</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Datetime</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      {% for payment in payments %}
-      <tr class="hover:bg-gray-100">
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.payment_id }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.booking_id }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.room_type }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(payment.rate_per_night) }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.number_of_nights }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(payment.total_amount) }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(payment.amount_paid) }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.payment_method }}</td>
-        <td class="px-6 py-4 whitespace-nowrap">{{ payment.payment_datetime }}</td>
-      </tr>
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="mb-4 p-4 rounded {% if category == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+        {{ message }}
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
-</div>
-  </main>
+    {% endif %}
+  {% endwith %}
 
-</body>
-</html>
+  <!-- Pending / Add Payment -->
+  {% if not request.args.get('tab') or request.args.get('tab') == 'pending' %}
+  <div>
+    <div class="bg-white rounded shadow p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Add Payment</h2>
+      <form action="{{ url_for('payments.payments_page') }}" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Booking Information</label>
+          <select name="booking_id" class="w-full border border-gray-300 rounded p-2" required>
+            {% for b in pending_bookings %}
+              <option value="{{ b.booking_id }}">
+                {{ b.booking_id }} | {{ b.room_type }} | ₱{{ "{:,.2f}".format(b.total_amount) }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Amount Paid</label>
+          <input type="number" step="0.01" name="amount_paid" class="w-full border border-gray-300 rounded p-2" required>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-1">Payment Method</label>
+          <select name="payment_method" class="w-full border border-gray-300 rounded p-2">
+            <option value="Cash">Cash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+          </select>
+        </div>
+        <button type="submit" name="action" value="add_payment" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+          Add Payment
+        </button>
+      </form>
+    </div>
+
+    <!-- Pending Bookings Table -->
+
+  <h2 class="text-xl font-semibold mb-4">Pending Payments</h2>
+    <div class="overflow-x-auto bg-white rounded shadow">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nights</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for b in pending_bookings %}
+          <tr class="hover:bg-gray-100">
+            <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_date }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ b.room_type }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.rate_per_night) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ b.number_of_nights }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.total_amount) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Completed Payments Table -->
+  {% if request.args.get('tab') == 'completed' %}
+  <h2 class="text-xl font-semibold mb-4">Completed Payments</h2>
+  <div class="overflow-x-auto bg-white rounded shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nights</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Datetime</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for p in payments %}
+        <tr class="hover:bg-gray-100">
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_id }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.booking_id }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.room_type }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.rate_per_night) }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.number_of_nights }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.total_amount) }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.amount_paid) }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_method }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_datetime }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</main>
