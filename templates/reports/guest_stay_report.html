@@ -1,50 +1,242 @@
-<!-- Nationality Statistics -->
-{% if nationality_stats %}
-<div class="bg-white p-6 rounded-lg shadow mb-6">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-semibold">Guest Nationality Distribution</h2>
-    <span class="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">
-      {{ nationality_stats|length }} Nationalit{% if nationality_stats|length > 1 %}ies{% else %}y{% endif %}
-    </span>
-  </div>
-  
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {% for nationality, stats in nationality_stats.items() %}
-    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-      <div class="flex justify-between items-start mb-2">
-        <h3 class="text-lg font-bold text-blue-800">{{ nationality }}</h3>
-        <span class="bg-blue-600 text-white text-sm px-2 py-1 rounded-full">
-          {{ stats.count }} guest{% if stats.count > 1 %}s{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Stay Report | Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-gray-100 min-h-screen">
+    <div class="p-6 text-2xl font-bold border-b border-gray-700">🏨 Admin Panel</div>
+    <nav class="p-4 space-y-2">
+      <a href="http://127.0.0.1:5000" class="block hover:bg-gray-800 px-4 py-2 rounded">🏠 Dashboard</a>
+      <a href="http://127.0.0.1:5000/guests" class="block hover:bg-gray-800 px-4 py-2 rounded">👤 Guests</a>
+      <a href="http://127.0.0.1:5000/rooms" class="block hover:bg-gray-800 px-4 py-2 rounded">🛏️ Rooms</a>
+      <a href="http://127.0.0.1:5000/employees" class="block hover:bg-gray-800 px-4 py-2 rounded">👔 Employees</a>
+      <a href="http://127.0.0.1:5000/housekeeping-items" class="block hover:bg-gray-800 px-4 py-2 rounded">🧹 Housekeeping</a>
+      <a href="http://127.0.0.1:5000/bookings" class="block hover:bg-gray-800 px-4 py-2 rounded">📅 Bookings</a>
+      <a href="http://127.0.0.1:5000/gueststay" class="block hover:bg-gray-800 px-4 py-2 rounded">🛎️ Guest Stay</a>
+      <a href="http://127.0.0.1:5000/payments" class="block hover:bg-gray-800 px-4 py-2 rounded">💳 Payments</a>
+      <a href="http://127.0.0.1:5000/reports" class="block hover:bg-gray-800 px-4 py-2 rounded">📊 Reports</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-10">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Guest Stay Report</h1>
+
+    <!-- Monthly Report Form -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Monthly Guest Stay</h2>
+      <form method="POST" action="{{ url_for('guest_stay_report.guest_stay_report') }}" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="report_type" value="month">
+
+        <div>
+          <label for="month_year" class="block font-semibold text-gray-700">Year</label>
+          <input type="number" name="year" id="month_year" min="2000" max="2100" value="{{ selected_year }}" required
+                 class="border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <div>
+          <label for="month" class="block font-semibold text-gray-700">Month</label>
+          <select name="month" id="month" required class="border border-gray-300 rounded px-3 py-2">
+            <option value="">-- Select Month --</option>
+            {% for i in range(1, 13) %}
+              <option value="{{ i }}" {% if selected_month|int == i %}selected{% endif %}>{{ month_names[i-1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Generate Monthly Report</button>
+      </form>
+    </div>
+
+    <!-- Yearly Report Form -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Yearly Guest Stay</h2>
+      <form method="POST" action="{{ url_for('guest_stay_report.guest_stay_report') }}" class="flex flex-wrap gap-4 items-end">
+        <input type="hidden" name="report_type" value="year">
+
+        <div>
+          <label for="year_only" class="block font-semibold text-gray-700">Year</label>
+          <input type="number" name="year" id="year_only" min="2000" max="2100" value="{{ selected_year }}" required
+                 class="border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Generate Yearly Report</button>
+      </form>
+    </div>
+
+    <!-- Nationality Statistics -->
+    {% if nationality_stats %}
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Guest Nationality Distribution</h2>
+        <span class="bg-blue-600 text-white text-sm px-3 py-1 rounded-full">
+          {{ nationality_stats|length }} Nationalit{% if nationality_stats|length > 1 %}ies{% else %}y{% endif %}
         </span>
       </div>
       
-      <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-blue-600">Total Nights:</span>
-          <span class="font-semibold text-blue-800">{{ stats.total_nights }}</span>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for nationality, stats in nationality_stats.items() %}
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-lg font-bold text-blue-800">{{ nationality }}</h3>
+            <span class="bg-blue-600 text-white text-sm px-2 py-1 rounded-full">
+              {{ stats.count }} guest{% if stats.count > 1 %}s{% endif %}
+            </span>
+          </div>
+          
+          <div class="space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-blue-600">Total Nights:</span>
+              <span class="font-semibold text-blue-800">{{ stats.total_nights }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-blue-600">Total Spending:</span>
+              <span class="font-semibold text-blue-800">₱{{ "{:,.2f}".format(stats.total_spending) }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-blue-600">Avg. Nights/Guest:</span>
+              <span class="font-semibold text-blue-800">
+                {{ "%.1f"|format(stats.total_nights / stats.count) }}
+              </span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-blue-600">Avg. Spend/Guest:</span>
+              <span class="font-semibold text-blue-800">
+                ₱{{ "{:,.2f}".format(stats.total_spending / stats.count) }}
+              </span>
+            </div>
+          </div>
         </div>
-        
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-blue-600">Total Spending:</span>
-          <span class="font-semibold text-blue-800">₱{{ "{:,.2f}".format(stats.total_spending) }}</span>
-        </div>
-        
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-blue-600">Avg. Nights/Guest:</span>
-          <span class="font-semibold text-blue-800">
-            {{ "%.1f"|format(stats.total_nights / stats.count) }}
-          </span>
-        </div>
-        
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-blue-600">Avg. Spend/Guest:</span>
-          <span class="font-semibold text-blue-800">
-            ₱{{ "{:,.2f}".format(stats.total_spending / stats.count) }}
-          </span>
-        </div>
+        {% endfor %}
       </div>
     </div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
+    {% endif %}
+
+    <!-- Report Table -->
+    {% if guest_stays %}
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-800">
+        Guest Stay Report for 
+        {% if report_type == 'month' %}
+          {{ month_names[selected_month|int - 1] }} {{ selected_year }}
+        {% else %}
+          {{ selected_year }}
+        {% endif %}
+      </h2>
+
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-800 text-gray-100">
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=guest_id&sort_order={% if sort_by == 'guest_id' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Guest ID
+                {% if sort_by == 'guest_id' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=guest_name&sort_order={% if sort_by == 'guest_name' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Guest Name
+                {% if sort_by == 'guest_name' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=nationality&sort_order={% if sort_by == 'nationality' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Nationality
+                {% if sort_by == 'nationality' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">Email</th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_stays&sort_order={% if sort_by == 'total_stays' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Stays
+                {% if sort_by == 'total_stays' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_nights&sort_order={% if sort_by == 'total_nights' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Nights
+                {% if sort_by == 'total_nights' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+            <th class="text-left py-2 px-4">
+              <a href="?sort_by=total_spending&sort_order={% if sort_by == 'total_spending' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" class="flex items-center hover:text-blue-300">
+                Total Spending (₱)
+                {% if sort_by == 'total_spending' %}
+                  <i class="fas fa-arrow-{% if sort_order == 'asc' %}up{% else %}down{% endif %} ml-1 text-xs"></i>
+                {% else %}
+                  <i class="fas fa-arrows-alt-v ml-1 text-xs opacity-50"></i>
+                {% endif %}
+              </a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for guest in guest_stays %}
+          <tr class="border-b hover:bg-gray-50">
+            <td class="py-2 px-4">{{ guest.guest_id }}</td>
+            <td class="py-2 px-4">{{ guest.first_name }} {{ guest.last_name }}</td>
+            <td class="py-2 px-4">
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                {{ guest.nationality or 'Unknown' }}
+              </span>
+            </td>
+            <td class="py-2 px-4">{{ guest.email_address }}</td>
+            <td class="py-2 px-4">{{ guest.total_stays }}</td>
+            <td class="py-2 px-4">{{ guest.total_nights }}</td>
+            <td class="py-2 px-4 font-semibold">{{ "{:,.2f}".format(guest.total_spending) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="bg-gray-100 font-bold">
+            <td class="py-2 px-4" colspan="4">Total Guests: {{ guest_stays|length }}</td>
+            <td class="py-2 px-4">{{ guest_stays|sum(attribute='total_stays') }}</td>
+            <td class="py-2 px-4">{{ total_nights_sum }}</td>
+            <td class="py-2 px-4">{{ "{:,.2f}".format(total_spending_sum) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% elif selected_year and (selected_month or report_type == 'year') %}
+    <div class="bg-white p-6 rounded-lg shadow text-gray-600">
+      No guest stay records found for 
+      {% if report_type == 'month' %}
+        {{ month_names[selected_month|int - 1] }} {{ selected_year }}.
+      {% else %}
+        {{ selected_year }}.
+      {% endif %}
+    </div>
+    {% endif %}
+  </main>
+</body>
+</html>
