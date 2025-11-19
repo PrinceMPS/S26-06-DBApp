@@ -1351,6 +1351,31 @@ INSERT INTO GuestStay (
 
 
 
+/* ===============================
+   2024-09 BOOKINGS / PAYMENTS / GUEST STAY
+   =============================== */
+
+-- BOOKINGS
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+(102, 1102, 801, '2024-09-01', 'Paid', '2024-09-02', '2024-09-04'), -- 2 nights, t1
+(103, 1103, 802, '2024-09-05', 'Paid', '2024-09-06', '2024-09-09'), -- 3 nights, t2
+(104, 1104, 803, '2024-09-10', 'Paid', '2024-09-11', '2024-09-13'), -- 2 nights, t3
+(105, 1105, 804, '2024-09-15', 'Paid', '2024-09-16', '2024-09-19'); -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+(102, 102, 3000,  'Cash',        '2024-09-01 09:00:00'),   -- 1500×2
+(103, 103, 7500,  'Debit Card',  '2024-09-05 09:00:00'),   -- 2500×3
+(104, 104, 7000,  'Credit Card', '2024-09-10 09:00:00'),   -- 3500×2
+(105, 105,15000,  'Cash',        '2024-09-15 09:00:00');   -- 5000×3
+
+INSERT INTO GuestStay (
+transaction_id, booking_id, checkin_employee_id, checkout_employee_id,
+check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks
+) VALUES
+(102,102, 1, 13, '2024-09-02 15:00:00','2024-09-04 12:00:00','2024-09-04 12:10:00',''),
+(103,103, 5, 16, '2024-09-06 15:00:00','2024-09-09 12:00:00','2024-09-09 12:30:00','Late 30 mins'),
+(104,104,15, 8, '2024-09-11 15:00:00','2024-09-13 12:00:00','2024-09-13 12:00:00',''),
+(105,105,17, 3, '2024-09-16 15:00:00','2024-09-19 12:00:00','2024-09-19 13:15:00','Late checkout (1 hr)');
 
 
 
