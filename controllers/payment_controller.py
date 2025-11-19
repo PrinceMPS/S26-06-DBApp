@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.payments_model import get_all_payments, create_payment,get_booking_total_amount,get_pending_bookings_with_amount
+from flask import Blueprint, render_template, request, redirect, url_for, flash,jsonify
+from models.payments_model import get_all_payments, create_payment,get_booking_total_amount,get_pending_bookings_with_amount,search_pending_bookings_by_booking_id
 
 
 payments_bp = Blueprint('payments', __name__)
@@ -7,10 +7,12 @@ payments_bp = Blueprint('payments', __name__)
 
 @payments_bp.route('/payments', methods=['GET', 'POST'])
 def payments_page():
-    # ---------- PENDING BOOKINGS ----------
+
+    # pending bookings
     pending_bookings = get_pending_bookings_with_amount()
 
-    # ---------- ADD PAYMENT ----------
+
+    # add payment
     if request.method == 'POST' and request.form.get('action') == 'add_payment':
         try:
             create_payment(request.form)
@@ -19,7 +21,7 @@ def payments_page():
             flash(f"Error adding payment: {str(e)}", "error")
         return redirect(url_for('payments.payments_page'))
 
-    # ---------- SUCCESSFUL PAYMENTS ----------
+    # succesful payments
     payments = get_all_payments()
     for p in payments:
         if hasattr(p['payment_datetime'], "strftime"):
@@ -30,3 +32,10 @@ def payments_page():
         pending_bookings=pending_bookings,
         payments=payments
     )
+@payments_bp.route('/payments/search-pending')
+def search_pending():
+    query = request.args.get('q', '')
+    if query:
+        results = search_pending_bookings_by_booking_id(query)
+        return jsonify(results)
+    return jsonify([])

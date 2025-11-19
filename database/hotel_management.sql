@@ -572,7 +572,8 @@ INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
 ('Nina', 'Valdez', 'Front Desk', 'Leave-sick'),
 ('Carla', 'Fernandez', 'Housekeeping', 'Leave-maternity'),
 ('Elaine', 'Morales', 'Admin', 'Active'),
-('Victor', 'Alcantara', 'Front Desk', 'Leave-vacation');
+('Victor', 'Alcantara', 'Front Desk', 'Leave-vacation'),
+('Karol', 'Vigo', 'Front Desk', 'Active');
 
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
@@ -875,4 +876,3 @@ INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issue
 (13, 2, 13, 19, '2025-11-10 12:30:00', 'Tissue box November'),
 (14, 4, 3, 5, '2025-11-15 14:45:00', 'Glass cleaner maintenance'),
 (15, 9, 13, 4, '2025-11-20 16:00:00', 'Floor cleaner monthly');
-

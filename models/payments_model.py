@@ -144,3 +144,33 @@ def get_pending_bookings_with_amount():
     finally:
         cursor.close()
         conn.close()
+
+def search_pending_bookings_by_booking_id(query):
+        """
+        Search pending bookings by booking_id (partial match allowed).
+        """
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        try:
+            search_term = f"%{query}%"
+            cursor.execute("""
+                           SELECT b.booking_id,
+                                  CONCAT(g.first_name, ' ', g.last_name)                  AS guest_name,
+                                  b.booking_date,
+                                  rt.type_name                                            AS room_type,
+                                  rt.rate_per_type                                        AS rate_per_night,
+                                  DATEDIFF(b.end_date, b.start_date)                      AS number_of_nights,
+                                  (rt.rate_per_type * DATEDIFF(b.end_date, b.start_date)) AS total_amount
+                           FROM booking b
+                                    JOIN guest g ON b.guest_id = g.guest_id
+                                    JOIN room r ON b.room_id = r.room_id
+                                    JOIN roomtype rt ON r.room_type_id = rt.room_type_id
+                           WHERE b.payment_status = 'Pending'
+                             AND b.booking_id LIKE %s
+                           ORDER BY b.booking_date DESC
+                            LIMIT 10
+                           """, (search_term,))
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+            conn.close()

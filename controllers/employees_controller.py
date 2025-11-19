@@ -25,13 +25,12 @@ def edit_employee(employee_id):
 def handle_employee():
     action = request.form.get('action', 'save')
     employee_id = request.form.get('employee_id')
+    employee_id = int(employee_id) if employee_id else None
 
     if action == 'delete':
-        # Handle delete
-        try:
-            delete_employee_db(employee_id)
+        if delete_employee_db(employee_id):
             flash('Employee deleted successfully!', 'success')
-        except Exception as e:
+        else:
             flash('Cannot delete employee: deletion failed due to connection to other records.', 'error')
     else:
         # Handle add/update
@@ -55,12 +54,13 @@ def handle_employee():
 
 @employees_bp.route('/employees/details/<int:employee_id>')
 def employee_details(employee_id):
-    employee, guests_attended, items_received, items_issued = get_employee_full_details(employee_id)
+    employee, checkins_handled, checkouts_handled, items_received, items_issued = get_employee_full_details(employee_id)
 
     return render_template(
         'employee_details.html',  # separate template for clarity
         employee=employee,
-        guests_attended=guests_attended,
+        checkins_handled=checkins_handled,
+        checkouts_handled=checkouts_handled,
         items_received = items_received,
         items_issued = items_issued
     )
