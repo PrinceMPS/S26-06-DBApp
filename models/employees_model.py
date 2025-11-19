@@ -52,47 +52,71 @@ def update_employee_db(employee_id, first_name, last_name, emp_position,  emp_st
 
 
 def delete_employee_db(employee_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM employee WHERE employee_id = %s", (employee_id,))
-    conn.commit()
-    print("Employee deleted successfully.")
-
-    cursor.close()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM employee WHERE employee_id = %s", (employee_id,))
+        conn.commit()
+        deleted = cursor.rowcount > 0
+    except Exception:
+        deleted = False
+    finally:
+        cursor.close()
+        conn.close()
+    return deleted
 
 def get_employee_full_details(employee_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 1. Employee basic info
+    # Employee basic info
     cursor.execute("SELECT * FROM employee WHERE employee_id = %s", (employee_id,))
     employee = cursor.fetchone()
 
-    # 2. Guests attended by employee
+    # Guests attended by employee check in
     cursor.execute("""
-        SELECT 
-            g.guest_id,
-            g.first_name AS guest_first_name,
-            g.last_name AS guest_last_name,
-            b.booking_id,
-            gs.check_in_time_date,
-            gs.actual_check_out_time_date
-        FROM GuestStay gs
-        JOIN booking b ON gs.booking_id = b.booking_id
-        JOIN guest g ON b.guest_id = g.guest_id
-        WHERE gs.employee_id = %s
-        ORDER BY gs.check_in_time_date DESC
+         SELECT 
+        CONCAT(g.first_name, ' ', g.last_name) AS guest_name,
+        g.guest_id,     
+        g.contact_number,
+        g.email_address,
+        g.nationality,
+        gs.check_in_time_date,     
+        gs.transaction_id,
+        gs.booking_id
+    FROM GuestStay gs
+    JOIN booking b ON gs.booking_id = b.booking_id
+    JOIN guest g ON b.guest_id = g.guest_id
+    WHERE gs.checkin_employee_id = %s
+    ORDER BY gs.check_in_time_date DESC
     """, (employee_id,))
-    guests_attended = cursor.fetchall()
+    checkins_handled = cursor.fetchall()
 
+    # Guests employee checked out
+    cursor.execute("""
+         SELECT 
+        CONCAT(g.first_name, ' ', g.last_name) AS guest_name,
+        g.guest_id,     
+        g.contact_number,
+        g.email_address,
+        g.nationality,
+        gs.actual_check_out_time_date,    
+        gs.transaction_id,
+        gs.booking_id
+    FROM GuestStay gs
+    JOIN booking b ON gs.booking_id = b.booking_id
+    JOIN guest g ON b.guest_id = g.guest_id
+    WHERE gs.checkout_employee_id = %s
+    ORDER BY gs.actual_check_out_time_date DESC
+                   """, (employee_id,))
+    checkouts_handled = cursor.fetchall()
     # Items issued TO the employee
     cursor.execute("""
                    SELECT h.item_name,
+                        h.housekeeping_item_id,
                           i.quantity_issued,
                           i.date_issued,
-                          e.first_name AS issuer_first_name,
-                          e.last_name  AS issuer_last_name
+                           CONCAT(e.first_name, ' ', e.last_name) AS issuer_name
                    FROM housekeeping_item_issuance i
                             JOIN housekeeping_item h ON i.housekeeping_item_id = h.housekeeping_item_id
                             JOIN employee e ON i.issuer_id = e.employee_id
@@ -104,10 +128,10 @@ def get_employee_full_details(employee_id):
     # Items issued BY the employee
     cursor.execute("""
                    SELECT h.item_name,
+                          h.housekeeping_item_id,
                           i.quantity_issued,
                           i.date_issued,
-                          e.first_name AS recipient_first_name,
-                          e.last_name  AS recipient_last_name
+                          CONCAT(e.first_name, ' ', e.last_name) AS recipient_name
                    FROM housekeeping_item_issuance i
                             JOIN housekeeping_item h ON i.housekeeping_item_id = h.housekeeping_item_id
                             JOIN employee e ON i.employee_id = e.employee_id
@@ -117,4 +141,4 @@ def get_employee_full_details(employee_id):
     items_issued = cursor.fetchall()
 
 
-    return employee, guests_attended, items_received, items_issued
+    return employee, checkins_handled,checkouts_handled, items_received, items_issued
