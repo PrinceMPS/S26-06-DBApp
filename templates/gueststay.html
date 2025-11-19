@@ -106,6 +106,13 @@
             <p><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
             <p><strong>Room:</strong> {{ booking.room_id }} ({{ booking.room_type }})</p>
             <p><strong>Dates:</strong> {{ booking.start_date }} to {{ booking.end_date }}</p>
+            <p><strong>Payment Status:</strong> 
+              {% if booking.payment_status == 'Paid' %}
+                <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-sm font-semibold">✅ Paid</span>
+              {% else %}
+                <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-sm font-semibold">⏳ Pending</span>
+              {% endif %}
+            </p>
             {% if booking.days_until_checkin is defined %}
               {% if booking.days_until_checkin == 0 %}
                 <p class="text-green-600 font-semibold">📅 Check-in: Today!</p>
@@ -133,9 +140,10 @@
             <h3 class="text-lg font-semibold mb-2">Stay Status</h3>
             {% if booking.check_in_time_date %}
               <p><strong>Check-in:</strong> {{ booking.check_in_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
-              <p><strong>Handled by:</strong> {{ booking.employee_name }}</p>
+              <p><strong>Check-in by:</strong> {{ booking.checkin_employee_name }}</p>
               {% if booking.actual_check_out_time_date %}
                 <p><strong>Check-out:</strong> {{ booking.actual_check_out_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p><strong>Check-out by:</strong> {{ booking.checkout_employee_name }}</p>
                 <span class="inline-block px-3 py-1 bg-gray-600 text-white rounded text-sm">✅ Completed</span>
               {% else %}
                 <p><strong>Expected Check-out:</strong> {{ booking.expected_check_out_time_date.strftime('%Y-%m-%d %H:%M') }}</p>
@@ -143,6 +151,9 @@
               {% endif %}
             {% else %}
               <p class="text-gray-500">Not checked in yet</p>
+              {% if booking.payment_status != 'Paid' %}
+                <p class="text-red-600 text-sm mt-2">⚠️ Payment required before check-in</p>
+              {% endif %}
             {% endif %}
           </div>
         </div>
@@ -157,10 +168,17 @@
               ✅ Check-In Available
             {% endif %}
           </h4>
+          {% if booking.payment_status != 'Paid' %}
+            <div class="bg-red-50 border border-red-300 rounded p-3 mb-3">
+              <p class="text-red-700 font-semibold">⚠️ Payment Required</p>
+              <p class="text-red-600 text-sm">This booking must be paid before check-in. Current status: {{ booking.payment_status }}</p>
+              <a href="/payments" class="text-blue-600 underline text-sm">Go to Payments →</a>
+            </div>
+          {% else %}
           <form method="POST" action="/gueststay/checkin" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Check-in Employee *</label>
               <select name="employee_id" required class="w-full border border-gray-300 rounded px-3 py-2">
                 <option value="">-- Select Employee --</option>
                 {% for emp in employees %}
@@ -178,6 +196,7 @@
               </button>
             </div>
           </form>
+          {% endif %}
         </div>
         {% elif booking.action == 'checkout' %}
         <div class="bg-orange-50 p-4 rounded border border-orange-200">
@@ -185,7 +204,7 @@
           <form method="POST" action="/gueststay/checkout" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="hidden" name="booking_id" value="{{ booking.booking_id }}">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee *</label>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Check-out Employee *</label>
               <select name="employee_id" required class="w-full border border-gray-300 rounded px-3 py-2">
                 <option value="">-- Select Employee --</option>
                 {% for emp in employees %}
