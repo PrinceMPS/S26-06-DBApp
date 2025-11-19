@@ -16,6 +16,7 @@ def get_hotel_revenue_report_month(year: int, month: int):
         JOIN roomtype rt ON r.room_type_id = rt.room_type_id
         WHERE YEAR(p.payment_datetime) = %s AND MONTH(p.payment_datetime) = %s
         GROUP BY rt.type_name, rt.rate_per_type
+        ORDER BY rt.rate_per_type ASC
     """
 
     cursor.execute(query, (year, month))
