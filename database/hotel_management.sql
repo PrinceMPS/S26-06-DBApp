@@ -79,7 +79,8 @@ CREATE TABLE payment (
 CREATE TABLE GuestStay(
     transaction_id INT NOT NULL AUTO_INCREMENT,
     booking_id INT NOT NULL UNIQUE,
-    employee_id INT NOT NULL,
+    checkin_employee_id INT NOT NULL,
+    checkout_employee_id INT,
     check_in_time_date DATETIME,
     expected_check_out_time_date DATETIME,
     actual_check_out_time_date DATETIME,
@@ -89,7 +90,8 @@ CREATE TABLE GuestStay(
     
     -- Foreign Keys
     FOREIGN KEY (booking_id) REFERENCES booking(booking_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (checkin_employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (checkout_employee_id) REFERENCES employee(employee_id)
 );
 
 CREATE TABLE housekeeping_item_issuance (
@@ -609,17 +611,17 @@ INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) 
 (1002, 7500.00, 'Credit Card', '2025-11-02 11:30:00');
 
 -- Guest Stay
-INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
-(1001, 1, '2025-11-01 14:00:00', '2025-11-03 12:00:00', '2025-11-03 11:30:00', 'Smooth check-out'),
-(1002, 1, '2025-11-05 15:30:00', '2025-11-08 12:00:00', '2025-11-08 11:45:00', 'Early check-out requested'),
-(1003, 5, '2025-11-08 13:15:00', '2025-11-12 12:00:00', '2025-11-12 12:10:00', 'On-time check-out'),
-(1004, 1, '2025-11-10 16:00:00', '2025-11-14 12:00:00', '2025-11-14 11:20:00', 'Express check-out'),
-(1005, 5, '2025-11-12 14:45:00', '2025-11-14 12:00:00', '2025-11-14 12:05:00', 'Late check-out approved'),
-(1006, 1, '2025-11-15 15:30:00', '2025-11-18 12:00:00', NULL, 'Guest still checked in'),
-(1007, 5, '2025-11-20 13:00:00', '2025-11-23 12:00:00', NULL, 'Guest extended stay'),
-(1008, 1, '2025-11-25 17:15:00', '2025-11-30 12:00:00', NULL, 'VIP guest - special handling'),
-(1009, 5, '2025-12-01 14:30:00', '2025-12-03 12:00:00', NULL, 'Early check-in requested'),
-(1010, 1, '2025-12-05 16:45:00', '2025-12-08 12:00:00', NULL, 'Family with children');
+INSERT INTO GuestStay (booking_id, checkin_employee_id, checkout_employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
+(1001, 1, 1, '2025-11-01 14:00:00', '2025-11-03 12:00:00', '2025-11-03 11:30:00', 'Smooth check-out'),
+(1002, 1, 5, '2025-11-05 15:30:00', '2025-11-08 12:00:00', '2025-11-08 11:45:00', 'Early check-out requested'),
+(1003, 5, 1, '2025-11-08 13:15:00', '2025-11-12 12:00:00', '2025-11-12 12:10:00', 'On-time check-out'),
+(1004, 1, 1, '2025-11-10 16:00:00', '2025-11-14 12:00:00', '2025-11-14 11:20:00', 'Express check-out'),
+(1005, 5, 5, '2025-11-12 14:45:00', '2025-11-14 12:00:00', '2025-11-14 12:05:00', 'Late check-out approved'),
+(1006, 1, NULL, '2025-11-15 15:30:00', '2025-11-18 12:00:00', NULL, 'Guest still checked in'),
+(1007, 5, NULL, '2025-11-20 13:00:00', '2025-11-23 12:00:00', NULL, 'Guest extended stay'),
+(1008, 1, NULL, '2025-11-25 17:15:00', '2025-11-30 12:00:00', NULL, 'VIP guest - special handling'),
+(1009, 5, NULL, '2025-12-01 14:30:00', '2025-12-03 12:00:00', NULL, 'Early check-in requested'),
+(1010, 1, NULL, '2025-12-05 16:45:00', '2025-12-08 12:00:00', NULL, 'Family with children');
 
 -- Housekeeping Item Issuance
 INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, date_issued, remarks) VALUES
