@@ -306,8 +306,8 @@ def delete_issuance_db(issuance_id):
         cursor.close()
         conn.close()
 
-def get_issuance_history(limit=50):
-    """Get recent housekeeping item issuance history"""
+def get_issuance_history():
+    """Get all housekeeping item issuance history"""
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("""
@@ -326,8 +326,7 @@ def get_issuance_history(limit=50):
         JOIN employee e ON hii.employee_id = e.employee_id
         JOIN employee issuer ON hii.issuer_id = issuer.employee_id
         ORDER BY hii.date_issued DESC
-        LIMIT %s
-    """, (limit,))
+    """)  # Removed the LIMIT clause
     issuance_history = cursor.fetchall()
     cursor.close()
     conn.close()
