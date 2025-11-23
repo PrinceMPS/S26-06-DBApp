@@ -79,7 +79,8 @@ CREATE TABLE payment (
 CREATE TABLE GuestStay(
     transaction_id INT NOT NULL AUTO_INCREMENT,
     booking_id INT NOT NULL UNIQUE,
-    employee_id INT NOT NULL,
+    checkin_employee_id INT NOT NULL,
+    checkout_employee_id INT,
     check_in_time_date DATETIME,
     expected_check_out_time_date DATETIME,
     actual_check_out_time_date DATETIME,
@@ -89,7 +90,8 @@ CREATE TABLE GuestStay(
     
     -- Foreign Keys
     FOREIGN KEY (booking_id) REFERENCES booking(booking_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (checkin_employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (checkout_employee_id) REFERENCES employee(employee_id)
 );
 
 CREATE TABLE housekeeping_item_issuance (
@@ -570,7 +572,812 @@ INSERT INTO employee (first_name, last_name, emp_position, emp_status) VALUES
 ('Nina', 'Valdez', 'Front Desk', 'Leave-sick'),
 ('Carla', 'Fernandez', 'Housekeeping', 'Leave-maternity'),
 ('Elaine', 'Morales', 'Admin', 'Active'),
-('Victor', 'Alcantara', 'Front Desk', 'Leave-vacation');
+('Victor', 'Alcantara', 'Front Desk', 'Leave-vacation'),
+('Karol', 'Vigo', 'Front Desk', 'Active'),
+('Daniel', 'Ortega', 'Front Desk', 'Active'),
+('Patricia', 'Mendoza', 'Admin', 'Active'),
+('Luis', 'Gatchalian', 'Housekeeping', 'Active'),
+('Camille', 'Ramos', 'Front Desk', 'Leave-sick'),
+('Ethan', 'Delgado', 'Admin', 'Leave-vacation');
+
+
+/* =========================================
+   2023-01 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- Room types reminder:
+-- type 1 (Single) = 1500
+-- type 2 (Double) = 2500
+-- type 3 (Deluxe) = 3500
+-- type 4 (Suite)  = 5000
+
+-- JAN Rooms used: 501(t1), 502(t2), 503(t3), 504(t4), 505(t1), 506(t2)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (1, 1001, 501, '2023-01-02', 'Paid', '2023-01-03', '2023-01-05'),  -- 2 nights, t1
+    (2, 1002, 502, '2023-01-05', 'Paid', '2023-01-06', '2023-01-09'),  -- 3 nights, t2
+    (3, 1003, 503, '2023-01-08', 'Paid', '2023-01-09', '2023-01-13'),  -- 4 nights, t3
+    (4, 1004, 504, '2023-01-10', 'Paid', '2023-01-11', '2023-01-13'),  -- 2 nights, t4
+    (5, 1005, 505, '2023-01-15', 'Paid', '2023-01-16', '2023-01-19'),  -- 3 nights, t1
+    (6, 1006, 506, '2023-01-20', 'Paid', '2023-01-21', '2023-01-25');  -- 4 nights, t2
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (1, 1,  3000.00,  'Cash',        '2023-01-02 10:00:00'),  -- 1500 * 2
+    (2, 2,  7500.00,  'Credit Card', '2023-01-05 10:00:00'),  -- 2500 * 3
+    (3, 3, 14000.00,  'Debit Card',  '2023-01-08 10:00:00'),  -- 3500 * 4
+    (4, 4, 10000.00,  'Cash',        '2023-01-10 10:00:00'),  -- 5000 * 2
+    (5, 5,  4500.00,  'Credit Card', '2023-01-15 10:00:00'),  -- 1500 * 3
+    (6, 6, 10000.00,  'Debit Card',  '2023-01-20 10:00:00');  -- 2500 * 4
+
+-- Allowed FD/Admin employees (by insert order):
+-- FD: 1 Carla R, 5 Anna T, 8 Marie D, 11 Nina V, 14 Victor A, 15 Karol V, 16 Daniel O, 19 Camille R
+-- Admin: 3 Susan L, 7 Liza S, 10 John R, 13 Elaine M, 17 Patricia M, 20 Ethan D
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (1, 1,  1,  3, '2023-01-03 15:00:00', '2023-01-05 12:00:00', '2023-01-05 12:00:00', 'On-time checkout.'),
+    (2, 2,  5, 13, '2023-01-06 15:00:00', '2023-01-09 12:00:00', '2023-01-09 12:30:00', 'Slightly late checkout.'),
+    (3, 3, 15, 17, '2023-01-09 15:00:00', '2023-01-13 12:00:00', '2023-01-13 13:15:00', 'Late checkout within 2 hours.'),
+    (4, 4, 16, 10, '2023-01-11 15:00:00', '2023-01-13 12:00:00', '2023-01-13 12:00:00', 'On-time checkout.'),
+    (5, 5, 11,  7, '2023-01-16 15:00:00', '2023-01-19 12:00:00', '2023-01-19 12:45:00', 'Slightly late checkout.'),
+    (6, 6, 14, 20, '2023-01-21 15:00:00', '2023-01-25 12:00:00', '2023-01-25 12:00:00', 'On-time checkout.');
+
+
+/* =========================================
+   2023-02 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- FEB Rooms used: 507(t3), 508(t4), 509(t1), 510(t2), 511(t3)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (7, 1007, 507, '2023-02-01', 'Paid', '2023-02-02', '2023-02-04'),  -- 2 nights, t3
+    (8, 1008, 508, '2023-02-03', 'Paid', '2023-02-04', '2023-02-07'),  -- 3 nights, t4
+    (9, 1009, 509, '2023-02-06', 'Paid', '2023-02-07', '2023-02-11'),  -- 4 nights, t1
+    (10,1010, 510, '2023-02-10', 'Paid', '2023-02-11', '2023-02-13'),  -- 2 nights, t2
+    (11,1011, 511, '2023-02-14', 'Paid', '2023-02-15', '2023-02-18');  -- 3 nights, t3
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (7,  7,  7000.00,  'Cash',        '2023-02-01 10:00:00'),  -- 3500 * 2
+    (8,  8, 15000.00,  'Credit Card', '2023-02-03 10:00:00'),  -- 5000 * 3
+    (9,  9,  6000.00,  'Debit Card',  '2023-02-06 10:00:00'),  -- 1500 * 4
+    (10,10,  5000.00,  'Cash',        '2023-02-10 10:00:00'),  -- 2500 * 2
+    (11,11, 10500.00,  'Credit Card', '2023-02-14 10:00:00');  -- 3500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (7,  7,  1,  3, '2023-02-02 15:00:00', '2023-02-04 12:00:00', '2023-02-04 12:00:00', 'On-time checkout.'),
+    (8,  8,  5, 13, '2023-02-04 15:00:00', '2023-02-07 12:00:00', '2023-02-07 12:45:00', 'Slightly late checkout.'),
+    (9,  9, 15, 17, '2023-02-07 15:00:00', '2023-02-11 12:00:00', '2023-02-11 13:30:00', 'Late checkout within 2 hours.'),
+    (10,10, 16, 10, '2023-02-11 15:00:00', '2023-02-13 12:00:00', '2023-02-13 12:00:00', 'On-time checkout.'),
+    (11,11, 11, 20, '2023-02-15 15:00:00', '2023-02-18 12:00:00', '2023-02-18 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-03 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- MAR Rooms used: 512(t4), 513(t1), 514(t2), 515(t3), 516(t4)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (12,1012, 512, '2023-03-02', 'Paid', '2023-03-03', '2023-03-05'),  -- 2 nights, t4
+    (13,1013, 513, '2023-03-05', 'Paid', '2023-03-06', '2023-03-09'),  -- 3 nights, t1
+    (14,1014, 514, '2023-03-08', 'Paid', '2023-03-09', '2023-03-13'),  -- 4 nights, t2
+    (15,1015, 515, '2023-03-12', 'Paid', '2023-03-13', '2023-03-15'),  -- 2 nights, t3
+    (16,1016, 516, '2023-03-16', 'Paid', '2023-03-17', '2023-03-20');  -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (12,12, 10000.00,  'Debit Card',  '2023-03-02 10:00:00'),  -- 5000 * 2
+    (13,13,  4500.00,  'Cash',        '2023-03-05 10:00:00'),  -- 1500 * 3
+    (14,14, 10000.00,  'Credit Card', '2023-03-08 10:00:00'),  -- 2500 * 4
+    (15,15,  7000.00,  'Debit Card',  '2023-03-12 10:00:00'),  -- 3500 * 2
+    (16,16, 15000.00,  'Cash',        '2023-03-16 10:00:00');  -- 5000 * 3
+
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (12,12,  1,  3, '2023-03-03 15:00:00', '2023-03-05 12:00:00', '2023-03-05 12:00:00', 'On-time checkout.'),
+    (13,13,  5, 13, '2023-03-06 15:00:00', '2023-03-09 12:00:00', '2023-03-09 12:30:00', 'Slightly late checkout.'),
+    (14,14, 15, 17, '2023-03-09 15:00:00', '2023-03-13 12:00:00', '2023-03-13 13:15:00', 'Late checkout within 2 hours.'),
+    (15,15, 16, 10, '2023-03-13 15:00:00', '2023-03-15 12:00:00', '2023-03-15 12:00:00', 'On-time checkout.'),
+    (16,16, 11, 20, '2023-03-17 15:00:00', '2023-03-20 12:00:00', '2023-03-20 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-04 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- APR Rooms used: 517(t1), 518(t2), 519(t3), 520(t4), 601(t1)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (17, 1017, 517, '2023-04-01', 'Paid', '2023-04-02', '2023-04-04'),  -- 2 nights, t1
+    (18, 1018, 518, '2023-04-05', 'Paid', '2023-04-06', '2023-04-09'),  -- 3 nights, t2
+    (19, 1019, 519, '2023-04-10', 'Paid', '2023-04-11', '2023-04-15'),  -- 4 nights, t3
+    (20, 1020, 520, '2023-04-16', 'Paid', '2023-04-17', '2023-04-19'),  -- 2 nights, t4
+    (21, 1021, 601, '2023-04-20', 'Paid', '2023-04-21', '2023-04-24');  -- 3 nights, t1
+
+-- Rates: t1=1500, t2=2500, t3=3500, t4=5000
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (17, 17,  3000.00,  'Cash',        '2023-04-01 10:00:00'),  -- t1 * 2
+    (18, 18,  7500.00,  'Credit Card', '2023-04-05 10:00:00'),  -- t2 * 3
+    (19, 19, 14000.00,  'Debit Card',  '2023-04-10 10:00:00'),  -- t3 * 4
+    (20, 20, 10000.00,  'Cash',        '2023-04-16 10:00:00'),  -- t4 * 2
+    (21, 21,  4500.00,  'Credit Card', '2023-04-20 10:00:00');  -- t1 * 3
+
+-- Allowed FD/Admin employees:
+-- FD: 1,5,8,11,14,15,16,19  |  Admin: 3,7,10,13,17,20
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (17, 17,  1,  3, '2023-04-02 15:00:00', '2023-04-04 12:00:00', '2023-04-04 12:00:00', 'On-time checkout.'),
+    (18, 18,  5, 13, '2023-04-06 15:00:00', '2023-04-09 12:00:00', '2023-04-09 12:30:00', 'Slightly late checkout.'),
+    (19, 19, 15, 17, '2023-04-11 15:00:00', '2023-04-15 12:00:00', '2023-04-15 13:15:00', 'Late checkout within 2 hours.'),
+    (20, 20, 16, 10, '2023-04-17 15:00:00', '2023-04-19 12:00:00', '2023-04-19 12:00:00', 'On-time checkout.'),
+    (21, 21, 11, 20, '2023-04-21 15:00:00', '2023-04-24 12:00:00', '2023-04-24 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-05 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- MAY Rooms used: 602(t2), 603(t3), 604(t4), 605(t1), 606(t2)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (22, 1022, 602, '2023-05-01', 'Paid', '2023-05-02', '2023-05-04'),  -- 2 nights, t2
+    (23, 1023, 603, '2023-05-05', 'Paid', '2023-05-06', '2023-05-09'),  -- 3 nights, t3
+    (24, 1024, 604, '2023-05-09', 'Paid', '2023-05-10', '2023-05-14'),  -- 4 nights, t4
+    (25, 1025, 605, '2023-05-15', 'Paid', '2023-05-16', '2023-05-18'),  -- 2 nights, t1
+    (26, 1026, 606, '2023-05-20', 'Paid', '2023-05-21', '2023-05-24');  -- 3 nights, t2
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (22, 22,  5000.00,  'Debit Card',  '2023-05-01 10:00:00'),  -- 2500 * 2
+    (23, 23, 10500.00,  'Cash',        '2023-05-05 10:00:00'),  -- 3500 * 3
+    (24, 24, 20000.00,  'Credit Card', '2023-05-09 10:00:00'),  -- 5000 * 4
+    (25, 25,  3000.00,  'Debit Card',  '2023-05-15 10:00:00'),  -- 1500 * 2
+    (26, 26,  7500.00,  'Cash',        '2023-05-20 10:00:00');  -- 2500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (22, 22,  1,  3, '2023-05-02 15:00:00', '2023-05-04 12:00:00', '2023-05-04 12:00:00', 'On-time checkout.'),
+    (23, 23,  5, 13, '2023-05-06 15:00:00', '2023-05-09 12:00:00', '2023-05-09 12:45:00', 'Slightly late checkout.'),
+    (24, 24, 15, 17, '2023-05-10 15:00:00', '2023-05-14 12:00:00', '2023-05-14 13:30:00', 'Late checkout within 2 hours.'),
+    (25, 25, 16, 10, '2023-05-16 15:00:00', '2023-05-18 12:00:00', '2023-05-18 12:00:00', 'On-time checkout.'),
+    (26, 26, 11, 20, '2023-05-21 15:00:00', '2023-05-24 12:00:00', '2023-05-24 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-06 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- JUN Rooms used: 607(t3), 608(t4), 609(t1), 610(t2), 611(t3)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (27, 1027, 607, '2023-06-02', 'Paid', '2023-06-03', '2023-06-05'),  -- 2 nights, t3
+    (28, 1028, 608, '2023-06-06', 'Paid', '2023-06-07', '2023-06-10'),  -- 3 nights, t4
+    (29, 1029, 609, '2023-06-10', 'Paid', '2023-06-11', '2023-06-15'),  -- 4 nights, t1
+    (30, 1030, 610, '2023-06-16', 'Paid', '2023-06-17', '2023-06-19'),  -- 2 nights, t2
+    (31, 1031, 611, '2023-06-20', 'Paid', '2023-06-21', '2023-06-24');  -- 3 nights, t3
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (27, 27,  7000.00,  'Cash',        '2023-06-02 10:00:00'),  -- 3500 * 2
+    (28, 28, 15000.00,  'Credit Card', '2023-06-06 10:00:00'),  -- 5000 * 3
+    (29, 29,  6000.00,  'Debit Card',  '2023-06-10 10:00:00'),  -- 1500 * 4
+    (30, 30,  5000.00,  'Cash',        '2023-06-16 10:00:00'),  -- 2500 * 2
+    (31, 31, 10500.00,  'Credit Card', '2023-06-20 10:00:00');  -- 3500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (27, 27,  1,  3, '2023-06-03 15:00:00', '2023-06-05 12:00:00', '2023-06-05 12:00:00', 'On-time checkout.'),
+    (28, 28,  5, 13, '2023-06-07 15:00:00', '2023-06-10 12:00:00', '2023-06-10 12:45:00', 'Slightly late checkout.'),
+    (29, 29, 15, 17, '2023-06-11 15:00:00', '2023-06-15 12:00:00', '2023-06-15 13:30:00', 'Late checkout within 2 hours.'),
+    (30, 30, 16, 10, '2023-06-17 15:00:00', '2023-06-19 12:00:00', '2023-06-19 12:00:00', 'On-time checkout.'),
+    (31, 31, 11, 20, '2023-06-21 15:00:00', '2023-06-24 12:00:00', '2023-06-24 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-07 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- JUL Rooms used: 612(t4), 613(t1), 614(t2), 615(t3), 616(t4)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (32, 1032, 612, '2023-07-01', 'Paid', '2023-07-02', '2023-07-04'),  -- 2 nights, t4
+    (33, 1033, 613, '2023-07-04', 'Paid', '2023-07-05', '2023-07-08'),  -- 3 nights, t1
+    (34, 1034, 614, '2023-07-08', 'Paid', '2023-07-09', '2023-07-13'),  -- 4 nights, t2
+    (35, 1035, 615, '2023-07-14', 'Paid', '2023-07-15', '2023-07-17'),  -- 2 nights, t3
+    (36, 1036, 616, '2023-07-18', 'Paid', '2023-07-19', '2023-07-22');  -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (32, 32, 10000.00,  'Debit Card',  '2023-07-01 10:00:00'),  -- 5000 * 2
+    (33, 33,  4500.00,  'Cash',        '2023-07-04 10:00:00'),  -- 1500 * 3
+    (34, 34, 10000.00,  'Credit Card', '2023-07-08 10:00:00'),  -- 2500 * 4
+    (35, 35,  7000.00,  'Debit Card',  '2023-07-14 10:00:00'),  -- 3500 * 2
+    (36, 36, 15000.00,  'Cash',        '2023-07-18 10:00:00');  -- 5000 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (32, 32,  1,  3, '2023-07-02 15:00:00', '2023-07-04 12:00:00', '2023-07-04 12:00:00', 'On-time checkout.'),
+    (33, 33,  5, 13, '2023-07-05 15:00:00', '2023-07-08 12:00:00', '2023-07-08 12:30:00', 'Slightly late checkout.'),
+    (34, 34, 15, 17, '2023-07-09 15:00:00', '2023-07-13 12:00:00', '2023-07-13 13:15:00', 'Late checkout within 2 hours.'),
+    (35, 35, 16, 10, '2023-07-15 15:00:00', '2023-07-17 12:00:00', '2023-07-17 12:00:00', 'On-time checkout.'),
+    (36, 36, 11, 20, '2023-07-19 15:00:00', '2023-07-22 12:00:00', '2023-07-22 12:45:00', 'Slightly late checkout.');
+
+/* =========================================
+   2023-08 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- AUG Rooms used: 617(t1), 618(t2), 619(t3), 620(t4), 701(t1)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (37, 1037, 617, '2023-08-01', 'Paid', '2023-08-02', '2023-08-04'),  -- 2 nights, t1
+    (38, 1038, 618, '2023-08-05', 'Paid', '2023-08-06', '2023-08-09'),  -- 3 nights, t2
+    (39, 1039, 619, '2023-08-09', 'Paid', '2023-08-10', '2023-08-14'),  -- 4 nights, t3
+    (40, 1040, 620, '2023-08-15', 'Paid', '2023-08-16', '2023-08-18'),  -- 2 nights, t4
+    (41, 1041, 701, '2023-08-20', 'Paid', '2023-08-21', '2023-08-24');  -- 3 nights, t1
+
+-- Rates: t1=1500, t2=2500, t3=3500, t4=5000
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (37, 37,  3000.00,  'Cash',        '2023-08-01 10:00:00'),  -- 1500 * 2
+    (38, 38,  7500.00,  'Credit Card', '2023-08-05 10:00:00'),  -- 2500 * 3
+    (39, 39, 14000.00,  'Debit Card',  '2023-08-09 10:00:00'),  -- 3500 * 4
+    (40, 40, 10000.00,  'Cash',        '2023-08-15 10:00:00'),  -- 5000 * 2
+    (41, 41,  4500.00,  'Credit Card', '2023-08-20 10:00:00');  -- 1500 * 3
+
+-- Allowed FD/Admin employees:
+-- FD: 1,5,8,11,14,15,16,19  |  Admin: 3,7,10,13,17,20
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (37, 37,  1,  3, '2023-08-02 15:00:00', '2023-08-04 12:00:00', '2023-08-04 12:00:00', 'On-time checkout.'),
+    (38, 38,  5, 13, '2023-08-06 15:00:00', '2023-08-09 12:00:00', '2023-08-09 12:30:00', 'Slightly late checkout.'),
+    (39, 39, 15, 17, '2023-08-10 15:00:00', '2023-08-14 12:00:00', '2023-08-14 13:15:00', 'Late checkout within 2 hours.'),
+    (40, 40, 16, 10, '2023-08-16 15:00:00', '2023-08-18 12:00:00', '2023-08-18 12:00:00', 'On-time checkout.'),
+    (41, 41, 11, 20, '2023-08-21 15:00:00', '2023-08-24 12:00:00', '2023-08-24 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-09 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- SEP Rooms used: 702(t2), 703(t3), 704(t4), 705(t1), 706(t2)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (42, 1042, 702, '2023-09-01', 'Paid', '2023-09-02', '2023-09-04'),  -- 2 nights, t2
+    (43, 1043, 703, '2023-09-05', 'Paid', '2023-09-06', '2023-09-09'),  -- 3 nights, t3
+    (44, 1044, 704, '2023-09-09', 'Paid', '2023-09-10', '2023-09-14'),  -- 4 nights, t4
+    (45, 1045, 705, '2023-09-15', 'Paid', '2023-09-16', '2023-09-18'),  -- 2 nights, t1
+    (46, 1046, 706, '2023-09-20', 'Paid', '2023-09-21', '2023-09-24');  -- 3 nights, t2
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (42, 42,  5000.00,  'Debit Card',  '2023-09-01 10:00:00'),  -- 2500 * 2
+    (43, 43, 10500.00,  'Cash',        '2023-09-05 10:00:00'),  -- 3500 * 3
+    (44, 44, 20000.00,  'Credit Card', '2023-09-09 10:00:00'),  -- 5000 * 4
+    (45, 45,  3000.00,  'Debit Card',  '2023-09-15 10:00:00'),  -- 1500 * 2
+    (46, 46,  7500.00,  'Cash',        '2023-09-20 10:00:00');  -- 2500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (42, 42,  1,  3, '2023-09-02 15:00:00', '2023-09-04 12:00:00', '2023-09-04 12:00:00', 'On-time checkout.'),
+    (43, 43,  5, 13, '2023-09-06 15:00:00', '2023-09-09 12:00:00', '2023-09-09 12:45:00', 'Slightly late checkout.'),
+    (44, 44, 15, 17, '2023-09-10 15:00:00', '2023-09-14 12:00:00', '2023-09-14 13:30:00', 'Late checkout within 2 hours.'),
+    (45, 45, 16, 10, '2023-09-16 15:00:00', '2023-09-18 12:00:00', '2023-09-18 12:00:00', 'On-time checkout.'),
+    (46, 46, 11, 20, '2023-09-21 15:00:00', '2023-09-24 12:00:00', '2023-09-24 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-10 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- OCT Rooms used: 707(t3), 708(t4), 709(t1), 710(t2), 711(t3)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (47, 1047, 707, '2023-10-01', 'Paid', '2023-10-02', '2023-10-04'),  -- 2 nights, t3
+    (48, 1048, 708, '2023-10-05', 'Paid', '2023-10-06', '2023-10-09'),  -- 3 nights, t4
+    (49, 1049, 709, '2023-10-09', 'Paid', '2023-10-10', '2023-10-14'),  -- 4 nights, t1
+    (50, 1050, 710, '2023-10-15', 'Paid', '2023-10-16', '2023-10-18'),  -- 2 nights, t2
+    (51, 1051, 711, '2023-10-20', 'Paid', '2023-10-21', '2023-10-24');  -- 3 nights, t3
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (47, 47,  7000.00,  'Cash',        '2023-10-01 10:00:00'),  -- 3500 * 2
+    (48, 48, 15000.00,  'Credit Card', '2023-10-05 10:00:00'),  -- 5000 * 3
+    (49, 49,  6000.00,  'Debit Card',  '2023-10-09 10:00:00'),  -- 1500 * 4
+    (50, 50,  5000.00,  'Cash',        '2023-10-15 10:00:00'),  -- 2500 * 2
+    (51, 51, 10500.00,  'Credit Card', '2023-10-20 10:00:00');  -- 3500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (47, 47,  1,  3, '2023-10-02 15:00:00', '2023-10-04 12:00:00', '2023-10-04 12:00:00', 'On-time checkout.'),
+    (48, 48,  5, 13, '2023-10-06 15:00:00', '2023-10-09 12:00:00', '2023-10-09 12:45:00', 'Slightly late checkout.'),
+    (49, 49, 15, 17, '2023-10-10 15:00:00', '2023-10-14 12:00:00', '2023-10-14 13:30:00', 'Late checkout within 2 hours.'),
+    (50, 50, 16, 10, '2023-10-16 15:00:00', '2023-10-18 12:00:00', '2023-10-18 12:00:00', 'On-time checkout.'),
+    (51, 51, 11, 20, '2023-10-21 15:00:00', '2023-10-24 12:00:00', '2023-10-24 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-11 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- NOV Rooms used: 712(t4), 713(t1), 714(t2), 715(t3), 716(t4)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (52, 1052, 712, '2023-11-01', 'Paid', '2023-11-02', '2023-11-04'),  -- 2 nights, t4
+    (53, 1053, 713, '2023-11-04', 'Paid', '2023-11-05', '2023-11-08'),  -- 3 nights, t1
+    (54, 1054, 714, '2023-11-08', 'Paid', '2023-11-09', '2023-11-13'),  -- 4 nights, t2
+    (55, 1055, 715, '2023-11-14', 'Paid', '2023-11-15', '2023-11-17'),  -- 2 nights, t3
+    (56, 1056, 716, '2023-11-18', 'Paid', '2023-11-19', '2023-11-22');  -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (52, 52, 10000.00,  'Debit Card',  '2023-11-01 10:00:00'),  -- 5000 * 2
+    (53, 53,  4500.00,  'Cash',        '2023-11-04 10:00:00'),  -- 1500 * 3
+    (54, 54, 10000.00,  'Credit Card', '2023-11-08 10:00:00'),  -- 2500 * 4
+    (55, 55,  7000.00,  'Debit Card',  '2023-11-14 10:00:00'),  -- 3500 * 2
+    (56, 56, 15000.00,  'Cash',        '2023-11-18 10:00:00');  -- 5000 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (52, 52,  1,  3, '2023-11-02 15:00:00', '2023-11-04 12:00:00', '2023-11-04 12:00:00', 'On-time checkout.'),
+    (53, 53,  5, 13, '2023-11-05 15:00:00', '2023-11-08 12:00:00', '2023-11-08 12:30:00', 'Slightly late checkout.'),
+    (54, 54, 15, 17, '2023-11-09 15:00:00', '2023-11-13 12:00:00', '2023-11-13 13:15:00', 'Late checkout within 2 hours.'),
+    (55, 55, 16, 10, '2023-11-15 15:00:00', '2023-11-17 12:00:00', '2023-11-17 12:00:00', 'On-time checkout.'),
+    (56, 56, 11, 20, '2023-11-19 15:00:00', '2023-11-22 12:00:00', '2023-11-22 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2023-12 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- DEC Rooms used: 717(t1), 718(t2), 719(t3), 720(t4), 801(t1)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (57, 1057, 717, '2023-12-01', 'Paid', '2023-12-02', '2023-12-04'),  -- 2 nights, t1
+    (58, 1058, 718, '2023-12-05', 'Paid', '2023-12-06', '2023-12-09'),  -- 3 nights, t2
+    (59, 1059, 719, '2023-12-09', 'Paid', '2023-12-10', '2023-12-14'),  -- 4 nights, t3
+    (60, 1060, 720, '2023-12-15', 'Paid', '2023-12-16', '2023-12-18'),  -- 2 nights, t4
+    (61, 1061, 801, '2023-12-20', 'Paid', '2023-12-21', '2023-12-24');  -- 3 nights, t1
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (57, 57,  3000.00,  'Debit Card',  '2023-12-01 10:00:00'),  -- 1500 * 2
+    (58, 58,  7500.00,  'Cash',        '2023-12-05 10:00:00'),  -- 2500 * 3
+    (59, 59, 14000.00,  'Credit Card', '2023-12-09 10:00:00'),  -- 3500 * 4
+    (60, 60, 10000.00,  'Debit Card',  '2023-12-15 10:00:00'),  -- 5000 * 2
+    (61, 61,  4500.00,  'Cash',        '2023-12-20 10:00:00');  -- 1500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (57, 57,  1,  3, '2023-12-02 15:00:00', '2023-12-04 12:00:00', '2023-12-04 12:00:00', 'On-time checkout.'),
+    (58, 58,  5, 13, '2023-12-06 15:00:00', '2023-12-09 12:00:00', '2023-12-09 12:30:00', 'Slightly late checkout.'),
+    (59, 59, 15, 17, '2023-12-10 15:00:00', '2023-12-14 12:00:00', '2023-12-14 13:15:00', 'Late checkout within 2 hours.'),
+    (60, 60, 16, 10, '2023-12-16 15:00:00', '2023-12-18 12:00:00', '2023-12-18 12:00:00', 'On-time checkout.'),
+    (61, 61, 11, 20, '2023-12-21 15:00:00', '2023-12-24 12:00:00', '2023-12-24 12:45:00', 'Slightly late checkout.');
+
+/* =========================================
+   2024-01 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- JAN 2024 Rooms: 802(t2), 803(t3), 804(t4), 805(t1), 806(t2)
+-- Rates: t1=1500, t2=2500, t3=3500, t4=5000
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (62, 1062, 802, '2024-01-02', 'Paid', '2024-01-03', '2024-01-05'),  -- 2 nights, t2
+    (63, 1063, 803, '2024-01-05', 'Paid', '2024-01-06', '2024-01-09'),  -- 3 nights, t3
+    (64, 1064, 804, '2024-01-09', 'Paid', '2024-01-10', '2024-01-14'),  -- 4 nights, t4
+    (65, 1065, 805, '2024-01-15', 'Paid', '2024-01-16', '2024-01-18'),  -- 2 nights, t1
+    (66, 1066, 806, '2024-01-20', 'Paid', '2024-01-21', '2024-01-24');  -- 3 nights, t2
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (62, 62,  5000.00,  'Cash',        '2024-01-02 10:00:00'),  -- 2500 * 2
+    (63, 63, 10500.00,  'Credit Card', '2024-01-05 10:00:00'),  -- 3500 * 3
+    (64, 64, 20000.00,  'Debit Card',  '2024-01-09 10:00:00'),  -- 5000 * 4
+    (65, 65,  3000.00,  'Cash',        '2024-01-15 10:00:00'),  -- 1500 * 2
+    (66, 66,  7500.00,  'Credit Card', '2024-01-20 10:00:00');  -- 2500 * 3
+
+-- FD: 1,5,8,11,14,15,16,19  |  Admin: 3,7,10,13,17,20
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (62, 62,  1,  3, '2024-01-03 15:00:00', '2024-01-05 12:00:00', '2024-01-05 12:00:00', 'On-time checkout.'),
+    (63, 63,  5, 13, '2024-01-06 15:00:00', '2024-01-09 12:00:00', '2024-01-09 12:30:00', 'Slightly late checkout.'),
+    (64, 64, 15, 17, '2024-01-10 15:00:00', '2024-01-14 12:00:00', '2024-01-14 13:15:00', 'Late checkout within 2 hours.'),
+    (65, 65, 16, 10, '2024-01-16 15:00:00', '2024-01-18 12:00:00', '2024-01-18 12:00:00', 'On-time checkout.'),
+    (66, 66, 11, 20, '2024-01-21 15:00:00', '2024-01-24 12:00:00', '2024-01-24 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-02 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- FEB 2024 Rooms: 807(t3), 808(t4), 809(t1), 810(t2), 811(t3)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (67, 1067, 807, '2024-02-01', 'Paid', '2024-02-02', '2024-02-04'),  -- 2 nights, t3
+    (68, 1068, 808, '2024-02-04', 'Paid', '2024-02-05', '2024-02-08'),  -- 3 nights, t4
+    (69, 1069, 809, '2024-02-08', 'Paid', '2024-02-09', '2024-02-13'),  -- 4 nights, t1
+    (70, 1070, 810, '2024-02-14', 'Paid', '2024-02-15', '2024-02-17'),  -- 2 nights, t2
+    (71, 1071, 811, '2024-02-18', 'Paid', '2024-02-19', '2024-02-22');  -- 3 nights, t3
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (67, 67,  7000.00,  'Debit Card',  '2024-02-01 10:00:00'),  -- 3500 * 2
+    (68, 68, 15000.00,  'Cash',        '2024-02-04 10:00:00'),  -- 5000 * 3
+    (69, 69,  6000.00,  'Credit Card', '2024-02-08 10:00:00'),  -- 1500 * 4
+    (70, 70,  5000.00,  'Debit Card',  '2024-02-14 10:00:00'),  -- 2500 * 2
+    (71, 71, 10500.00,  'Cash',        '2024-02-18 10:00:00');  -- 3500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (67, 67,  1,  3, '2024-02-02 15:00:00', '2024-02-04 12:00:00', '2024-02-04 12:00:00', 'On-time checkout.'),
+    (68, 68,  5, 13, '2024-02-05 15:00:00', '2024-02-08 12:00:00', '2024-02-08 12:45:00', 'Slightly late checkout.'),
+    (69, 69, 15, 17, '2024-02-09 15:00:00', '2024-02-13 12:00:00', '2024-02-13 13:30:00', 'Late checkout within 2 hours.'),
+    (70, 70, 16, 10, '2024-02-15 15:00:00', '2024-02-17 12:00:00', '2024-02-17 12:00:00', 'On-time checkout.'),
+    (71, 71, 11, 20, '2024-02-19 15:00:00', '2024-02-22 12:00:00', '2024-02-22 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-03 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- MAR 2024 Rooms: 812(t4), 813(t1), 814(t2), 815(t3), 816(t4)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (72, 1072, 812, '2024-03-01', 'Paid', '2024-03-02', '2024-03-04'),  -- 2 nights, t4
+    (73, 1073, 813, '2024-03-04', 'Paid', '2024-03-05', '2024-03-08'),  -- 3 nights, t1
+    (74, 1074, 814, '2024-03-08', 'Paid', '2024-03-09', '2024-03-13'),  -- 4 nights, t2
+    (75, 1075, 815, '2024-03-14', 'Paid', '2024-03-15', '2024-03-17'),  -- 2 nights, t3
+    (76, 1076, 816, '2024-03-18', 'Paid', '2024-03-19', '2024-03-22');  -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (72, 72, 10000.00,  'Cash',        '2024-03-01 10:00:00'),  -- 5000 * 2
+    (73, 73,  4500.00,  'Credit Card', '2024-03-04 10:00:00'),  -- 1500 * 3
+    (74, 74, 10000.00,  'Debit Card',  '2024-03-08 10:00:00'),  -- 2500 * 4
+    (75, 75,  7000.00,  'Cash',        '2024-03-14 10:00:00'),  -- 3500 * 2
+    (76, 76, 15000.00,  'Credit Card', '2024-03-18 10:00:00');  -- 5000 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (72, 72,  1,  3, '2024-03-02 15:00:00', '2024-03-04 12:00:00', '2024-03-04 12:00:00', 'On-time checkout.'),
+    (73, 73,  5, 13, '2024-03-05 15:00:00', '2024-03-08 12:00:00', '2024-03-08 12:30:00', 'Slightly late checkout.'),
+    (74, 74, 15, 17, '2024-03-09 15:00:00', '2024-03-13 12:00:00', '2024-03-13 13:15:00', 'Late checkout within 2 hours.'),
+    (75, 75, 16, 10, '2024-03-15 15:00:00', '2024-03-17 12:00:00', '2024-03-17 12:00:00', 'On-time checkout.'),
+    (76, 76, 11, 20, '2024-03-19 15:00:00', '2024-03-22 12:00:00', '2024-03-22 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-04 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- APR 2024 Rooms: 817(t1), 818(t2), 819(t3), 820(t4), 821(t1)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (77, 1077, 817, '2024-04-01', 'Paid', '2024-04-02', '2024-04-04'),  -- 2 nights, t1
+    (78, 1078, 818, '2024-04-04', 'Paid', '2024-04-05', '2024-04-08'),  -- 3 nights, t2
+    (79, 1079, 819, '2024-04-08', 'Paid', '2024-04-09', '2024-04-13'),  -- 4 nights, t3
+    (80, 1080, 820, '2024-04-14', 'Paid', '2024-04-15', '2024-04-17'), -- 2 nights, t4
+	 (81, 1081, 820, '2024-04-14', 'Paid', '2024-04-15', '2024-04-17');
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (77, 77,  3000.00,  'Debit Card',  '2024-04-01 10:00:00'),  -- 1500 * 2
+    (78, 78,  7500.00,  'Cash',        '2024-04-04 10:00:00'),  -- 2500 * 3
+    (79, 79, 14000.00,  'Credit Card', '2024-04-08 10:00:00'),  -- 3500 * 4
+    (80, 80, 10000.00,  'Debit Card',  '2024-04-14 10:00:00'), -- 5000 * 2
+	 (81, 81, 10000.00,  'Debit Card',  '2024-04-14 10:00:01');
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (77, 77,  1,  3, '2024-04-02 15:00:00', '2024-04-04 12:00:00', '2024-04-04 12:00:00', 'On-time checkout.'),
+    (78, 78,  5, 13, '2024-04-05 15:00:00', '2024-04-08 12:00:00', '2024-04-08 12:30:00', 'Slightly late checkout.'),
+    (79, 79, 15, 17, '2024-04-09 15:00:00', '2024-04-13 12:00:00', '2024-04-13 13:15:00', 'Late checkout within 2 hours.'),
+    (80, 80, 16, 10, '2024-04-15 15:00:00', '2024-04-17 12:00:00', '2024-04-17 12:00:00', 'On-time checkout.'),
+      (81, 81, 16, 10, '2024-04-15 15:00:00', '2024-04-17 12:00:00', '2024-04-17 12:00:00', 'On-time checkout.');
+   
+
+
+/* =========================================
+   2024-05 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- MAY 2024 Rooms: 901(t1), 902(t2), 903(t3), 904(t4), 905(t1)
+-- Rates: t1=1500, t2=2500, t3=3500, t4=5000
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (82, 1082, 901, '2024-05-01', 'Paid', '2024-05-02', '2024-05-04'),  -- 2 nights, t1
+    (83, 1083, 902, '2024-05-04', 'Paid', '2024-05-05', '2024-05-08'),  -- 3 nights, t2
+    (84, 1084, 903, '2024-05-08', 'Paid', '2024-05-09', '2024-05-13'),  -- 4 nights, t3
+    (85, 1085, 904, '2024-05-14', 'Paid', '2024-05-15', '2024-05-17'),  -- 2 nights, t4
+    (86, 1086, 905, '2024-05-18', 'Paid', '2024-05-19', '2024-05-22');  -- 3 nights, t1
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (82, 82,  3000.00,  'Cash',        '2024-05-01 10:00:00'),  -- 1500 * 2
+    (83, 83,  7500.00,  'Credit Card', '2024-05-04 10:00:00'),  -- 2500 * 3
+    (84, 84, 14000.00,  'Debit Card',  '2024-05-08 10:00:00'),  -- 3500 * 4
+    (85, 85, 10000.00,  'Cash',        '2024-05-14 10:00:00'),  -- 5000 * 2
+    (86, 86,  4500.00,  'Credit Card', '2024-05-18 10:00:00');  -- 1500 * 3
+
+-- FD: 1,5,8,11,14,15,16,19 | Admin: 3,7,10,13,17,20
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (82, 82,  1,  3, '2024-05-02 15:00:00', '2024-05-04 12:00:00', '2024-05-04 12:00:00', 'On-time checkout.'),
+    (83, 83,  5, 13, '2024-05-05 15:00:00', '2024-05-08 12:00:00', '2024-05-08 12:30:00', 'Slightly late checkout.'),
+    (84, 84, 15, 17, '2024-05-09 15:00:00', '2024-05-13 12:00:00', '2024-05-13 13:15:00', 'Late checkout within 2 hours.'),
+    (85, 85, 16, 10, '2024-05-15 15:00:00', '2024-05-17 12:00:00', '2024-05-17 12:00:00', 'On-time checkout.'),
+    (86, 86, 11, 20, '2024-05-19 15:00:00', '2024-05-22 12:00:00', '2024-05-22 12:45:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-06 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- JUN 2024 Rooms: 906(t2), 907(t3), 908(t4), 909(t1), 910(t2)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (87, 1087, 906, '2024-06-01', 'Paid', '2024-06-02', '2024-06-04'),  -- 2 nights, t2
+    (88, 1088, 907, '2024-06-04', 'Paid', '2024-06-05', '2024-06-08'),  -- 3 nights, t3
+    (89, 1089, 908, '2024-06-08', 'Paid', '2024-06-09', '2024-06-13'),  -- 4 nights, t4
+    (90, 1090, 909, '2024-06-14', 'Paid', '2024-06-15', '2024-06-17'),  -- 2 nights, t1
+    (91, 1091, 910, '2024-06-18', 'Paid', '2024-06-19', '2024-06-22');  -- 3 nights, t2
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (87, 87,  5000.00,  'Debit Card',  '2024-06-01 10:00:00'),  -- 2500 * 2
+    (88, 88, 10500.00,  'Cash',        '2024-06-04 10:00:00'),  -- 3500 * 3
+    (89, 89, 20000.00,  'Credit Card', '2024-06-08 10:00:00'),  -- 5000 * 4
+    (90, 90,  3000.00,  'Debit Card',  '2024-06-14 10:00:00'),  -- 1500 * 2
+    (91, 91,  7500.00,  'Cash',        '2024-06-18 10:00:00');  -- 2500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (87, 87,  1,  3, '2024-06-02 15:00:00', '2024-06-04 12:00:00', '2024-06-04 12:00:00', 'On-time checkout.'),
+    (88, 88,  5, 13, '2024-06-05 15:00:00', '2024-06-08 12:00:00', '2024-06-08 12:45:00', 'Slightly late checkout.'),
+    (89, 89, 15, 17, '2024-06-09 15:00:00', '2024-06-13 12:00:00', '2024-06-13 13:30:00', 'Late checkout within 2 hours.'),
+    (90, 90, 16, 10, '2024-06-15 15:00:00', '2024-06-17 12:00:00', '2024-06-17 12:00:00', 'On-time checkout.'),
+    (91, 91, 11, 20, '2024-06-19 15:00:00', '2024-06-22 12:00:00', '2024-06-22 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-07 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- JUL 2024 Rooms: 911(t3), 912(t4), 913(t1), 914(t2), 915(t3)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (92, 1092, 911, '2024-07-01', 'Paid', '2024-07-02', '2024-07-04'),  -- 2 nights, t3
+    (93, 1093, 912, '2024-07-04', 'Paid', '2024-07-05', '2024-07-08'),  -- 3 nights, t4
+    (94, 1094, 913, '2024-07-08', 'Paid', '2024-07-09', '2024-07-13'),  -- 4 nights, t1
+    (95, 1095, 914, '2024-07-14', 'Paid', '2024-07-15', '2024-07-17'),  -- 2 nights, t2
+    (96, 1096, 915, '2024-07-18', 'Paid', '2024-07-19', '2024-07-22');  -- 3 nights, t3
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (92, 92,  7000.00,  'Cash',        '2024-07-01 10:00:00'),  -- 3500 * 2
+    (93, 93, 15000.00,  'Credit Card', '2024-07-04 10:00:00'),  -- 5000 * 3
+    (94, 94,  6000.00,  'Debit Card',  '2024-07-08 10:00:00'),  -- 1500 * 4
+    (95, 95,  5000.00,  'Cash',        '2024-07-14 10:00:00'),  -- 2500 * 2
+    (96, 96, 10500.00,  'Credit Card', '2024-07-18 10:00:00');  -- 3500 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (92, 92,  1,  3, '2024-07-02 15:00:00', '2024-07-04 12:00:00', '2024-07-04 12:00:00', 'On-time checkout.'),
+    (93, 93,  5, 13, '2024-07-05 15:00:00', '2024-07-08 12:00:00', '2024-07-08 12:45:00', 'Slightly late checkout.'),
+    (94, 94, 15, 17, '2024-07-09 15:00:00', '2024-07-13 12:00:00', '2024-07-13 13:15:00', 'Late checkout within 2 hours.'),
+    (95, 95, 16, 10, '2024-07-15 15:00:00', '2024-07-17 12:00:00', '2024-07-17 12:00:00', 'On-time checkout.'),
+    (96, 96, 11, 20, '2024-07-19 15:00:00', '2024-07-22 12:00:00', '2024-07-22 12:30:00', 'Slightly late checkout.');
+
+
+/* =========================================
+   2024-08 BOOKINGS / PAYMENTS / GUEST STAYS
+   ========================================= */
+
+-- AUG 2024 Rooms: 916(t4), 917(t1), 918(t2), 919(t3), 920(t4)
+
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+    (97, 1097, 916, '2024-08-01', 'Paid', '2024-08-02', '2024-08-04'),  -- 2 nights, t4
+    (98, 1098, 917, '2024-08-04', 'Paid', '2024-08-05', '2024-08-08'),  -- 3 nights, t1
+    (99, 1099, 918, '2024-08-08', 'Paid', '2024-08-09', '2024-08-13'),  -- 4 nights, t2
+    (100,1100, 919, '2024-08-14', 'Paid', '2024-08-15', '2024-08-17'),  -- 2 nights, t3
+    (101,1001, 920, '2024-08-18', 'Paid', '2024-08-19', '2024-08-22');  -- 3 nights, t4 (reuses guest 1001, allowed)
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+    (97,  97, 10000.00,  'Debit Card',  '2024-08-01 10:00:00'),  -- 5000 * 2
+    (98,  98,  4500.00,  'Cash',        '2024-08-04 10:00:00'),  -- 1500 * 3
+    (99,  99, 10000.00,  'Credit Card', '2024-08-08 10:00:00'),  -- 2500 * 4
+    (100,100,  7000.00,  'Debit Card',  '2024-08-14 10:00:00'),  -- 3500 * 2
+    (101,101, 15000.00,  'Cash',        '2024-08-18 10:00:00');  -- 5000 * 3
+
+INSERT INTO GuestStay (
+    transaction_id,
+    booking_id,
+    checkin_employee_id,
+    checkout_employee_id,
+    check_in_time_date,
+    expected_check_out_time_date,
+    actual_check_out_time_date,
+    remarks
+) VALUES
+    (97,  97,  1,  3, '2024-08-02 15:00:00', '2024-08-04 12:00:00', '2024-08-04 12:00:00', 'On-time checkout.'),
+    (98,  98,  5, 13, '2024-08-05 15:00:00', '2024-08-08 12:00:00', '2024-08-08 12:30:00', 'Slightly late checkout.'),
+    (99,  99, 15, 17, '2024-08-09 15:00:00', '2024-08-13 12:00:00', '2024-08-13 13:15:00', 'Late checkout within 2 hours.'),
+    (100,100, 16, 10, '2024-08-15 15:00:00', '2024-08-17 12:00:00', '2024-08-17 12:00:00', 'On-time checkout.'),
+    (101,101, 11, 20, '2024-08-19 15:00:00', '2024-08-22 12:00:00', '2024-08-22 12:45:00', 'Slightly late checkout.');
+
+
+
+/* ===============================
+   2024-09 BOOKINGS / PAYMENTS / GUEST STAY
+   =============================== */
+
+-- BOOKINGS
+INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
+(102, 1102, 801, '2024-09-01', 'Paid', '2024-09-02', '2024-09-04'), -- 2 nights, t1
+(103, 1103, 802, '2024-09-05', 'Paid', '2024-09-06', '2024-09-09'), -- 3 nights, t2
+(104, 1104, 803, '2024-09-10', 'Paid', '2024-09-11', '2024-09-13'), -- 2 nights, t3
+(105, 1105, 804, '2024-09-15', 'Paid', '2024-09-16', '2024-09-19'); -- 3 nights, t4
+
+INSERT INTO payment (payment_id, booking_id, amount_paid, payment_method, payment_datetime) VALUES
+(102, 102, 3000,  'Cash',        '2024-09-01 09:00:00'),   -- 1500×2
+(103, 103, 7500,  'Debit Card',  '2024-09-05 09:00:00'),   -- 2500×3
+(104, 104, 7000,  'Credit Card', '2024-09-10 09:00:00'),   -- 3500×2
+(105, 105,15000,  'Cash',        '2024-09-15 09:00:00');   -- 5000×3
+
+INSERT INTO GuestStay (
+transaction_id, booking_id, checkin_employee_id, checkout_employee_id,
+check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks
+) VALUES
+(102,102, 1, 13, '2024-09-02 15:00:00','2024-09-04 12:00:00','2024-09-04 12:10:00',''),
+(103,103, 5, 16, '2024-09-06 15:00:00','2024-09-09 12:00:00','2024-09-09 12:30:00','Late 30 mins'),
+(104,104,15, 8, '2024-09-11 15:00:00','2024-09-13 12:00:00','2024-09-13 12:00:00',''),
+(105,105,17, 3, '2024-09-16 15:00:00','2024-09-19 12:00:00','2024-09-19 13:15:00','Late checkout (1 hr)');
+
+
 
 -- Housekeeping Items
 INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_stock, max_stock_storage) VALUES
@@ -590,36 +1397,7 @@ INSERT INTO housekeeping_item (item_name, cost_per_unit, current_stock, minimum_
 ('Glass Cleaner', 68.00, 40, 8, 80),
 ('Floor Cleaner', 95.50, 35, 7, 70);
 
--- Bookings
-INSERT INTO booking (booking_id, guest_id, room_id, booking_date, payment_status, start_date, end_date) VALUES
-(1001, 1001, 501, '2025-11-01', 'Paid', '2025-11-01', '2025-11-03'),       -- Single Room 2 nights
-(1002, 1002, 502, '2025-11-02', 'Paid', '2025-11-05', '2025-11-08'),       -- Double Room 3 nights
-(1003, 1003, 503, '2025-11-03', 'Pending', '2025-11-08', '2025-11-12'),    -- Deluxe Room 4 nights
-(1004, 1004, 504, '2025-11-04', 'Pending', '2025-11-10', '2025-11-14'),    -- Suite 4 nights
-(1005, 1005, 505, '2025-11-05', 'Pending', '2025-11-12', '2025-11-14'),    -- Single Room 2 nights
-(1006, 1006, 506, '2025-11-06', 'Pending', '2025-11-15', '2025-11-18'),    -- Double Room 3 nights
-(1007, 1007, 507, '2025-11-07', 'Pending', '2025-11-20', '2025-11-23'),    -- Deluxe Room 3 nights
-(1008, 1008, 508, '2025-11-08', 'Pending', '2025-11-25', '2025-11-30'),    -- Suite 5 nights
-(1009, 1009, 509, '2025-11-09', 'Pending', '2025-12-01', '2025-12-03'),    -- Single Room 2 nights
-(1010, 1010, 510, '2025-11-10', 'Pending', '2025-12-05', '2025-12-08');    -- Double Room 3 nights
 
--- Payments (amount = room rate * nights)
-INSERT INTO payment (booking_id, amount_paid, payment_method, payment_datetime) VALUES
-(1001, 3000.00, 'Cash', '2025-11-01 10:00:00'),
-(1002, 7500.00, 'Credit Card', '2025-11-02 11:30:00');
-
--- Guest Stay
-INSERT INTO GuestStay (booking_id, employee_id, check_in_time_date, expected_check_out_time_date, actual_check_out_time_date, remarks) VALUES
-(1001, 1, '2025-11-01 14:00:00', '2025-11-03 12:00:00', '2025-11-03 11:30:00', 'Smooth check-out'),
-(1002, 1, '2025-11-05 15:30:00', '2025-11-08 12:00:00', '2025-11-08 11:45:00', 'Early check-out requested'),
-(1003, 5, '2025-11-08 13:15:00', '2025-11-12 12:00:00', '2025-11-12 12:10:00', 'On-time check-out'),
-(1004, 1, '2025-11-10 16:00:00', '2025-11-14 12:00:00', '2025-11-14 11:20:00', 'Express check-out'),
-(1005, 5, '2025-11-12 14:45:00', '2025-11-14 12:00:00', '2025-11-14 12:05:00', 'Late check-out approved'),
-(1006, 1, '2025-11-15 15:30:00', '2025-11-18 12:00:00', NULL, 'Guest still checked in'),
-(1007, 5, '2025-11-20 13:00:00', '2025-11-23 12:00:00', NULL, 'Guest extended stay'),
-(1008, 1, '2025-11-25 17:15:00', '2025-11-30 12:00:00', NULL, 'VIP guest - special handling'),
-(1009, 5, '2025-12-01 14:30:00', '2025-12-03 12:00:00', NULL, 'Early check-in requested'),
-(1010, 1, '2025-12-05 16:45:00', '2025-12-08 12:00:00', NULL, 'Family with children');
 
 -- Housekeeping Item Issuance
 INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issuer_id, quantity_issued, date_issued, remarks) VALUES
@@ -873,4 +1651,5 @@ INSERT INTO housekeeping_item_issuance (housekeeping_item_id, employee_id, issue
 (13, 2, 13, 19, '2025-11-10 12:30:00', 'Tissue box November'),
 (14, 4, 3, 5, '2025-11-15 14:45:00', 'Glass cleaner maintenance'),
 (15, 9, 13, 4, '2025-11-20 16:00:00', 'Floor cleaner monthly');
+
 

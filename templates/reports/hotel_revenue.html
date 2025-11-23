@@ -81,7 +81,21 @@
       <p class="text-xl font-bold text-green-700">₱{{ "{:,.2f}".format(grand_total) }}</p>
     </div>
 
-    <!-- Monthly Breakdown -->
+
+    <!-- Highest Revenue Room Type for the Year -->
+    {% if highest_yearly %}
+    <div class="mb-4 p-4 bg-yellow-100 rounded">
+      <h3 class="font-semibold text-yellow-800">
+        Highest Revenue Room Type of the Year: {{ highest_yearly.room_type }}
+      </h3>
+      <p class="text-yellow-700">
+        Revenue: ₱{{ "{:,.2f}".format(highest_yearly.total_revenue) }}
+      </p>
+    </div>
+    {% endif %}
+
+
+<!-- Monthly Breakdown with Highest Revenue Room Type -->
 <div class="bg-white p-6 rounded-lg shadow mb-6">
   <h2 class="text-xl font-semibold mb-4 text-gray-800">Revenue For {{ selected_year }} By Month</h2>
   <table class="min-w-full divide-y divide-gray-200">
@@ -89,13 +103,15 @@
       <tr>
         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Month</th>
         <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Total Revenue (₱)</th>
+        <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Highest Revenue Room Type</th>
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-      {% for month, total in monthly_summary %}
+      {% for row in monthly_summary %}
       <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4">{{ month }}</td>
-        <td class="px-6 py-4">₱{{ "{:,.2f}".format(total) }}</td>
+        <td class="px-6 py-4">{{ row.month_name }}</td>
+        <td class="px-6 py-4">₱{{ "{:,.2f}".format(row.total_revenue) }}</td>
+        <td class="px-6 py-4">{{ row.highest_type }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -103,11 +119,11 @@
       <tr>
         <td class="px-6 py-4">Total Revenue</td>
         <td class="px-6 py-4">₱{{ "{:,.2f}".format(grand_total) }}</td>
+        <td class="px-6 py-4">-</td>
       </tr>
     </tfoot>
   </table>
 </div>
-
 <!-- Room Type Breakdown -->
 <div class="bg-white p-6 rounded-lg shadow mb-6">
   <h2 class="text-xl font-semibold mb-4 text-gray-800">Revenue For {{ selected_year }} by Room Type</h2>
@@ -152,6 +168,19 @@
         <h2 class="text-xl font-semibold text-green-700">Total Revenue for {{ month_names[selected_month|int - 1] }} ({{ selected_year }})</h2>
         <p class="text-2xl font-bold text-green-800">₱{{ "{:,.2f}".format(grand_total) }}</p>
       </div>
+
+        <!-- Highest Revenue Room Type -->
+    {% if highest_monthly %}
+    <div class="mb-4 p-4 bg-yellow-100 rounded">
+      <h3 class="font-semibold text-yellow-800">
+        Highest Revenue Room Type: {{ highest_monthly.room_type }}
+      </h3>
+      <p class="text-yellow-700">
+        Revenue: ₱{{ "{:,.2f}".format(highest_monthly.total_revenue) }}
+      </p>
+    </div>
+    {% endif %}
+
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-800 text-gray-100">
           <tr>
@@ -180,4 +209,10 @@
       </table>
     </div>
   {% endif %}
+  {% else %}
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-semibold mb-4 text-gray-800">No report generated</h2>
+    <p class="text-gray-600">There is no revenue data for the selected month/year.</p>
+  </div>
 {% endif %}
+

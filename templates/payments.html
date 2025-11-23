@@ -50,109 +50,137 @@
     {% endif %}
   {% endwith %}
 
-  <!-- Pending / Add Payment -->
-  {% if not request.args.get('tab') or request.args.get('tab') == 'pending' %}
-  <div>
-    <div class="bg-white rounded shadow p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Add Payment</h2>
-      <form action="{{ url_for('payments.payments_page') }}" method="POST" class="space-y-4">
-        <div>
-          <label class="block text-gray-700 font-medium mb-1">Booking Information</label>
-          <select name="booking_id" class="w-full border border-gray-300 rounded p-2" required>
+    <!-- Pending / Add Payment -->
+    {% if not request.args.get('tab') or request.args.get('tab') == 'pending' %}
+    <div>
+      <!-- Add Payment Form -->
+      <div class="bg-white rounded shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Add Payment</h2>
+        <form action="{{ url_for('payments.payments_page') }}" method="POST" class="space-y-4">
+
+          <!-- Booking Search -->
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Search Booking</label>
+            <input type="text" id="bookingSearch" placeholder="Type booking ID..." class="w-full border border-gray-300 rounded p-2">
+            <select name="booking_id" id="bookingSelect" class="w-full border border-gray-300 rounded p-2 mt-2" required>
+              <!-- Options will be populated dynamically via JS -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Amount Paid</label>
+            <input type="number" step="0.01" name="amount_paid" class="w-full border border-gray-300 rounded p-2" required>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 font-medium mb-1">Payment Method</label>
+            <select name="payment_method" class="w-full border border-gray-300 rounded p-2">
+              <option value="Cash">Cash</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Debit Card">Debit Card</option>
+            </select>
+          </div>
+
+          <button type="submit" name="action" value="add_payment" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+            Add Payment
+          </button>
+        </form>
+      </div>
+
+      <!-- Pending Bookings Table -->
+      <h2 class="text-xl font-semibold mb-4">Pending Payments</h2>
+      <div class="overflow-x-auto bg-white rounded shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nights</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
             {% for b in pending_bookings %}
-              <option value="{{ b.booking_id }}">
-                {{ b.booking_id }} | {{ b.guest_name }} | {{ b.room_type }} | ₱{{ "{:,.2f}".format(b.total_amount) }}
-              </option>
+            <tr class="hover:bg-gray-100">
+              <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_date }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ b.guest_name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ b.room_type }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.rate_per_night) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">{{ b.number_of_nights }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.total_amount) }}</td>
+            </tr>
             {% endfor %}
-          </select>
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1">Amount Paid</label>
-          <input type="number" step="0.01" name="amount_paid" class="w-full border border-gray-300 rounded p-2" required>
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1">Payment Method</label>
-          <select name="payment_method" class="w-full border border-gray-300 rounded p-2">
-            <option value="Cash">Cash</option>
-            <option value="Credit Card">Credit Card</option>
-            <option value="Debit Card">Debit Card</option>
-          </select>
-        </div>
-        <button type="submit" name="action" value="add_payment" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-          Add Payment
-        </button>
-      </form>
+          </tbody>
+        </table>
+      </div>
     </div>
+    {% endif %}
 
-    <!-- Pending Bookings Table -->
-
-  <h2 class="text-xl font-semibold mb-4">Pending Payments</h2>
+    <!-- Completed Payments Table -->
+    {% if request.args.get('tab') == 'completed' %}
+    <h2 class="text-xl font-semibold mb-4">Completed Payments</h2>
     <div class="overflow-x-auto bg-white rounded shadow">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Name</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nights</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
+            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Datetime</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          {% for b in pending_bookings %}
+          {% for p in payments %}
           <tr class="hover:bg-gray-100">
-            <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ b.booking_date }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ b.guest_name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ b.room_type }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.rate_per_night) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ b.number_of_nights }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(b.total_amount) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.booking_id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.room_type }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.rate_per_night) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.number_of_nights }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.total_amount) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.amount_paid) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_method }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_datetime }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
 
-  <!-- Completed Payments Table -->
-  {% if request.args.get('tab') == 'completed' %}
-  <h2 class="text-xl font-semibold mb-4">Completed Payments</h2>
-  <div class="overflow-x-auto bg-white rounded shadow">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room Type</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate per Night</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nights</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Datetime</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        {% for p in payments %}
-        <tr class="hover:bg-gray-100">
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_id }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.booking_id }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.room_type }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.rate_per_night) }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.number_of_nights }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.total_amount) }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">₱{{ "{:,.2f}".format(p.amount_paid) }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_method }}</td>
-          <td class="px-6 py-4 whitespace-nowrap">{{ p.payment_datetime }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endif %}
+  </main>
 
-</main>
+  <!-- JS for Booking Search -->
+  <script>
+  const bookingSearch = document.getElementById('bookingSearch');
+  const bookingSelect = document.getElementById('bookingSelect');
+
+  bookingSearch.addEventListener('input', async () => {
+      const query = bookingSearch.value.trim();
+      bookingSelect.innerHTML = ''; // clear previous options
+
+      if (query.length === 0) return;
+
+      const response = await fetch(`/payments/search-pending?q=${query}`);
+      const results = await response.json();
+
+      results.forEach(b => {
+          const option = document.createElement('option');
+          option.value = b.booking_id;
+          option.textContent = `${b.booking_id} | ${b.guest_name} | ${b.room_type} | ₱${parseFloat(b.total_amount).toFixed(2)}`;
+          bookingSelect.appendChild(option);
+      });
+  });
+  </script>
+
+</body>
+</html>
