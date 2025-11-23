@@ -95,11 +95,11 @@ def get_guest_full_details(guest_id):
             gs.booking_id,
             gs.check_in_time_date,
             gs.actual_check_out_time_date,
-            gs.employee_id,
+            e.employee_id,
             e.first_name AS employee_first_name,
             e.last_name AS employee_last_name
         FROM GuestStay gs
-        LEFT JOIN employee e ON gs.employee_id = e.employee_id
+        LEFT JOIN employee e ON gs.checkin_employee_id = e.employee_id
         JOIN booking b ON gs.booking_id = b.booking_id
         WHERE b.guest_id = %s
         ORDER BY gs.check_in_time_date DESC
