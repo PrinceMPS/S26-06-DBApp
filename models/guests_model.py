@@ -1,4 +1,5 @@
 from db import get_db_connection
+import mysql.connector
 
 def get_all_guests():
     conn = get_db_connection()
@@ -55,10 +56,39 @@ def update_guest_db(guest_id, first_name, last_name, contact_number, email_addre
 def delete_guest_db(guest_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM guest WHERE guest_id = %s", (guest_id,))
-    conn.commit()
+    
+    try:
+        cursor.execute("DELETE FROM guest WHERE guest_id = %s", (guest_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True, "Guest deleted successfully!"
+        
+    except mysql.connector.Error as e:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        
+        if e.errno == 1451:  # Foreign key constraint fails
+            return False, "Cannot delete guest: This guest has existing bookings. Please delete their bookings first."
+        else:
+            return False, f"Database error: {str(e)}"
+            
+    except Exception as e:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return False, f"Unexpected error: {str(e)}"
+
+def get_guest_booking_count(guest_id):
+    """Check if guest has existing bookings"""
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT COUNT(*) as booking_count FROM booking WHERE guest_id = %s", (guest_id,))
+    result = cursor.fetchone()
     cursor.close()
     conn.close()
+    return result['booking_count'] if result else 0
 
 def get_guest_full_details(guest_id):
     conn = get_db_connection()

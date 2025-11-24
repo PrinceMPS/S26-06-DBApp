@@ -72,7 +72,7 @@ def add_room_db(room_id, room_type_id, availability_status):
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO room (room_id, room_type_id, availability_status)
-        VALUES (%s, %s, %s, %s)
+        VALUES (%s, %s, %s)
     """, (room_id, room_type_id, availability_status))
     conn.commit()
     cursor.close()

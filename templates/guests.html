@@ -124,7 +124,7 @@
                 <input type="hidden" name="guest_id" value="{{ guest.guest_id }}">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm" 
-                        onclick="return confirm('Delete this guest?')">Delete</button>
+                        onclick="return confirmDelete()">Delete</button>
               </form>
             </td>
           </tr>
@@ -172,6 +172,10 @@
       }
 
       return true;
+    }
+
+    function confirmDelete() {
+      return confirm('Are you sure you want to delete this guest?\n\nNote: Guests with existing bookings cannot be deleted. You must delete their bookings first.');
     }
 
     // Real-time validation feedback

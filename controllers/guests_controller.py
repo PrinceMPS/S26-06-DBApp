@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 import re
-from models.guests_model import get_all_guests, get_guest_by_id, add_guest_db, update_guest_db, delete_guest_db, get_guest_full_details
+from models.guests_model import get_all_guests, get_guest_by_id, add_guest_db, update_guest_db, delete_guest_db, get_guest_full_details, get_guest_booking_count
 
 guests_bp = Blueprint('guests', __name__)
 
@@ -45,10 +45,13 @@ def handle_guest():
     guest_id = request.form.get('guest_id')
     
     if action == 'delete':
-        # Handle delete
+        # Handle delete with proper error checking
         try:
-            delete_guest_db(guest_id)
-            flash('Guest deleted successfully!', 'success')
+            success, message = delete_guest_db(guest_id)
+            if success:
+                flash(message, 'success')
+            else:
+                flash(message, 'error')
         except Exception as e:
             flash(f'Error deleting guest: {str(e)}', 'error')
     else:
